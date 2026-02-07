@@ -1,0 +1,178 @@
+---
+title: "Combine SPSS .sav files (Violencia folder, one per year) into one dataset"
+output: html_document
+date: "`r format(Sys.Date())`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = TRUE)
+```
+
+
+```{r packages}
+
+
+library(haven)
+library(dplyr)
+library(purrr)
+library(stringr)
+library(tibble)
+library(janitor)
+```
+
+
+```{r files}
+ruta <- "D:/Documentos_Universidad/cuarto/Primer_semestre/Mineria_datos/Proyecto1/Violencia"
+
+stopifnot(dir.exists(ruta))
+
+archivos <- list.files(
+  ruta,
+  pattern = "\\.(sav|zsav)$",
+  full.names = TRUE,
+  recursive = TRUE,
+  ignore.case = TRUE
+)
+
+length(archivos)
+head(basename(archivos), 20)
+```
+
+
+```{r validate_filenames}
+##verificar si los nombres son los años de la data
+anio_archivo <- suppressWarnings(as.integer(tools::file_path_sans_ext(basename(archivos))))
+validos <- !is.na(anio_archivo) & anio_archivo >= 1900 & anio_archivo <= 2100
+
+validacion <- tibble(
+  archivo = basename(archivos),
+  year_from_name = anio_archivo,
+  valid_year_name = validos
+)
+
+validacion
+
+if (any(!validos)) {
+  stop("Some files are not named like a year (e.g., 2017.sav). Fix these filenames:\n",
+       paste(basename(archivos)[!validos], collapse = "\n"))
+}
+```
+
+
+```{r schema_report}
+# reporte de Schema por archuvo
+nombres_por_archivo <- map(archivos, ~names(read_sav(.x)))
+
+resumen <- tibble(
+  archivo = basename(archivos),
+  year    = as.integer(tools::file_path_sans_ext(basename(archivos))),
+  n_cols  = map_int(nombres_por_archivo, length),
+  preview = map_chr(nombres_por_archivo, ~paste(head(.x, 20), collapse = ", "))
+) %>% arrange(year)
+
+resumen
+
+todas_cols_names <- sort(unique(unlist(nombres_por_archivo)))
+
+faltantes <- map(nombres_por_archivo, ~setdiff(todas_cols_names, .x))
+
+faltantes_tbl <- tibble(
+  archivo = basename(archivos),
+  year    = as.integer(tools::file_path_sans_ext(basename(archivos))),
+  n_faltantes = map_int(faltantes, length),
+  faltantes = map_chr(faltantes, ~paste(.x, collapse = ", "))
+) %>% arrange(desc(n_faltantes), year)
+
+faltantes_tbl
+```
+
+
+
+```{r read_and_prepare}
+leer_preparar <- function(path) {
+  df <- read_sav(path)
+
+  # Estandarizar columnas y nombres
+  df <- clean_names(df)
+
+  # Quitar el SPSS
+  df <- zap_labels(df)
+
+  # agregar el año sacado del nombre
+  anio <- as.integer(tools::file_path_sans_ext(basename(path)))
+  df <- df %>% mutate(year = anio)
+
+  df
+}
+
+dfs_raw <- map(archivos, leer_preparar)
+
+map_int(dfs_raw, nrow)
+map_int(dfs_raw, ncol)
+```
+
+
+```{r type_conflicts}
+todas_cols <- sort(unique(unlist(map(dfs_raw, names))))
+
+cols_conflict <- keep(todas_cols, function(col) {
+  tipos <- unique(na.omit(map_chr(
+    dfs_raw,
+    ~ if (col %in% names(.x)) typeof(.x[[col]]) else NA_character_
+  )))
+  length(tipos) > 1
+})
+
+cols_conflict
+
+if (length(cols_conflict) > 0) {
+  type_by_year <- map_dfr(seq_along(dfs_raw), function(i) {
+    df <- dfs_raw[[i]]
+    tibble(
+      year = unique(df$year),
+      file = basename(archivos[i]),
+      column = cols_conflict,
+      typeof = map_chr(cols_conflict, ~ if (.x %in% names(df)) typeof(df[[.x]]) else NA_character_)
+    )
+  })
+  type_by_year
+}
+```
+
+
+```{r coerce_and_bind}
+dfs_ok <- map(dfs_raw, ~ .x %>% mutate(across(any_of(cols_conflict), as.character)))
+
+dup_idx <- which(map_lgl(dfs_ok, ~ any(duplicated(names(.x)))))
+if (length(dup_idx) > 0) {
+  dfs_ok <- map(dfs_ok, ~ { names(.x) <- make.names(names(.x), unique = TRUE); .x })
+}
+
+violencia_total <- bind_rows(dfs_ok)
+
+dim(violencia_total)
+glimpse(violencia_total)
+```
+
+
+```{r checks}
+# Filas por año
+table(violencia_total$year, useNA = "ifany")
+
+# Variables faltantes
+sort(colSums(is.na(violencia_total)), decreasing = TRUE)[1:15]
+```
+
+# 9) Export
+
+```{r export}
+write_sav(violencia_total, file.path(ruta, "violencia_total.sav"))
+write.csv(violencia_total, file.path(ruta, "violencia_total.csv"), row.names = FALSE)
+
+write.csv(resumen, file.path(ruta, "schema_preview_by_file.csv"), row.names = FALSE)
+write.csv(faltantes_tbl, file.path(ruta, "schema_missing_by_file.csv"), row.names = FALSE)
+
+if (exists("type_by_year")) {
+  write.csv(type_by_year, file.path(ruta, "type_conflicts_by_year.csv"), row.names = FALSE)
+}
+```

@@ -1,0 +1,36 @@
+---
+title: "Proyecto 1"
+output: html_document
+date: "2026-02-2"
+author: "Luis Pedro Lira 23669, Fernando Rocha 23501, Juan Francisco Martínez 23617"
+
+---
+```{r}
+
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r paquetes}
+library(nortest)
+library(ggplot2)
+library(dplyr)
+library(cluster) #Para calcular la silueta
+library(e1071)#para cmeans
+library(mclust) #mixtures of gaussians
+library(fpc) #para hacer el plotcluster
+library(NbClust) #Para determinar el número de clusters óptimo
+library(factoextra) #Para hacer gráficos bonitos de clustering
+library(hopkins) #Para revisar si vale la pena hacer agrupamiento
+library(GGally) #Para hacer el conjunto de graficos
+library(FeatureImpCluster) #Para revisar la importancia de las variables en los grupos.
+library(pheatmap) #Para hacer mapa de calor
+```
+```{r carga_datos}
+movies <- read.csv("movies_2026.csv")
+
+```
+
+#  Análisis exploratorio de Datos
+
