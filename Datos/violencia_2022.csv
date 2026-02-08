@@ -1,0 +1,1894 @@
+ESTADÍSTICAS DE VIOLENCIA INTRAFAMILIAR,...2,...3,...4
+Valores de las variables,NA,NA,NA
+NA,NA,NA,NA
+Código,Descripción del código,Valor,Etiqueta
+NA,NA,NA,NA
+DATOS DE REGISTRO,NA,NA,NA
+NA,NA,NA,NA
+AÑO_EMISION,Año de emisión o registro de la denuncia en las fuentes de información,2022,2022
+NA,NA,NA,NA
+MES_EMISION,Mes de emisión o registro de la denuncia,1,Enero
+NA,NA,2,Febrero
+NA,NA,3,Marzo
+NA,NA,4,Abril
+NA,NA,5,Mayo
+NA,NA,6,Junio
+NA,NA,7,Julio
+NA,NA,8,Agosto
+NA,NA,9,Septiembre
+NA,NA,10,Octubre
+NA,NA,11,Noviembre
+NA,NA,12,Diciembre
+NA,NA,NA,NA
+DIA_EMISION,Día de emisión o registro de la denuncia,1 a 31,Día de registro
+NA,NA,NA,NA
+DEPTO_MCPIO,Departamento y municipio de registro,101,Guatemala
+NA,NA,102,Santa Catarina Pinula
+NA,NA,103,San José Pinula
+NA,NA,104,San José del Golfo
+NA,NA,105,Palencia
+NA,NA,106,Chinautla
+NA,NA,107,San Pedro Ayampuc
+NA,NA,108,Mixco
+NA,NA,109,San Pedro Sacatepéquez
+NA,NA,110,San Juan Sacatepéquez
+NA,NA,111,San Raymundo
+NA,NA,112,Chuarrancho
+NA,NA,113,Fraijanes
+NA,NA,114,Amatitlán
+NA,NA,115,Villa Nueva
+NA,NA,116,Villa Canales
+NA,NA,117,Petapa
+NA,NA,201,Guastatoya
+NA,NA,202,Morazán
+NA,NA,203,San Agustín Acasaguastlán
+NA,NA,204,San Cristóbal Acasaguastlán
+NA,NA,205,El Jícaro
+NA,NA,206,Sansare
+NA,NA,207,Sanarate
+NA,NA,208,San Antonio La Paz
+NA,NA,301,Antigua Guatemala
+NA,NA,302,Jocotenango
+NA,NA,303,Pastores
+NA,NA,304,Sumpango
+NA,NA,305,Santo Domingo Xenacoj
+NA,NA,306,Santiago Sacatepéquez
+NA,NA,307,San Bartolomé Milpas Altas
+NA,NA,308,San Lucas Sacatepéquez
+NA,NA,309,Santa Lucía Milpas Altas
+NA,NA,310,Magdalena Milpas Altas
+NA,NA,311,Santa María de Jesús
+NA,NA,312,Ciudad Vieja
+NA,NA,313,San Miguel Dueñas
+NA,NA,314,Alotenango
+NA,NA,315,San Antonio Aguas Calientes
+NA,NA,316,Santa Catarina Barahona
+NA,NA,401,Chimaltenango
+NA,NA,402,San José Poaquil
+NA,NA,403,San Martín Jilotepeque
+NA,NA,404,Comalapa
+NA,NA,405,Santa Apolonia
+NA,NA,406,Tecpán Guatemala
+NA,NA,407,Patzún
+NA,NA,408,Pochuta
+NA,NA,409,Patzicía
+NA,NA,410,Santa Cruz Balanyá
+NA,NA,411,Acatenango
+NA,NA,412,Yepocapa
+NA,NA,413,San Andrés Itzapa
+NA,NA,414,Parramos
+NA,NA,415,Zaragoza
+NA,NA,416,El Tejar
+NA,NA,501,Escuintla
+NA,NA,502,Santa Lucía Cotzumalguapa
+NA,NA,503,La Democracia
+NA,NA,504,Siquinalá
+NA,NA,505,Masagua
+NA,NA,506,Tiquisate
+NA,NA,507,La Gomera
+NA,NA,508,Guanagazapa
+NA,NA,509,San José
+NA,NA,510,Iztapa
+NA,NA,511,Palín
+NA,NA,512,San Vicente Pacaya
+NA,NA,513,Nueva Concepción
+NA,NA,514,Sipacate
+NA,NA,601,Cuilapa
+NA,NA,602,Barberena
+NA,NA,603,Santa Rosa de Lima
+NA,NA,604,Casillas
+NA,NA,605,San Rafael Las Flores
+NA,NA,606,Oratorio
+NA,NA,607,San Juan Tecuaco
+NA,NA,608,Chiquimulilla
+NA,NA,609,Taxisco
+NA,NA,610,Santa María Ixhuatán
+NA,NA,611,Guazacapán
+NA,NA,612,Santa Cruz Naranjo
+NA,NA,613,Pueblo Nuevo Viñas
+NA,NA,614,Nueva Santa Rosa
+NA,NA,701,Sololá
+NA,NA,702,San José Chacayá
+NA,NA,703,Santa María Visitación
+NA,NA,704,Santa Lucía Utatlán
+NA,NA,705,Nahualá
+NA,NA,706,Santa Catarina Ixtahuacán
+NA,NA,707,Santa Clara La Laguna
+NA,NA,708,Concepción
+NA,NA,709,San Andrés Semetabaj
+NA,NA,710,Panajachel
+NA,NA,711,Santa Catarina Palopó
+NA,NA,712,San Antonio Palopó
+NA,NA,713,San Lucas Toliman
+NA,NA,714,Santa Cruz La Laguna
+NA,NA,715,San Pablo La Laguna
+NA,NA,716,San Marcos La Laguna
+NA,NA,717,San Juan La Laguna
+NA,NA,718,San Pedro La Laguna
+NA,NA,719,Santiago Atitlán
+NA,NA,801,Totonicapán
+NA,NA,802,San Cristóbal Totonicapán
+NA,NA,803,San Francisco El Alto
+NA,NA,804,San Andrés Xecul
+NA,NA,805,Momostenango
+NA,NA,806,Santa María Chiquimula
+NA,NA,807,Santa Lucía La Reforma
+NA,NA,808,San Bartolo
+NA,NA,901,Quetzaltenango
+NA,NA,902,Salcajá
+NA,NA,903,Olintepeque
+NA,NA,904,San Carlos Sija
+NA,NA,905,Sibilia
+NA,NA,906,Cabricán
+NA,NA,907,Cajolá
+NA,NA,908,San Miguel Siguilá
+NA,NA,909,Ostuncalco
+NA,NA,910,San Mateo
+NA,NA,911,Concepción Chiquirichapa
+NA,NA,912,San Martín Sacatepéquez
+NA,NA,913,Almolonga
+NA,NA,914,Cantel
+NA,NA,915,Huitán
+NA,NA,916,Zunil
+NA,NA,917,Colomba
+NA,NA,918,San Francisco La Unión
+NA,NA,919,El Palmar
+NA,NA,920,Coatepeque
+NA,NA,921,Génova
+NA,NA,922,Flores Costa Cuca
+NA,NA,923,La Esperanza
+NA,NA,924,Palestina de Los Altos
+NA,NA,1001,Mazatenango
+NA,NA,1002,Cuyotenango
+NA,NA,1003,San Francisco Zapotitlán
+NA,NA,1004,San Bernardino
+NA,NA,1005,San José El Ídolo
+NA,NA,1006,Santo Domingo Suchitepéquez
+NA,NA,1007,San Lorenzo
+NA,NA,1008,Samayac
+NA,NA,1009,San Pablo Jocopilas
+NA,NA,1010,San Antonio Suchitepéquez
+NA,NA,1011,San Miguel Panán
+NA,NA,1012,San Gabriel
+NA,NA,1013,Chicacao
+NA,NA,1014,Patulul
+NA,NA,1015,Santa Bárbara
+NA,NA,1016,San Juan Bautista
+NA,NA,1017,Santo Tomás La Unión
+NA,NA,1018,Zunilito
+NA,NA,1019,Pueblo Nuevo
+NA,NA,1020,Rio Bravo
+NA,NA,1021,San José La Máquina
+NA,NA,1101,Retalhuleu
+NA,NA,1102,San Sebastián
+NA,NA,1103,Santa Cruz Muluá
+NA,NA,1104,San Martín Zapotitlán
+NA,NA,1105,San Felipe
+NA,NA,1106,San Andrés Villa Seca
+NA,NA,1107,Champerico
+NA,NA,1108,Nuevo San Carlos
+NA,NA,1109,El Asintal
+NA,NA,1201,San Marcos
+NA,NA,1202,San Pedro Sacatepéquez
+NA,NA,1203,San Antonio Sacatepéquez
+NA,NA,1204,Comitancillo
+NA,NA,1205,San Miguel Ixtahuacán
+NA,NA,1206,Concepción Tutuapa
+NA,NA,1207,Tacaná
+NA,NA,1208,Sibinal
+NA,NA,1209,Tajumulco
+NA,NA,1210,Tejutla
+NA,NA,1211,San Rafael Pie de La Cuesta
+NA,NA,1212,Nuevo Progreso
+NA,NA,1213,El Tumbador
+NA,NA,1214,El Rodeo
+NA,NA,1215,Malacatán
+NA,NA,1216,Catarina
+NA,NA,1217,Ayutla
+NA,NA,1218,Ocós
+NA,NA,1219,San Pablo
+NA,NA,1220,El Quetzal
+NA,NA,1221,La Reforma
+NA,NA,1222,Pajapita
+NA,NA,1223,Ixchiguán
+NA,NA,1224,San José Ojetenam
+NA,NA,1225,San Cristóbal Cucho
+NA,NA,1226,Sipacapa
+NA,NA,1227,Esquipulas Palo Gordo
+NA,NA,1228,Rio Blanco
+NA,NA,1229,San Lorenzo
+NA,NA,1230,La Blanca
+NA,NA,1301,Huehuetenango
+NA,NA,1302,Chiantla
+NA,NA,1303,Malacatancito
+NA,NA,1304,Cuilco
+NA,NA,1305,Nentón
+NA,NA,1306,San Pedro Necta
+NA,NA,1307,Jacaltenango
+NA,NA,1308,Soloma
+NA,NA,1309,Ixtahuacán
+NA,NA,1310,Santa Bárbara
+NA,NA,1311,La Libertad
+NA,NA,1312,La Democracia
+NA,NA,1313,San Miguel Acatán
+NA,NA,1314,San Rafael La Independencia
+NA,NA,1315,Todos Santos Cuchumatán
+NA,NA,1316,San Juan Atitán
+NA,NA,1317,Santa Eulalia
+NA,NA,1318,San Mateo Ixtatán
+NA,NA,1319,Colotenango
+NA,NA,1320,San Sebastián Huehuetenango
+NA,NA,1321,Tectitán
+NA,NA,1322,Concepción Huista
+NA,NA,1323,San Juan Ixcoy
+NA,NA,1324,San Antonio Huista
+NA,NA,1325,San Sebastián Coatán
+NA,NA,1326,Barillas
+NA,NA,1327,Aguacatán
+NA,NA,1328,San Rafael Petzal
+NA,NA,1329,San Gaspar Ixchil
+NA,NA,1330,Santiago Chimaltenango
+NA,NA,1331,Santa Ana Huista
+NA,NA,1332,Unión Cantinil
+NA,NA,1333,Petatán
+NA,NA,1401,Santa Cruz del Quiché
+NA,NA,1402,Chiché
+NA,NA,1403,Chinique
+NA,NA,1404,Zacualpa
+NA,NA,1405,Chajul
+NA,NA,1406,Chichicastenango
+NA,NA,1407,Patzité
+NA,NA,1408,San Antonio Ilotenango
+NA,NA,1409,San Pedro Jocopilas
+NA,NA,1410,Cunén
+NA,NA,1411,San Juan Cotzal
+NA,NA,1412,Joyabaj
+NA,NA,1413,Nebaj
+NA,NA,1414,San Andrés Sajcabajá
+NA,NA,1415,Uspantán
+NA,NA,1416,Sacapulas
+NA,NA,1417,San Bartolomé Jocotenango
+NA,NA,1418,Canillá
+NA,NA,1419,Chicamán
+NA,NA,1420,Ixcán
+NA,NA,1421,Pachalum
+NA,NA,1501,Salamá
+NA,NA,1502,San Miguel Chicaj
+NA,NA,1503,Rabinal
+NA,NA,1504,Cubulco
+NA,NA,1505,Granados
+NA,NA,1506,El Chol
+NA,NA,1507,San Jerónimo
+NA,NA,1508,Purulhá
+NA,NA,1601,Cobán
+NA,NA,1602,Santa Cruz Verapaz
+NA,NA,1603,San Cristóbal Verapaz
+NA,NA,1604,Tactic
+NA,NA,1605,Tamahú
+NA,NA,1606,Tucurú
+NA,NA,1607,Panzós
+NA,NA,1608,Senahú
+NA,NA,1609,San Pedro Carchá
+NA,NA,1610,San Juan Chamelco
+NA,NA,1611,Lanquín
+NA,NA,1612,Cahabón
+NA,NA,1613,Chisec
+NA,NA,1614,Chahal
+NA,NA,1615,Fray Bartolomé de Las Casas
+NA,NA,1616,Santa Catalina la Tinta
+NA,NA,1617,Raxruhá
+NA,NA,1701,Flores
+NA,NA,1702,San José
+NA,NA,1703,San Benito
+NA,NA,1704,San Andrés
+NA,NA,1705,La Libertad
+NA,NA,1706,San Francisco
+NA,NA,1707,Santa Ana
+NA,NA,1708,Dolores
+NA,NA,1709,San Luis
+NA,NA,1710,Sayaxché
+NA,NA,1711,Melchor de Mencos
+NA,NA,1712,Poptún
+NA,NA,1713,Las Cruces
+NA,NA,1714,El Chal
+NA,NA,1801,Puerto Barrios
+NA,NA,1802,Livingston
+NA,NA,1803,El Estor
+NA,NA,1804,Morales
+NA,NA,1805,Los Amates
+NA,NA,1901,Zacapa
+NA,NA,1902,Estanzuela
+NA,NA,1903,Río Hondo
+NA,NA,1904,Gualán
+NA,NA,1905,Teculután
+NA,NA,1906,Usumatlán
+NA,NA,1907,Cabañas
+NA,NA,1908,San Diego
+NA,NA,1909,La Unión
+NA,NA,1910,Huité
+NA,NA,1911,San Jorge
+NA,NA,2001,Chiquimula
+NA,NA,2002,San José La Arada
+NA,NA,2003,San Juan Erminta
+NA,NA,2004,Jocotán
+NA,NA,2005,Camotán
+NA,NA,2006,Olopa
+NA,NA,2007,Esquipulas
+NA,NA,2008,Concepción Las Minas
+NA,NA,2009,Quetzaltepeque
+NA,NA,2010,San Jacinto
+NA,NA,2011,Ipala
+NA,NA,2101,Jalapa
+NA,NA,2102,San Pedro Pinula
+NA,NA,2103,San Luis Jilotepeque
+NA,NA,2104,San Manuel Chaparrón
+NA,NA,2105,San Carlos Alzatate
+NA,NA,2106,Monjas
+NA,NA,2107,Mataquescuintla
+NA,NA,2201,Jutiapa
+NA,NA,2202,El Progreso
+NA,NA,2203,Santa Catarina Mita
+NA,NA,2204,Agua Blanca
+NA,NA,2205,Asunción Mita
+NA,NA,2206,Yupiltepeque
+NA,NA,2207,Atescatempa
+NA,NA,2208,Jerez
+NA,NA,2209,El Adelanto
+NA,NA,2210,Zapotitlán
+NA,NA,2211,Comapa
+NA,NA,2212,Jalpatagua
+NA,NA,2213,Conguaco
+NA,NA,2214,Moyuta
+NA,NA,2215,Pasaco
+NA,NA,2216,San José Acatempa
+NA,NA,2217,Quesada
+NA,NA,NA,NA
+QUIEN_REPORTA,Persona que reporta el hecho,1,Víctima
+NA,NA,2,Familiar de la víctima
+NA,NA,3,Otro
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+DATOS GENERALES DE LA VÍCTIMA,NA,NA,NA
+NA,NA,NA,NA
+VIC_SEXO,Sexo de la víctima,1,Hombre
+NA,NA,2,Mujer
+NA,NA,NA,NA
+VIC_EDAD,Edad de la víctima,1 a 98,Edad de la víctima
+NA,NA,99,Edad ignorada de la víctima
+NA,NA,NA,NA
+TOTAL_HIJOS,Suma  de hijos hombres e hijas mujeres,00 a 20,Total de hijos e Hijas
+NA,NA,99,Ignorado
+NA,NA,NA,NA
+NUM_HIJ_HOM,Número de hijos hombres de la víctima,00 a 20,Hijos hombres
+NA,NA,99,Ignorado
+NA,NA,NA,NA
+NUM_HIJ_MUJ,Número de hijas mujeres de la víctima,00 a 20,Hijas mujeres
+NA,NA,99,Ignorado
+NA,NA,NA,NA
+VIC_ALFAB,Sabe leer y escribir,1,Alfabeta
+NA,NA,2,Analfabeta
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+VIC_ESCOLARIDAD,Nivel de escolaridad de la víctima,10,Ninguno
+NA,NA,21 a 26,Primero a sexto primaria
+NA,NA,29,Primaria (grado ignorado)
+NA,NA,31 a 33,Primero a tercero básico
+NA,NA,39,Básico (grado ignorado)
+NA,NA,44 a 46,Cuarto a sexto diversificado
+NA,NA,49,Diversificado (grado ignorado)
+NA,NA,51 a  57,Primer año a séptimo universitario (Incluye maestría)
+NA,NA,59,Universitario (año ignorado)
+NA,NA,99,Ignorado (tanto nivel como grado)
+NA,NA,NA,NA
+VIC_EST_CIV,Estado conyugal de la víctima,1,Soltero(a)
+NA,NA,2,Casado(a)
+NA,NA,3,Unido(a) (Unión declarada o no)
+NA,NA,4,Viudo(a)
+NA,NA,5,Otro
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+VIC_GRUPET,Pueblo de pertenencia de la víctima,1,Ladino(a)
+NA,NA,2,Maya
+NA,NA,3,Garífuna
+NA,NA,4,Xinka
+NA,NA,5,Otro
+NA,NA,6,No indica
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+VIC_NACIONAL,Nacionalidad de la víctima,1,Guatemalteca
+NA,NA,2,Extranjera
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+VIC_TRABAJA,Condición de empleo de la víctima,1,Si trabaja por un salario o ingreso
+NA,NA,2,No trabaja por un salario o ingreso
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+VIC_OCUP,"Ocupación de la víctima (con salario o ingreso dentro o fuera de la casa), Clasificación Internacional Uniforme de Ocupaciones -CIUO- 08",1111,Miembros del poder legislativo
+NA,NA,1112,Personal directivo de la administración pública
+NA,NA,1113,Jefes de pequeñas poblaciones
+NA,NA,1114,Dirigentes de organizaciones que presentan un interés especial
+NA,NA,1120,Directores generales y gerentes generales
+NA,NA,1211,Directores financieros
+NA,NA,1212,Directores de recursos humanos
+NA,NA,1213,Directores de políticas y planificación
+NA,NA,1219,Directores de administración y servicios no clasificados bajo otros epígrafes
+NA,NA,1221,Directores de ventas y comercialización
+NA,NA,1222,Directores de publicidad y relaciones públicas
+NA,NA,1223,Directores de investigación y desarrollo
+NA,NA,1311,Directores de producción agropecuaria y silvicultura
+NA,NA,1312,Directores de producción de piscicultura y pesca
+NA,NA,1321,Directores de industrias manufactureras
+NA,NA,1322,Directores de explotaciones de minería
+NA,NA,1323,Directores de empresas de construcción
+NA,NA,1324,"Directores de empresas de abastecimiento, distribución y afines"
+NA,NA,1330,Directores de servicios de tecnología de la información y las comunicaciones
+NA,NA,1341,Directores de servicios de cuidados infantiles
+NA,NA,1342,Directores de servicios de salud
+NA,NA,1343,Directores de servicios de cuidado de las personas de edad
+NA,NA,1344,Directores de servicios de bienestar social
+NA,NA,1345,Directores de servicios de educación
+NA,NA,1346,"Gerentes de sucursales de bancos, de servicios financieros y de seguros"
+NA,NA,1349,Directores y gerentes de servicios profesionales no clasificados bajo otros epígrafes
+NA,NA,1411,Gerentes de hoteles
+NA,NA,1412,Gerentes de restaurantes
+NA,NA,1420,Gerentes de comercios al por mayor y al por menor
+NA,NA,1431,"Gerentes de centros deportivos, de esparcimiento y culturales"
+NA,NA,1439,Gerentes de servicios no clasificados bajo otros epígrafes
+NA,NA,2111,Físicos y astrónomos
+NA,NA,2112,Meteorólogos
+NA,NA,2113,Químicos
+NA,NA,2114,Geólogos y geofísicos
+NA,NA,2120,"Matemáticos, actuarios y estadísticos"
+NA,NA,2131,"Biólogos, botánicos, zoólogos y afines"
+NA,NA,2132,Agrónomos y afines
+NA,NA,2133,Profesionales de la protección medioambiental
+NA,NA,2141,Ingenieros industriales y de producción
+NA,NA,2142,Ingenieros civiles
+NA,NA,2143,Ingenieros medioambientales
+NA,NA,2144,Ingenieros mecánicos
+NA,NA,2145,Ingenieros químicos
+NA,NA,2146,"Ingenieros de minas, metalúrgicos y afines"
+NA,NA,2149,Ingenieros no clasificados bajo otros epígrafes
+NA,NA,2151,Ingenieros electricistas
+NA,NA,2152,Ingenieros electrónicos
+NA,NA,2153,Ingenieros en telecomunicaciones
+NA,NA,2161,Arquitectos
+NA,NA,2162,Arquitectos paisajistas
+NA,NA,2163,Diseñadores de productos y de prendas
+NA,NA,2164,Urbanistas e ingenieros de tránsito
+NA,NA,2165,Cartógrafos y agrimensores
+NA,NA,2166,Diseñadores gráficos y multimedia
+NA,NA,2211,Médicos generales
+NA,NA,2212,Médicos especialistas
+NA,NA,2221,Profesionales de enfermería
+NA,NA,2222,Profesionales de partería
+NA,NA,2230,Profesionales de medicina tradicional y alternativa
+NA,NA,2240,Practicantes paramédicos
+NA,NA,2250,Veterinarios
+NA,NA,2261,Dentistas
+NA,NA,2262,Farmacéuticos
+NA,NA,2263,Profesionales de la salud y la higiene laboral y ambiental
+NA,NA,2264,Fisioterapeutas
+NA,NA,2265,Dietistas y nutricionistas
+NA,NA,2266,Audiólogos y logopedas
+NA,NA,2267,Optometristas
+NA,NA,2269,Profesionales de la salud no clasificados bajo otros epígrafes
+NA,NA,2310,Profesores de universidades y de la enseñanza superior
+NA,NA,2320,Profesores de formación profesional
+NA,NA,2330,Profesores de enseñanza secundaria
+NA,NA,2341,Maestros de enseñanza primaria
+NA,NA,2342,Maestros preescolares
+NA,NA,2351,Especialistas en métodos pedagógicos
+NA,NA,2352,Educadores para necesidades especiales
+NA,NA,2353,Otros profesores de idiomas
+NA,NA,2354,Otros profesores de música
+NA,NA,2355,Otros profesores de artes
+NA,NA,2356,Instructores en tecnología de la información
+NA,NA,2359,Profesionales de la enseñanza no clasificados bajo otros epígrafes
+NA,NA,2411,Contables
+NA,NA,2412,Asesores financieros y en inversiones
+NA,NA,2413,Analistas financieros
+NA,NA,2421,Analistas de gestión y organización
+NA,NA,2422,Especialistas en políticas de administración
+NA,NA,2423,Especialistas en políticas y servicios de personal y afines
+NA,NA,2424,Especialistas en formación del personal
+NA,NA,2431,Profesionales de la publicidad y la comercialización
+NA,NA,2432,Profesionales de relaciones públicas
+NA,NA,2433,Profesionales de ventas técnicas y médicas (excluyendo la TIC)
+NA,NA,2434,Profesionales de ventas de tecnología de la información y las comunicaciones
+NA,NA,2511,Analistas de sistemas
+NA,NA,2512,Desarrolladores de software
+NA,NA,2513,Desarrolladores web y multimedia
+NA,NA,2514,Programadores de aplicaciones
+NA,NA,2519,Desarrolladores y analistas de software y multimedia y analistas no clasificados bajo otros epígrafes
+NA,NA,2521,Diseñadores y administradores de bases de datos
+NA,NA,2522,Administradores de sistemas
+NA,NA,2523,Profesionales en redes de computadores
+NA,NA,2529,Especialistas en bases de datos y en redes de computadores no clasificados bajo otros epígrafes
+NA,NA,2611,Abogados
+NA,NA,2612,Jueces
+NA,NA,2619,Profesionales en derecho no clasificados bajo otros epígrafes
+NA,NA,2621,Archivistas y curadores de museos
+NA,NA,2622,"Bibliotecarios, documentalistas y afines"
+NA,NA,2631,Economistas
+NA,NA,2632,"Sociólogos, antropólogos y afines"
+NA,NA,2633,"Filósofos, historiadores y especialistas en ciencias políticas"
+NA,NA,2634,Psicólogos
+NA,NA,2635,Profesionales del trabajo social
+NA,NA,2636,Profesionales religiosos
+NA,NA,2641,Autores y otros escritores
+NA,NA,2642,Periodistas
+NA,NA,2643,"Traductores, intérpretes y lingüistas"
+NA,NA,2651,Artistas de artes plásticas
+NA,NA,2652,"Músicos, cantantes y compositores"
+NA,NA,2653,Bailarines y coreógrafos
+NA,NA,2654,"Directores de cine, de teatro y afines"
+NA,NA,2655,Actores
+NA,NA,2656,"Locutores de radio, televisión y otros medios de comunicación"
+NA,NA,2659,Artistas creativos e interpretativos no clasificados bajo otros epígrafes
+NA,NA,3111,Técnicos en ciencias físicas y químicas
+NA,NA,3112,Técnicos en ingeniería civil
+NA,NA,3113,Electrotécnicos
+NA,NA,3114,Técnicos en electrónica
+NA,NA,3115,Técnicos en ingeniería mecánica
+NA,NA,3116,Técnicos en química industrial
+NA,NA,3117,Técnicos en ingeniería de minas y metalurgia
+NA,NA,3118,Delineantes y dibujantes técnicos
+NA,NA,3119,Técnicos en ciencias físicas y en ingeniería no clasificados bajo otros epígrafes
+NA,NA,3121,Supervisores en ingeniería de minas
+NA,NA,3122,Supervisores de industrias manufactureras
+NA,NA,3123,Supervisores de la construcción
+NA,NA,3131,Operadores de instalaciones de producción de energía
+NA,NA,3132,"Operadores de incineradores, instalaciones de tratamiento de agua y afines"
+NA,NA,3133,Controladores de instalaciones de procesamiento de productos químicos
+NA,NA,3134,Operadores de instalaciones de refinación de petróleo y gas natural
+NA,NA,3135,Controladores de procesos de producción de metales
+NA,NA,3139,Técnicos en control de procesos no clasificados bajo otros epígrafes
+NA,NA,3141,Técnicos en ciencias biológicas (excluyendo la medicina)
+NA,NA,3142,Técnicos agropecuarios
+NA,NA,3143,Técnicos forestales
+NA,NA,3151,Oficiales maquinistas en navegación
+NA,NA,3152,"Capitanes, oficiales de cubierta y prácticos"
+NA,NA,3153,Pilotos de aviación y afines
+NA,NA,3154,Controladores de tráfico aéreo
+NA,NA,3155,Técnicos en seguridad aeronáutica
+NA,NA,3211,Técnicos en aparatos de diagnóstico y tratamiento médico
+NA,NA,3212,Técnicos de laboratorios médicos
+NA,NA,3213,Técnicos y asistentes farmacéuticos
+NA,NA,3214,Técnicos de prótesis médicas y dentales
+NA,NA,3221,Profesionales de nivel medio de enfermería
+NA,NA,3222,Profesionales de nivel medio de partería
+NA,NA,3230,Profesionales de nivel medio de medicina tradicional y alternativa
+NA,NA,3240,Técnicos y asistentes veterinarios
+NA,NA,3251,Dentistas auxiliares y ayudantes de odontología
+NA,NA,3252,Técnicos en documentación sanitaria
+NA,NA,3253,Trabajadores comunitarios de la salud
+NA,NA,3254,Técnicos en optometría y ópticos
+NA,NA,3255,Técnicos y asistentes fisioterapeutas
+NA,NA,3256,Practicantes y asistentes médicos
+NA,NA,3257,"Inspectores de la salud laboral, medioambiental y afines"
+NA,NA,3258,Ayudantes de ambulancias
+NA,NA,3259,Profesionales de la salud de nivel medio no clasificados bajo otros epígrafes
+NA,NA,3311,"Agentes de bolsa, cambio y otros servicios financieros"
+NA,NA,3312,Oficiales de préstamos y créditos
+NA,NA,3313,Tenedores de libros
+NA,NA,3314,"Profesionales de nivel medio de servicios estadísticos, matemáticos y afines"
+NA,NA,3315,Tasadores
+NA,NA,3321,Agentes de seguros
+NA,NA,3322,Representantes comerciales
+NA,NA,3323,Agentes de compras
+NA,NA,3324,Agentes de compras y consignatarios
+NA,NA,3331,Declarantes o gestores de aduana
+NA,NA,3332,Organizadores de conferencias y eventos
+NA,NA,3333,Agentes de empleo y contratistas de mano de obra
+NA,NA,3334,Agentes inmobiliarios
+NA,NA,3339,Agentes de servicios comerciales no clasificados bajo otros epígrafes
+NA,NA,3341,Supervisores de secretaría
+NA,NA,3342,Secretarios jurídicos
+NA,NA,3343,Secretarios administrativos y ejecutivos
+NA,NA,3344,Secretarios médicos
+NA,NA,3351,Agentes de aduana e inspectores de fronteras
+NA,NA,3352,Agentes de administración tributaria
+NA,NA,3353,Agentes de servicios de seguridad social
+NA,NA,3354,Agentes de servicios de expedición de licencias y permisos
+NA,NA,3355,Inspectores de policía y detectives
+NA,NA,3359,Agentes de la administración pública para la aplicación de la ley y afines no clasificados bajo otros epígrafes
+NA,NA,3411,Profesionales de nivel medio del derecho y servicios legales y afines
+NA,NA,3412,Trabajadores y asistentes sociales de nivel medio
+NA,NA,3413,Auxiliares laicos de las religiones
+NA,NA,3421,Atletas y deportistas
+NA,NA,3422,"Entrenadores, instructores y árbitros de actividades deportivas"
+NA,NA,3423,Instructores de educación física y actividades recreativas
+NA,NA,3431,Fotógrafos
+NA,NA,3432,Diseñadores y decoradores de interior
+NA,NA,3433,"Técnicos en galerías de arte, museos y bibliotecas"
+NA,NA,3434,Chefs
+NA,NA,3435,Otros profesionales de nivel medio en actividades culturales y artistas
+NA,NA,3511,Técnicos en operaciones de tecnología de la información y las comunicaciones
+NA,NA,3512,Técnicos en asistencia al usuario de tecnología de la información y las comunicaciones
+NA,NA,3513,Técnicos en redes y sistemas de computadores
+NA,NA,3514,Técnicos de la web
+NA,NA,3521,Técnicos de radiodifusión y grabación audio visual
+NA,NA,3522,Técnicos de ingeniería de las telecomunicaciones
+NA,NA,4110,Oficinistas generales
+NA,NA,4120,Secretarios (general)
+NA,NA,4131,Operadores de máquinas de procesamiento de texto y mecanógrafos
+NA,NA,4132,Grabadores de datos
+NA,NA,4211,Cajeros de bancos y afines
+NA,NA,4212,Receptores de apuestas y afines
+NA,NA,4213,Prestamistas
+NA,NA,4214,Cobradores y afines
+NA,NA,4221,Empleados de agencias de viajes
+NA,NA,4222,Empleados de centros de llamadas
+NA,NA,4223,Telefonistas
+NA,NA,4224,Recepcionistas de hoteles
+NA,NA,4225,Empleados de ventanillas de informaciones
+NA,NA,4226,Recepcionistas (general)
+NA,NA,4227,Entrevistadores de encuestas y de investigaciones de mercados
+NA,NA,4229,Empleados de servicios de información al cliente no clasificados bajo otros epígrafes
+NA,NA,4311,Empleados de contabilidad y cálculo de costos
+NA,NA,4312,"Empleados de servicios estadísticos, financieros y de seguros"
+NA,NA,4313,Empleados encargados de las nóminas
+NA,NA,4321,Empleados de control de abastecimientos e inventario
+NA,NA,4322,Empleados de servicios de apoyo a la producción
+NA,NA,4323,Empleados de servicios de transporte
+NA,NA,4411,Empleados de bibliotecas
+NA,NA,4412,Empleados de servicios de correos
+NA,NA,4413,"Codificadores de datos, correctores de pruebas de imprenta y afines"
+NA,NA,4414,Escribientes públicos y afines
+NA,NA,4415,Empleados de archivos
+NA,NA,4416,Empleados del servicio de personal
+NA,NA,4419,Personal de apoyo administrativo no clasificado bajo otros epígrafes
+NA,NA,5111,Auxiliares de servicio de abordo
+NA,NA,5112,Revisores y cobradores de los transportes públicos
+NA,NA,5113,Guías de turismo
+NA,NA,5120,Cocineros
+NA,NA,5131,Camareros de mesas
+NA,NA,5132,Camareros de barra
+NA,NA,5141,Peluqueros
+NA,NA,5142,Especialistas en tratamientos de belleza y afines
+NA,NA,5151,"Supervisores de mantenimiento y limpieza en oficinas, hoteles y otros establecimientos"
+NA,NA,5152,Ecónomos y mayordomos domésticos
+NA,NA,5153,Conserjes
+NA,NA,5161,"Astrólogos, adivinadores y afines"
+NA,NA,5162,Acompañantes y ayudantes de cámara
+NA,NA,5163,Personal de pompas fúnebres y embalsamadores
+NA,NA,5164,Cuidadores de animales
+NA,NA,5165,Instructores de autoescuela
+NA,NA,5169,Trabajadores de servicios personales no clasificados bajo otros epígrafes
+NA,NA,5211,Vendedores de quioscos y de puestos de mercado
+NA,NA,5212,Vendedores ambulantes de productos comestibles
+NA,NA,5221,Comerciantes de tiendas
+NA,NA,5222,Supervisores de tiendas y almacenes
+NA,NA,5223,Asistentes de venta de tiendas y almacenes
+NA,NA,5230,Cajeros y expendedores de billetes
+NA,NA,5241,"Modelos de moda, arte y publicidad"
+NA,NA,5242,Demostradores de tiendas
+NA,NA,5243,Vendedores puerta a puerta
+NA,NA,5244,Vendedores por teléfono
+NA,NA,5245,Expendedores de gasolineras
+NA,NA,5246,Vendedores de comidas al mostrador
+NA,NA,5249,Vendedores no clasificados bajo otros epígrafes
+NA,NA,5311,Cuidadores de niños
+NA,NA,5312,Auxiliares de maestros
+NA,NA,5321,Trabajadores de los cuidados personales en instituciones
+NA,NA,5322,Trabajadores de los cuidados personales a domicilio
+NA,NA,5329,Trabajadores de los cuidados personales en servicios de salud no clasificados bajo otros epígrafes
+NA,NA,5411,Bomberos
+NA,NA,5412,Policías
+NA,NA,5413,Guardianes de prisión
+NA,NA,5414,Guardias de protección
+NA,NA,5419,Personal de los servicios de protección no clasificados bajo otros epígrafes
+NA,NA,6111,Agricultores y trabajadores calificados de cultivos extensivos
+NA,NA,6112,Agricultores y trabajadores calificados de plantaciones de árboles y arbustos
+NA,NA,6113,"Agricultores y trabajadores calificados de huertas, invernaderos, viveros y jardines"
+NA,NA,6114,Agricultores y trabajadores calificados de cultivos mixtos
+NA,NA,6121,Criadores de ganado
+NA,NA,6122,Avicultores y trabajadores calificados de la avicultura
+NA,NA,6123,Apicultores y sericultores y trabajadores calificados de la apicultura y la sericultura
+NA,NA,6129,Criadores y trabajadores pecuarios calificados de la cría de animales no clasificados bajo otros epígrafes
+NA,NA,6130,Productores y trabajadores calificados de explotaciones agropecuarias mixtas cuya producción se destina al mercado
+NA,NA,6210,Trabajadores forestales calificados y afines
+NA,NA,6221,Trabajadores de explotaciones de acuicultura
+NA,NA,6222,Pescadores de agua dulce y en aguas costeras
+NA,NA,6223,Pescadores de alta mar
+NA,NA,6224,Cazadores y tramperos
+NA,NA,6310,Trabajadores agrícolas de subsistencia
+NA,NA,6320,Trabajadores pecuarios de subsistencia
+NA,NA,6330,Trabajadores agropecuarios de subsistencia
+NA,NA,6340,"Pescadores, cazadores, tramperos y recolectores de subsistencia"
+NA,NA,7111,Constructores de casas
+NA,NA,7112,Albañiles
+NA,NA,7113,"Mamposteros, tronzadores, labrantes y grabadores de piedra"
+NA,NA,7114,"Operarios en cemento armado, enfoscadores y afines"
+NA,NA,7115,Carpinteros de armar y de obra blanca
+NA,NA,7119,Oficiales y operarios de la construcción (obra gruesa) y afines no clasificados bajo otros epígrafes
+NA,NA,7121,Techadores
+NA,NA,7122,Parqueteros y colocadores de suelos
+NA,NA,7123,Revocadores
+NA,NA,7124,Instaladores de material aislante y de insonorización
+NA,NA,7125,Cristaleros
+NA,NA,7126,Fontaneros e instaladores de tuberías
+NA,NA,7127,Mecánicos-montadores de instalaciones de refrigeración y climatización
+NA,NA,7131,Pintores y empapeladores
+NA,NA,7132,Barnizadores y afines
+NA,NA,7133,Limpiadores de fachadas y deshollinadores
+NA,NA,7211,Moldeadores y macheros
+NA,NA,7212,Soldadores y oxicortadores
+NA,NA,7213,Chapistas y caldereros
+NA,NA,7214,Montadores de estructuras metálicas
+NA,NA,7215,Aparejadores y empalmadores de cables
+NA,NA,7221,Herreros y forjadores
+NA,NA,7222,Herramentistas y afines
+NA,NA,7223,Reguladores y operadores de máquinas herramientas
+NA,NA,7224,Pulidores de metales y afiladores de herramientas
+NA,NA,7231,Mecánicos y reparadores de vehículos de motor
+NA,NA,7232,Mecánicos y reparadores de motores de avión
+NA,NA,7233,Mecánicos y reparadores de máquinas agrícolas e industriales
+NA,NA,7234,Reparadores de bicicletas y afines
+NA,NA,7311,Mecánicos y reparadores de instrumentos de precisión
+NA,NA,7312,Fabricantes y afinadores de instrumentos musicales
+NA,NA,7313,"Joyeros, orfebres y plateros"
+NA,NA,7314,"Alfareros y afines (barro, arcilla y abrasivos)"
+NA,NA,7315,"Sopladores, modeladores, laminadores, cortadores y pulidores de vidrio"
+NA,NA,7316,"Redactores de carteles, pintores decorativos y grabadores"
+NA,NA,7317,"Artesanos en madera, cestería y materiales similares"
+NA,NA,7318,"Artesanos de los tejidos, el cuero y materiales similares"
+NA,NA,7319,Artesanos no clasificados bajo otros epígrafes
+NA,NA,7321,"Cajistas, tipógrafos y afines"
+NA,NA,7322,Impresores
+NA,NA,7323,Encuadernadores y afines
+NA,NA,7411,Electricistas de obras y afines
+NA,NA,7412,Mecánicos y ajustadores electricistas
+NA,NA,7413,Instaladores y reparadores de líneas eléctricas
+NA,NA,7421,Mecánicos y reparadores en electrónica
+NA,NA,7422,Instaladores y reparadores en tecnología de la información y las comunicaciones
+NA,NA,7511,"Carniceros, pescaderos y afines"
+NA,NA,7512,"Panaderos, pasteleros y confiteros"
+NA,NA,7513,Operarios de la elaboración de productos lácteos
+NA,NA,7514,"Operarios de la conservación de frutas, legumbres, verduras y afines"
+NA,NA,7515,Catadores y clasificadores de alimentos y bebidas
+NA,NA,7516,Preparadores y elaboradores de tabaco y sus productos
+NA,NA,7521,Operarios del tratamiento de la madera
+NA,NA,7522,Ebanistas y afines
+NA,NA,7523,Reguladores y operadores de máquinas de labrar madera
+NA,NA,7531,"Sastres, modistos, peleteros y sombrereros"
+NA,NA,7532,Patronistas y cortadores de tela y afines
+NA,NA,7533,"Costureros, bordadores y afines"
+NA,NA,7534,"Tapiceros, colchoneros y afines"
+NA,NA,7535,"Apelambradores, pellejeros y curtidores"
+NA,NA,7536,Zapateros y afines
+NA,NA,7541,Buzos
+NA,NA,7542,Dinamiteros y pegadores
+NA,NA,7543,Clasificadores y probadores de productos (excluyendo alimentos y bebidas)
+NA,NA,7544,Fumigadores y otros controladores de plagas y malas hierbas
+NA,NA,7549,"Oficiales, operarios y artesanos de artes mecánicas y de otros oficios no clasificados bajo otros epígrafes"
+NA,NA,8111,Mineros y operadores de instalaciones mineras
+NA,NA,8112,Operadores de instalaciones de procesamiento de minerales y rocas
+NA,NA,8113,Perforadores y sondistas de pozos y afines
+NA,NA,8114,Operadores de máquinas para fabricar cemento y otros productos minerales
+NA,NA,8121,Operadores de instalaciones de procesamiento de metales
+NA,NA,8122,"Operadores de máquinas pulidoras, galvanizadoras y recubridoras  de metales"
+NA,NA,8131,Operadores de plantas y máquinas de productos químicos
+NA,NA,8132,Operadores de máquinas para fabricar productos fotográficos
+NA,NA,8141,Operadores de máquinas para fabricar productos de caucho
+NA,NA,8142,Operadores de máquinas para fabricar productos de material plástico
+NA,NA,8143,Operadores de máquinas para fabricar productos de papel
+NA,NA,8151,"Operadores de máquinas de preparación de fibras, hilado y devanado"
+NA,NA,8152,Operadores de telares y otras máquinas tejedoras
+NA,NA,8153,Operadores de máquinas de coser
+NA,NA,8154,"Operadores de máquinas de blanqueamiento, teñido y limpieza de tejidos"
+NA,NA,8155,Operadores de máquinas de tratamiento de pieles y cueros
+NA,NA,8156,Operadores de máquinas para la fabricación de calzado y afines
+NA,NA,8157,Operadores de máquinas lavarropas
+NA,NA,8159,Operadores de máquinas para fabricar productos textiles y artículos de piel y cuero no clasificados bajo otros epígrafes
+NA,NA,8160,Operadores de máquinas para elaborar alimentos y productos afines
+NA,NA,8171,Operadores de instalaciones para la preparación de pasta para papel y papel
+NA,NA,8172,Operadores de instalaciones de procesamiento de la madera
+NA,NA,8181,Operadores de instalaciones de vidriería y cerámica
+NA,NA,8182,Operadores de máquinas de vapor y calderas
+NA,NA,8183,"Operadores de máquinas de embalaje, embotellamiento y etiquetado"
+NA,NA,8189,Operadores de máquinas y de instalaciones fijas no clasificados bajo otros epígrafes
+NA,NA,8211,Ensambladores de maquinaria mecánica
+NA,NA,8212,Ensambladores de equipos eléctricos y electrónicos
+NA,NA,8219,Ensambladores no clasificados bajo otros epígrafes
+NA,NA,8311,Maquinistas de locomotoras
+NA,NA,8312,"Guardafrenos, guardagujas y agentes de maniobras"
+NA,NA,8321,Conductores de motocicletas
+NA,NA,8322,"Conductores de automóviles, taxis y camionetas"
+NA,NA,8331,Conductores de autobuses y tranvías
+NA,NA,8332,Conductores de camiones pesados
+NA,NA,8341,Operadores de maquinaria agrícola y forestal móvil
+NA,NA,8342,Operadores de máquinas de movimiento de tierras y afines
+NA,NA,8343,"Operadores de grúas, aparatos elevadores y afines"
+NA,NA,8344,Operadores de autoelevadoras
+NA,NA,8350,Marineros de cubierta y afines
+NA,NA,9111,Limpiadores y asistentes domésticos
+NA,NA,9112,"Limpiadores y asistentes de oficinas, hoteles y otros establecimientos"
+NA,NA,9113,Personal doméstico
+NA,NA,9121,Lavanderos y planchadores manuales
+NA,NA,9122,Lavadores de vehículos
+NA,NA,9123,Lavadores de ventanas
+NA,NA,9129,Otro personal de limpieza
+NA,NA,9211,Peones de explotaciones agrícolas
+NA,NA,9212,Peones de explotaciones ganaderas
+NA,NA,9213,Peones de explotaciones de cultivos mixtos y ganaderos
+NA,NA,9214,Peones de jardinería y horticultura
+NA,NA,9215,Peones forestales
+NA,NA,9216,Peones de pesca y acuicultura
+NA,NA,9311,Peones de minas y canteras
+NA,NA,9312,Peones de obras públicas y mantenimiento
+NA,NA,9313,Peones de la construcción de edificios
+NA,NA,9321,Empacadores manuales
+NA,NA,9329,Peones de la industria manufacturera no clasificados bajo otros epígrafes
+NA,NA,9331,Conductores de vehículos accionados a pedal o a brazo
+NA,NA,9332,Conductores de vehículos y máquinas de tracción animal
+NA,NA,9333,Peones de carga
+NA,NA,9334,Reponedores de estanterías
+NA,NA,9411,Cocineros de comidas rápidas
+NA,NA,9412,Ayudantes de cocina
+NA,NA,9510,Trabajadores ambulantes de servicios y afines
+NA,NA,9520,Vendedores ambulantes (excluyendo de comida)
+NA,NA,9611,Recolectores de basura y material reciclable
+NA,NA,9612,Clasificadores de desechos
+NA,NA,9613,Barrenderos y afines
+NA,NA,9621,"Mensajeros, mandaderos, maleteros y repartidores"
+NA,NA,9622,Personas que realizan trabajos varios
+NA,NA,9623,Recolectores de dinero en aparatos de venta automática y lectores de medidores
+NA,NA,9624,Acarreadores de agua y recolectores de leña
+NA,NA,9629,Ocupaciones elementales no clasificadas bajo otros epígrafes
+NA,NA,´0110,Oficiales de las fuerzas armadas
+NA,NA,´0210,Suboficiales de las fuerzas armadas
+NA,NA,´0310,Otros miembros de las fuerzas armadas
+NA,NA,9998,Ocupaciones no especificadas en las anteriores
+NA,NA,9999,Ocupación ignorada
+NA,NA,NA,NA
+VIC_DEDICA,A que se dedica la víctima     (sin ingresos),1,Quehaceres del hogar
+NA,NA,2,Vive de su renta o jubilación
+NA,NA,3,Estudiar
+NA,NA,4,Desempleado
+NA,NA,6,Otro
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+VIC_DISC,Discapacidad de la víctima,1,Con discapacidad
+NA,NA,2,Sin discapacidad
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+TIPO_DISCAQ,Tipo de discapacidad de la víctima,1,Ceguera
+NA,NA,2,Sordera
+NA,NA,3,Pérdida o discapacidad de las extremidades superiores
+NA,NA,4,Pérdida o discapacidad de las extremidades inferiores
+NA,NA,5,Deficiencia mental
+NA,NA,6,Otra discapacidad
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+VIC_REL_AGR,Relación de la víctima con el agresor,1,Esposo/a
+NA,NA,2,Conviviente
+NA,NA,3,Exconviviente
+NA,NA,4,Hijos/a
+NA,NA,5,Hijastros/a
+NA,NA,6,Padre/Madre
+NA,NA,7,Nieto/a
+NA,NA,8,Suegro/a
+NA,NA,9,Hermano/a
+NA,NA,10,Otro pariente
+NA,NA,NA,NA
+OTRAS_VICTIMAS,Total otras víctimas,00 a 20,Total otras víctimas
+NA,NA,99,Ignorado total otras víctimas
+VIC_OTRAS_HOM,Otras víctimas hombres        (de 13 años en adelante),00 a 09,Otras víctimas hombres
+NA,NA,99,Ignorado otras víctimas hombres
+VIC_OTRAS_MUJ,Otras víctimas mujeres          (de 13 años en adelante),00 a 09,Otras víctimas mujeres
+NA,NA,99,Ignorado otras víctimas
+VIC_OTRAS_N_OS,Otras víctimas niños              (de 00 a 12 años),00 a 09,Otras víctimas niños
+NA,NA,99,Ignorado otras víctimas niños
+VIC_OTRAS_N_AS,Otras víctimas niñas              (de 00 a 12 años),00 a 09,Otras víctimas niñas
+NA,NA,99,Ignorado otras víctimas niñas
+NA,NA,NA,NA
+DATOS DEL HECHO,NA,NA,NA
+NA,NA,NA,NA
+HEC_DIA,Día en que sucedió el hecho,1 a 31,día de ocurrencia
+NA,NA,99,Ignorado
+NA,NA,NA,NA
+HEC_MES,Mes en que ocurrió el hecho,1,Enero
+NA,NA,2,Febrero
+NA,NA,3,Marzo
+NA,NA,4,Abril
+NA,NA,5,Mayo
+NA,NA,6,Junio
+NA,NA,7,Julio
+NA,NA,8,Agosto
+NA,NA,9,Septiembre
+NA,NA,10,Octubre
+NA,NA,11,Noviembre
+NA,NA,12,Diciembre
+NA,NA,99,Ignorado
+NA,NA,NA,NA
+HEC_ANO,Año en que ocurrió el hecho,2000,2000 en adelante (no puede ser superior al año de denuncia)
+NA,NA,9999,Ignorado año de ocurrencia del hecho
+NA,NA,NA,NA
+HEC_DEPTOMCPIO,Departamento y municipio donde ocurrió el hecho,101,Guatemala
+NA,NA,102,Santa Catarina Pinula
+NA,NA,103,San José Pinula
+NA,NA,104,San José del Golfo
+NA,NA,105,Palencia
+NA,NA,106,Chinautla
+NA,NA,107,San Pedro Ayampuc
+NA,NA,108,Mixco
+NA,NA,109,San Pedro Sacatepéquez
+NA,NA,110,San Juan Sacatepéquez
+NA,NA,111,San Raymundo
+NA,NA,112,Chuarrancho
+NA,NA,113,Fraijanes
+NA,NA,114,Amatitlán
+NA,NA,115,Villa Nueva
+NA,NA,116,Villa Canales
+NA,NA,117,Petapa
+NA,NA,201,Guastatoya
+NA,NA,202,Morazán
+NA,NA,203,San Agustín Acasaguastlán
+NA,NA,204,San Cristóbal Acasaguastlán
+NA,NA,205,El Jícaro
+NA,NA,206,Sansare
+NA,NA,207,Sanarate
+NA,NA,208,San Antonio La Paz
+NA,NA,301,Antigua Guatemala
+NA,NA,302,Jocotenango
+NA,NA,303,Pastores
+NA,NA,304,Sumpango
+NA,NA,305,Santo Domingo Xenacoj
+NA,NA,306,Santiago Sacatepéquez
+NA,NA,307,San Bartolomé Milpas Altas
+NA,NA,308,San Lucas Sacatepéquez
+NA,NA,309,Santa Lucía Milpas Altas
+NA,NA,310,Magdalena Milpas Altas
+NA,NA,311,Santa María de Jesús
+NA,NA,312,Ciudad Vieja
+NA,NA,313,San Miguel Dueñas
+NA,NA,314,Alotenango
+NA,NA,315,San Antonio Aguas Calientes
+NA,NA,316,Santa Catarina Barahona
+NA,NA,401,Chimaltenango
+NA,NA,402,San José Poaquil
+NA,NA,403,San Martín Jilotepeque
+NA,NA,404,Comalapa
+NA,NA,405,Santa Apolonia
+NA,NA,406,Tecpán Guatemala
+NA,NA,407,Patzún
+NA,NA,408,Pochuta
+NA,NA,409,Patzicía
+NA,NA,410,Santa Cruz Balanyá
+NA,NA,411,Acatenango
+NA,NA,412,Yepocapa
+NA,NA,413,San Andrés Itzapa
+NA,NA,414,Parramos
+NA,NA,415,Zaragoza
+NA,NA,416,El Tejar
+NA,NA,501,Escuintla
+NA,NA,502,Santa Lucía Cotzumalguapa
+NA,NA,503,La Democracia
+NA,NA,504,Siquinalá
+NA,NA,505,Masagua
+NA,NA,506,Tiquisate
+NA,NA,507,La Gomera
+NA,NA,508,Guanagazapa
+NA,NA,509,San José
+NA,NA,510,Iztapa
+NA,NA,511,Palín
+NA,NA,512,San Vicente Pacaya
+NA,NA,513,Nueva Concepción
+NA,NA,514,Sipacate
+NA,NA,601,Cuilapa
+NA,NA,602,Barberena
+NA,NA,603,Santa Rosa de Lima
+NA,NA,604,Casillas
+NA,NA,605,San Rafael Las Flores
+NA,NA,606,Oratorio
+NA,NA,607,San Juan Tecuaco
+NA,NA,608,Chiquimulilla
+NA,NA,609,Taxisco
+NA,NA,610,Santa María Ixhuatán
+NA,NA,611,Guazacapán
+NA,NA,612,Santa Cruz Naranjo
+NA,NA,613,Pueblo Nuevo Viñas
+NA,NA,614,Nueva Santa Rosa
+NA,NA,701,Sololá
+NA,NA,702,San José Chacayá
+NA,NA,703,Santa María Visitación
+NA,NA,704,Santa Lucía Utatlán
+NA,NA,705,Nahualá
+NA,NA,706,Santa Catarina Ixtahuacán
+NA,NA,707,Santa Clara La Laguna
+NA,NA,708,Concepción
+NA,NA,709,San Andrés Semetabaj
+NA,NA,710,Panajachel
+NA,NA,711,Santa Catarina Palopó
+NA,NA,712,San Antonio Palopó
+NA,NA,713,San Lucas Toliman
+NA,NA,714,Santa Cruz La Laguna
+NA,NA,715,San Pablo La Laguna
+NA,NA,716,San Marcos La Laguna
+NA,NA,717,San Juan La Laguna
+NA,NA,718,San Pedro La Laguna
+NA,NA,719,Santiago Atitlán
+NA,NA,801,Totonicapán
+NA,NA,802,San Cristóbal Totonicapán
+NA,NA,803,San Francisco El Alto
+NA,NA,804,San Andrés Xecul
+NA,NA,805,Momostenango
+NA,NA,806,Santa María Chiquimula
+NA,NA,807,Santa Lucía La Reforma
+NA,NA,808,San Bartolo
+NA,NA,901,Quetzaltenango
+NA,NA,902,Salcajá
+NA,NA,903,Olintepeque
+NA,NA,904,San Carlos Sija
+NA,NA,905,Sibilia
+NA,NA,906,Cabricán
+NA,NA,907,Cajolá
+NA,NA,908,San Miguel Siguilá
+NA,NA,909,Ostuncalco
+NA,NA,910,San Mateo
+NA,NA,911,Concepción Chiquirichapa
+NA,NA,912,San Martín Sacatepéquez
+NA,NA,913,Almolonga
+NA,NA,914,Cantel
+NA,NA,915,Huitán
+NA,NA,916,Zunil
+NA,NA,917,Colomba
+NA,NA,918,San Francisco La Unión
+NA,NA,919,El Palmar
+NA,NA,920,Coatepeque
+NA,NA,921,Génova
+NA,NA,922,Flores Costa Cuca
+NA,NA,923,La Esperanza
+NA,NA,924,Palestina de Los Altos
+NA,NA,1001,Mazatenango
+NA,NA,1002,Cuyotenango
+NA,NA,1003,San Francisco Zapotitlán
+NA,NA,1004,San Bernardino
+NA,NA,1005,San José El Ídolo
+NA,NA,1006,Santo Domingo Suchitepéquez
+NA,NA,1007,San Lorenzo
+NA,NA,1008,Samayac
+NA,NA,1009,San Pablo Jocopilas
+NA,NA,1010,San Antonio Suchitepéquez
+NA,NA,1011,San Miguel Panán
+NA,NA,1012,San Gabriel
+NA,NA,1013,Chicacao
+NA,NA,1014,Patulul
+NA,NA,1015,Santa Bárbara
+NA,NA,1016,San Juan Bautista
+NA,NA,1017,Santo Tomás La Unión
+NA,NA,1018,Zunilito
+NA,NA,1019,Pueblo Nuevo
+NA,NA,1020,Rio Bravo
+NA,NA,1021,San José La Máquina
+NA,NA,1101,Retalhuleu
+NA,NA,1102,San Sebastián
+NA,NA,1103,Santa Cruz Muluá
+NA,NA,1104,San Martín Zapotitlán
+NA,NA,1105,San Felipe
+NA,NA,1106,San Andrés Villa Seca
+NA,NA,1107,Champerico
+NA,NA,1108,Nuevo San Carlos
+NA,NA,1109,El Asintal
+NA,NA,1201,San Marcos
+NA,NA,1202,San Pedro Sacatepéquez
+NA,NA,1203,San Antonio Sacatepéquez
+NA,NA,1204,Comitancillo
+NA,NA,1205,San Miguel Ixtahuacán
+NA,NA,1206,Concepción Tutuapa
+NA,NA,1207,Tacaná
+NA,NA,1208,Sibinal
+NA,NA,1209,Tajumulco
+NA,NA,1210,Tejutla
+NA,NA,1211,San Rafael Pie de La Cuesta
+NA,NA,1212,Nuevo Progreso
+NA,NA,1213,El Tumbador
+NA,NA,1214,El Rodeo
+NA,NA,1215,Malacatán
+NA,NA,1216,Catarina
+NA,NA,1217,Ayutla
+NA,NA,1218,Ocós
+NA,NA,1219,San Pablo
+NA,NA,1220,El Quetzal
+NA,NA,1221,La Reforma
+NA,NA,1222,Pajapita
+NA,NA,1223,Ixchiguán
+NA,NA,1224,San José Ojetenam
+NA,NA,1225,San Cristóbal Cucho
+NA,NA,1226,Sipacapa
+NA,NA,1227,Esquipulas Palo Gordo
+NA,NA,1228,Rio Blanco
+NA,NA,1229,San Lorenzo
+NA,NA,1230,La Blanca
+NA,NA,1301,Huehuetenango
+NA,NA,1302,Chiantla
+NA,NA,1303,Malacatancito
+NA,NA,1304,Cuilco
+NA,NA,1305,Nentón
+NA,NA,1306,San Pedro Necta
+NA,NA,1307,Jacaltenango
+NA,NA,1308,Soloma
+NA,NA,1309,Ixtahuacán
+NA,NA,1310,Santa Bárbara
+NA,NA,1311,La Libertad
+NA,NA,1312,La Democracia
+NA,NA,1313,San Miguel Acatán
+NA,NA,1314,San Rafael La Independencia
+NA,NA,1315,Todos Santos Cuchumatán
+NA,NA,1316,San Juan Atitán
+NA,NA,1317,Santa Eulalia
+NA,NA,1318,San Mateo Ixtatán
+NA,NA,1319,Colotenango
+NA,NA,1320,San Sebastián Huehuetenango
+NA,NA,1321,Tectitán
+NA,NA,1322,Concepción Huista
+NA,NA,1323,San Juan Ixcoy
+NA,NA,1324,San Antonio Huista
+NA,NA,1325,San Sebastián Coatán
+NA,NA,1326,Barillas
+NA,NA,1327,Aguacatán
+NA,NA,1328,San Rafael Petzal
+NA,NA,1329,San Gaspar Ixchil
+NA,NA,1330,Santiago Chimaltenango
+NA,NA,1331,Santa Ana Huista
+NA,NA,1332,Unión Cantinil
+NA,NA,1333,Petatán
+NA,NA,1401,Santa Cruz del Quiché
+NA,NA,1402,Chiché
+NA,NA,1403,Chinique
+NA,NA,1404,Zacualpa
+NA,NA,1405,Chajul
+NA,NA,1406,Chichicastenango
+NA,NA,1407,Patzité
+NA,NA,1408,San Antonio Ilotenango
+NA,NA,1409,San Pedro Jocopilas
+NA,NA,1410,Cunén
+NA,NA,1411,San Juan Cotzal
+NA,NA,1412,Joyabaj
+NA,NA,1413,Nebaj
+NA,NA,1414,San Andrés Sajcabajá
+NA,NA,1415,Uspantán
+NA,NA,1416,Sacapulas
+NA,NA,1417,San Bartolomé Jocotenango
+NA,NA,1418,Canillá
+NA,NA,1419,Chicamán
+NA,NA,1420,Ixcán
+NA,NA,1421,Pachalum
+NA,NA,1501,Salamá
+NA,NA,1502,San Miguel Chicaj
+NA,NA,1503,Rabinal
+NA,NA,1504,Cubulco
+NA,NA,1505,Granados
+NA,NA,1506,El Chol
+NA,NA,1507,San Jerónimo
+NA,NA,1508,Purulhá
+NA,NA,1601,Cobán
+NA,NA,1602,Santa Cruz Verapaz
+NA,NA,1603,San Cristóbal Verapaz
+NA,NA,1604,Tactic
+NA,NA,1605,Tamahú
+NA,NA,1606,Tucurú
+NA,NA,1607,Panzós
+NA,NA,1608,Senahú
+NA,NA,1609,San Pedro Carchá
+NA,NA,1610,San Juan Chamelco
+NA,NA,1611,Lanquín
+NA,NA,1612,Cahabón
+NA,NA,1613,Chisec
+NA,NA,1614,Chahal
+NA,NA,1615,Fray Bartolomé de Las Casas
+NA,NA,1616,Santa Catalina la Tinta
+NA,NA,1617,Raxruhá
+NA,NA,1701,Flores
+NA,NA,1702,San José
+NA,NA,1703,San Benito
+NA,NA,1704,San Andrés
+NA,NA,1705,La Libertad
+NA,NA,1706,San Francisco
+NA,NA,1707,Santa Ana
+NA,NA,1708,Dolores
+NA,NA,1709,San Luis
+NA,NA,1710,Sayaxché
+NA,NA,1711,Melchor de Mencos
+NA,NA,1712,Poptún
+NA,NA,1713,Las Cruces
+NA,NA,1714,El Chal
+NA,NA,1801,Puerto Barrios
+NA,NA,1802,Livingston
+NA,NA,1803,El Estor
+NA,NA,1804,Morales
+NA,NA,1805,Los Amates
+NA,NA,1901,Zacapa
+NA,NA,1902,Estanzuela
+NA,NA,1903,Río Hondo
+NA,NA,1904,Gualán
+NA,NA,1905,Teculután
+NA,NA,1906,Usumatlán
+NA,NA,1907,Cabañas
+NA,NA,1908,San Diego
+NA,NA,1909,La Unión
+NA,NA,1910,Huité
+NA,NA,1911,San Jorge
+NA,NA,2001,Chiquimula
+NA,NA,2002,San José La Arada
+NA,NA,2003,San Juan Erminta
+NA,NA,2004,Jocotán
+NA,NA,2005,Camotán
+NA,NA,2006,Olopa
+NA,NA,2007,Esquipulas
+NA,NA,2008,Concepción Las Minas
+NA,NA,2009,Quetzaltepeque
+NA,NA,2010,San Jacinto
+NA,NA,2011,Ipala
+NA,NA,2101,Jalapa
+NA,NA,2102,San Pedro Pinula
+NA,NA,2103,San Luis Jilotepeque
+NA,NA,2104,San Manuel Chaparrón
+NA,NA,2105,San Carlos Alzatate
+NA,NA,2106,Monjas
+NA,NA,2107,Mataquescuintla
+NA,NA,2201,Jutiapa
+NA,NA,2202,El Progreso
+NA,NA,2203,Santa Catarina Mita
+NA,NA,2204,Agua Blanca
+NA,NA,2205,Asunción Mita
+NA,NA,2206,Yupiltepeque
+NA,NA,2207,Atescatempa
+NA,NA,2208,Jerez
+NA,NA,2209,El Adelanto
+NA,NA,2210,Zapotitlán
+NA,NA,2211,Comapa
+NA,NA,2212,Jalpatagua
+NA,NA,2213,Conguaco
+NA,NA,2214,Moyuta
+NA,NA,2215,Pasaco
+NA,NA,2216,San José Acatempa
+NA,NA,2217,Quesada
+NA,NA,9999,Ignorado
+NA,NA,NA,NA
+HEC_AREA,Área geográfica de ocurrencia,1,Urbana
+NA,NA,2,Rural
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+HEC_TIPAGRE,Tipo de agresión sufrida por la víctima,1222,Física
+NA,NA,2122,Psicológica
+NA,NA,2212,Sexual
+NA,NA,2221,Patrimonial
+NA,NA,1122,Física - psicológica
+NA,NA,1212,Física - sexual
+NA,NA,1221,Física - patrimonial
+NA,NA,2112,Psicológica - sexual
+NA,NA,2121,Psicológica - patrimonial
+NA,NA,2211,Sexual - patrimonial
+NA,NA,1112,Física - psicológica - sexual
+NA,NA,1121,Física - psicológica - patrimonial
+NA,NA,2111,Psicológica - sexual - patrimonial
+NA,NA,1211,Física - sexual - patrimonial
+NA,NA,1111,Física - psicológica - sexual - patrimonial
+NA,NA,NA,NA
+HEC_RECUR_DENUN,Reiteración de la denuncia (ha denunciado con anterioridad),1,Si
+NA,NA,2,No
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+INST_DONDE_DENUNCIO,En que institución denunció anteriormente,1,Ministerio Público
+NA,NA,2,Procuraduría General de la Nación
+NA,NA,3,Policía Nacional Civil
+NA,NA,4,Organismo Judicial
+NA,NA,5,Bufetes Populares
+NA,NA,6,Procuraduría de los Derechos Humanos
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+DATOS DEL AGRESOR,NA,NA,NA
+NA,NA,NA,NA
+AGR_SEXO,Sexo del(a) agresor(a),1,Hombre
+NA,NA,2,Mujer
+NA,NA,NA,NA
+AGR_EDAD,Edad del(a) agresor(a),1 a  98,Edad del(a) agresor(a)
+NA,NA,99,Ignorado
+NA,NA,NA,NA
+AGR_ALFAB,Sabe leer y escribir,1,Alfabeta
+NA,NA,2,Analfabeta
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+AGR_ESCOLARIDAD,Nivel de escolaridad del(a) agresor(a),10,Ninguno
+NA,NA,21 a 26,Primero a sexto primaria
+NA,NA,29,Primaria (grado ignorado)
+NA,NA,31 a 33,Primero a tercero básico
+NA,NA,39,Básico (grado ignorado)
+NA,NA,44 a 46,Cuarto a sexto diversificado
+NA,NA,49,Diversificado (grado ignorado)
+NA,NA,51 a  57,Primer año a séptimo universitario (Incluye maestría)
+NA,NA,59,Universitario (año ignorado)
+NA,NA,99,Ignorado (tanto nivel como grado)
+NA,NA,NA,NA
+AGR_EST_CIV,Estado conyugal del (a) agresor(a),1,Soltero(a)
+NA,NA,2,Casado(a)
+NA,NA,3,Unido(a)
+NA,NA,4,Viudo(a)
+NA,NA,5,Otro
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+AGR_GRUPET,Pueblo de pertenencia del agresor(a),1,Ladino
+NA,NA,2,Maya
+NA,NA,3,Garífuna
+NA,NA,4,Xinka
+NA,NA,5,Otro
+NA,NA,6,No indica
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+AGR_NACIONAL,Nacionalidad del(a) agresor(a),1,Guatemalteca
+NA,NA,2,Extranjera
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+AGR_TRABAJA,Condición de empleo del(a) agresor(a),1,Si trabaja por un salario o ingreso
+NA,NA,2,No trabaja por un salario o ingreso
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+AGR_OCUP,"Ocupación del (a) agresor(a) (con salario o ingreso dentro o fuera de la casa), Clasificación Internacional Uniforme de Ocupaciones -CIUO- 08",1111,Miembros del poder legislativo
+NA,NA,1112,Personal directivo de la administración pública
+NA,NA,1113,Jefes de pequeñas poblaciones
+NA,NA,1114,Dirigentes de organizaciones que presentan un interés especial
+NA,NA,1120,Directores generales y gerentes generales
+NA,NA,1211,Directores financieros
+NA,NA,1212,Directores de recursos humanos
+NA,NA,1213,Directores de políticas y planificación
+NA,NA,1219,Directores de administración y servicios no clasificados bajo otros epígrafes
+NA,NA,1221,Directores de ventas y comercialización
+NA,NA,1222,Directores de publicidad y relaciones públicas
+NA,NA,1223,Directores de investigación y desarrollo
+NA,NA,1311,Directores de producción agropecuaria y silvicultura
+NA,NA,1312,Directores de producción de piscicultura y pesca
+NA,NA,1321,Directores de industrias manufactureras
+NA,NA,1322,Directores de explotaciones de minería
+NA,NA,1323,Directores de empresas de construcción
+NA,NA,1324,"Directores de empresas de abastecimiento, distribución y afines"
+NA,NA,1330,Directores de servicios de tecnología de la información y las comunicaciones
+NA,NA,1341,Directores de servicios de cuidados infantiles
+NA,NA,1342,Directores de servicios de salud
+NA,NA,1343,Directores de servicios de cuidado de las personas de edad
+NA,NA,1344,Directores de servicios de bienestar social
+NA,NA,1345,Directores de servicios de educación
+NA,NA,1346,"Gerentes de sucursales de bancos, de servicios financieros y de seguros"
+NA,NA,1349,Directores y gerentes de servicios profesionales no clasificados bajo otros epígrafes
+NA,NA,1411,Gerentes de hoteles
+NA,NA,1412,Gerentes de restaurantes
+NA,NA,1420,Gerentes de comercios al por mayor y al por menor
+NA,NA,1431,"Gerentes de centros deportivos, de esparcimiento y culturales"
+NA,NA,1439,Gerentes de servicios no clasificados bajo otros epígrafes
+NA,NA,2111,Físicos y astrónomos
+NA,NA,2112,Meteorólogos
+NA,NA,2113,Químicos
+NA,NA,2114,Geólogos y geofísicos
+NA,NA,2120,"Matemáticos, actuarios y estadísticos"
+NA,NA,2131,"Biólogos, botánicos, zoólogos y afines"
+NA,NA,2132,Agrónomos y afines
+NA,NA,2133,Profesionales de la protección medioambiental
+NA,NA,2141,Ingenieros industriales y de producción
+NA,NA,2142,Ingenieros civiles
+NA,NA,2143,Ingenieros medioambientales
+NA,NA,2144,Ingenieros mecánicos
+NA,NA,2145,Ingenieros químicos
+NA,NA,2146,"Ingenieros de minas, metalúrgicos y afines"
+NA,NA,2149,Ingenieros no clasificados bajo otros epígrafes
+NA,NA,2151,Ingenieros electricistas
+NA,NA,2152,Ingenieros electrónicos
+NA,NA,2153,Ingenieros en telecomunicaciones
+NA,NA,2161,Arquitectos
+NA,NA,2162,Arquitectos paisajistas
+NA,NA,2163,Diseñadores de productos y de prendas
+NA,NA,2164,Urbanistas e ingenieros de tránsito
+NA,NA,2165,Cartógrafos y agrimensores
+NA,NA,2166,Diseñadores gráficos y multimedia
+NA,NA,2211,Médicos generales
+NA,NA,2212,Médicos especialistas
+NA,NA,2221,Profesionales de enfermería
+NA,NA,2222,Profesionales de partería
+NA,NA,2230,Profesionales de medicina tradicional y alternativa
+NA,NA,2240,Practicantes paramédicos
+NA,NA,2250,Veterinarios
+NA,NA,2261,Dentistas
+NA,NA,2262,Farmacéuticos
+NA,NA,2263,Profesionales de la salud y la higiene laboral y ambiental
+NA,NA,2264,Fisioterapeutas
+NA,NA,2265,Dietistas y nutricionistas
+NA,NA,2266,Audiólogos y logopedas
+NA,NA,2267,Optometristas
+NA,NA,2269,Profesionales de la salud no clasificados bajo otros epígrafes
+NA,NA,2310,Profesores de universidades y de la enseñanza superior
+NA,NA,2320,Profesores de formación profesional
+NA,NA,2330,Profesores de enseñanza secundaria
+NA,NA,2341,Maestros de enseñanza primaria
+NA,NA,2342,Maestros preescolares
+NA,NA,2351,Especialistas en métodos pedagógicos
+NA,NA,2352,Educadores para necesidades especiales
+NA,NA,2353,Otros profesores de idiomas
+NA,NA,2354,Otros profesores de música
+NA,NA,2355,Otros profesores de artes
+NA,NA,2356,Instructores en tecnología de la información
+NA,NA,2359,Profesionales de la enseñanza no clasificados bajo otros epígrafes
+NA,NA,2411,Contables
+NA,NA,2412,Asesores financieros y en inversiones
+NA,NA,2413,Analistas financieros
+NA,NA,2421,Analistas de gestión y organización
+NA,NA,2422,Especialistas en políticas de administración
+NA,NA,2423,Especialistas en políticas y servicios de personal y afines
+NA,NA,2424,Especialistas en formación del personal
+NA,NA,2431,Profesionales de la publicidad y la comercialización
+NA,NA,2432,Profesionales de relaciones públicas
+NA,NA,2433,Profesionales de ventas técnicas y médicas (excluyendo la TIC)
+NA,NA,2434,Profesionales de ventas de tecnología de la información y las comunicaciones
+NA,NA,2511,Analistas de sistemas
+NA,NA,2512,Desarrolladores de software
+NA,NA,2513,Desarrolladores web y multimedia
+NA,NA,2514,Programadores de aplicaciones
+NA,NA,2519,Desarrolladores y analistas de software y multimedia y analistas no clasificados bajo otros epígrafes
+NA,NA,2521,Diseñadores y administradores de bases de datos
+NA,NA,2522,Administradores de sistemas
+NA,NA,2523,Profesionales en redes de computadores
+NA,NA,2529,Especialistas en bases de datos y en redes de computadores no clasificados bajo otros epígrafes
+NA,NA,2611,Abogados
+NA,NA,2612,Jueces
+NA,NA,2619,Profesionales en derecho no clasificados bajo otros epígrafes
+NA,NA,2621,Archivistas y curadores de museos
+NA,NA,2622,"Bibliotecarios, documentalistas y afines"
+NA,NA,2631,Economistas
+NA,NA,2632,"Sociólogos, antropólogos y afines"
+NA,NA,2633,"Filósofos, historiadores y especialistas en ciencias políticas"
+NA,NA,2634,Psicólogos
+NA,NA,2635,Profesionales del trabajo social
+NA,NA,2636,Profesionales religiosos
+NA,NA,2641,Autores y otros escritores
+NA,NA,2642,Periodistas
+NA,NA,2643,"Traductores, intérpretes y lingüistas"
+NA,NA,2651,Artistas de artes plásticas
+NA,NA,2652,"Músicos, cantantes y compositores"
+NA,NA,2653,Bailarines y coreógrafos
+NA,NA,2654,"Directores de cine, de teatro y afines"
+NA,NA,2655,Actores
+NA,NA,2656,"Locutores de radio, televisión y otros medios de comunicación"
+NA,NA,2659,Artistas creativos e interpretativos no clasificados bajo otros epígrafes
+NA,NA,3111,Técnicos en ciencias físicas y químicas
+NA,NA,3112,Técnicos en ingeniería civil
+NA,NA,3113,Electrotécnicos
+NA,NA,3114,Técnicos en electrónica
+NA,NA,3115,Técnicos en ingeniería mecánica
+NA,NA,3116,Técnicos en química industrial
+NA,NA,3117,Técnicos en ingeniería de minas y metalurgia
+NA,NA,3118,Delineantes y dibujantes técnicos
+NA,NA,3119,Técnicos en ciencias físicas y en ingeniería no clasificados bajo otros epígrafes
+NA,NA,3121,Supervisores en ingeniería de minas
+NA,NA,3122,Supervisores de industrias manufactureras
+NA,NA,3123,Supervisores de la construcción
+NA,NA,3131,Operadores de instalaciones de producción de energía
+NA,NA,3132,"Operadores de incineradores, instalaciones de tratamiento de agua y afines"
+NA,NA,3133,Controladores de instalaciones de procesamiento de productos químicos
+NA,NA,3134,Operadores de instalaciones de refinación de petróleo y gas natural
+NA,NA,3135,Controladores de procesos de producción de metales
+NA,NA,3139,Técnicos en control de procesos no clasificados bajo otros epígrafes
+NA,NA,3141,Técnicos en ciencias biológicas (excluyendo la medicina)
+NA,NA,3142,Técnicos agropecuarios
+NA,NA,3143,Técnicos forestales
+NA,NA,3151,Oficiales maquinistas en navegación
+NA,NA,3152,"Capitanes, oficiales de cubierta y prácticos"
+NA,NA,3153,Pilotos de aviación y afines
+NA,NA,3154,Controladores de tráfico aéreo
+NA,NA,3155,Técnicos en seguridad aeronáutica
+NA,NA,3211,Técnicos en aparatos de diagnóstico y tratamiento médico
+NA,NA,3212,Técnicos de laboratorios médicos
+NA,NA,3213,Técnicos y asistentes farmacéuticos
+NA,NA,3214,Técnicos de prótesis médicas y dentales
+NA,NA,3221,Profesionales de nivel medio de enfermería
+NA,NA,3222,Profesionales de nivel medio de partería
+NA,NA,3230,Profesionales de nivel medio de medicina tradicional y alternativa
+NA,NA,3240,Técnicos y asistentes veterinarios
+NA,NA,3251,Dentistas auxiliares y ayudantes de odontología
+NA,NA,3252,Técnicos en documentación sanitaria
+NA,NA,3253,Trabajadores comunitarios de la salud
+NA,NA,3254,Técnicos en optometría y ópticos
+NA,NA,3255,Técnicos y asistentes fisioterapeutas
+NA,NA,3256,Practicantes y asistentes médicos
+NA,NA,3257,"Inspectores de la salud laboral, medioambiental y afines"
+NA,NA,3258,Ayudantes de ambulancias
+NA,NA,3259,Profesionales de la salud de nivel medio no clasificados bajo otros epígrafes
+NA,NA,3311,"Agentes de bolsa, cambio y otros servicios financieros"
+NA,NA,3312,Oficiales de préstamos y créditos
+NA,NA,3313,Tenedores de libros
+NA,NA,3314,"Profesionales de nivel medio de servicios estadísticos, matemáticos y afines"
+NA,NA,3315,Tasadores
+NA,NA,3321,Agentes de seguros
+NA,NA,3322,Representantes comerciales
+NA,NA,3323,Agentes de compras
+NA,NA,3324,Agentes de compras y consignatarios
+NA,NA,3331,Declarantes o gestores de aduana
+NA,NA,3332,Organizadores de conferencias y eventos
+NA,NA,3333,Agentes de empleo y contratistas de mano de obra
+NA,NA,3334,Agentes inmobiliarios
+NA,NA,3339,Agentes de servicios comerciales no clasificados bajo otros epígrafes
+NA,NA,3341,Supervisores de secretaría
+NA,NA,3342,Secretarios jurídicos
+NA,NA,3343,Secretarios administrativos y ejecutivos
+NA,NA,3344,Secretarios médicos
+NA,NA,3351,Agentes de aduana e inspectores de fronteras
+NA,NA,3352,Agentes de administración tributaria
+NA,NA,3353,Agentes de servicios de seguridad social
+NA,NA,3354,Agentes de servicios de expedición de licencias y permisos
+NA,NA,3355,Inspectores de policía y detectives
+NA,NA,3359,Agentes de la administración pública para la aplicación de la ley y afines no clasificados bajo otros epígrafes
+NA,NA,3411,Profesionales de nivel medio del derecho y servicios legales y afines
+NA,NA,3412,Trabajadores y asistentes sociales de nivel medio
+NA,NA,3413,Auxiliares laicos de las religiones
+NA,NA,3421,Atletas y deportistas
+NA,NA,3422,"Entrenadores, instructores y árbitros de actividades deportivas"
+NA,NA,3423,Instructores de educación física y actividades recreativas
+NA,NA,3431,Fotógrafos
+NA,NA,3432,Diseñadores y decoradores de interior
+NA,NA,3433,"Técnicos en galerías de arte, museos y bibliotecas"
+NA,NA,3434,Chefs
+NA,NA,3435,Otros profesionales de nivel medio en actividades culturales y artistas
+NA,NA,3511,Técnicos en operaciones de tecnología de la información y las comunicaciones
+NA,NA,3512,Técnicos en asistencia al usuario de tecnología de la información y las comunicaciones
+NA,NA,3513,Técnicos en redes y sistemas de computadores
+NA,NA,3514,Técnicos de la web
+NA,NA,3521,Técnicos de radiodifusión y grabación audio visual
+NA,NA,3522,Técnicos de ingeniería de las telecomunicaciones
+NA,NA,4110,Oficinistas generales
+NA,NA,4120,Secretarios (general)
+NA,NA,4131,Operadores de máquinas de procesamiento de texto y mecanógrafos
+NA,NA,4132,Grabadores de datos
+NA,NA,4211,Cajeros de bancos y afines
+NA,NA,4212,Receptores de apuestas y afines
+NA,NA,4213,Prestamistas
+NA,NA,4214,Cobradores y afines
+NA,NA,4221,Empleados de agencias de viajes
+NA,NA,4222,Empleados de centros de llamadas
+NA,NA,4223,Telefonistas
+NA,NA,4224,Recepcionistas de hoteles
+NA,NA,4225,Empleados de ventanillas de informaciones
+NA,NA,4226,Recepcionistas (general)
+NA,NA,4227,Entrevistadores de encuestas y de investigaciones de mercados
+NA,NA,4229,Empleados de servicios de información al cliente no clasificados bajo otros epígrafes
+NA,NA,4311,Empleados de contabilidad y cálculo de costos
+NA,NA,4312,"Empleados de servicios estadísticos, financieros y de seguros"
+NA,NA,4313,Empleados encargados de las nóminas
+NA,NA,4321,Empleados de control de abastecimientos e inventario
+NA,NA,4322,Empleados de servicios de apoyo a la producción
+NA,NA,4323,Empleados de servicios de transporte
+NA,NA,4411,Empleados de bibliotecas
+NA,NA,4412,Empleados de servicios de correos
+NA,NA,4413,"Codificadores de datos, correctores de pruebas de imprenta y afines"
+NA,NA,4414,Escribientes públicos y afines
+NA,NA,4415,Empleados de archivos
+NA,NA,4416,Empleados del servicio de personal
+NA,NA,4419,Personal de apoyo administrativo no clasificado bajo otros epígrafes
+NA,NA,5111,Auxiliares de servicio de abordo
+NA,NA,5112,Revisores y cobradores de los transportes públicos
+NA,NA,5113,Guías de turismo
+NA,NA,5120,Cocineros
+NA,NA,5131,Camareros de mesas
+NA,NA,5132,Camareros de barra
+NA,NA,5141,Peluqueros
+NA,NA,5142,Especialistas en tratamientos de belleza y afines
+NA,NA,5151,"Supervisores de mantenimiento y limpieza en oficinas, hoteles y otros establecimientos"
+NA,NA,5152,Ecónomos y mayordomos domésticos
+NA,NA,5153,Conserjes
+NA,NA,5161,"Astrólogos, adivinadores y afines"
+NA,NA,5162,Acompañantes y ayudantes de cámara
+NA,NA,5163,Personal de pompas fúnebres y embalsamadores
+NA,NA,5164,Cuidadores de animales
+NA,NA,5165,Instructores de autoescuela
+NA,NA,5169,Trabajadores de servicios personales no clasificados bajo otros epígrafes
+NA,NA,5211,Vendedores de quioscos y de puestos de mercado
+NA,NA,5212,Vendedores ambulantes de productos comestibles
+NA,NA,5221,Comerciantes de tiendas
+NA,NA,5222,Supervisores de tiendas y almacenes
+NA,NA,5223,Asistentes de venta de tiendas y almacenes
+NA,NA,5230,Cajeros y expendedores de billetes
+NA,NA,5241,"Modelos de moda, arte y publicidad"
+NA,NA,5242,Demostradores de tiendas
+NA,NA,5243,Vendedores puerta a puerta
+NA,NA,5244,Vendedores por teléfono
+NA,NA,5245,Expendedores de gasolineras
+NA,NA,5246,Vendedores de comidas al mostrador
+NA,NA,5249,Vendedores no clasificados bajo otros epígrafes
+NA,NA,5311,Cuidadores de niños
+NA,NA,5312,Auxiliares de maestros
+NA,NA,5321,Trabajadores de los cuidados personales en instituciones
+NA,NA,5322,Trabajadores de los cuidados personales a domicilio
+NA,NA,5329,Trabajadores de los cuidados personales en servicios de salud no clasificados bajo otros epígrafes
+NA,NA,5411,Bomberos
+NA,NA,5412,Policías
+NA,NA,5413,Guardianes de prisión
+NA,NA,5414,Guardias de protección
+NA,NA,5419,Personal de los servicios de protección no clasificados bajo otros epígrafes
+NA,NA,6111,Agricultores y trabajadores calificados de cultivos extensivos
+NA,NA,6112,Agricultores y trabajadores calificados de plantaciones de árboles y arbustos
+NA,NA,6113,"Agricultores y trabajadores calificados de huertas, invernaderos, viveros y jardines"
+NA,NA,6114,Agricultores y trabajadores calificados de cultivos mixtos
+NA,NA,6121,Criadores de ganado
+NA,NA,6122,Avicultores y trabajadores calificados de la avicultura
+NA,NA,6123,Apicultores y sericultores y trabajadores calificados de la apicultura y la sericultura
+NA,NA,6129,Criadores y trabajadores pecuarios calificados de la cría de animales no clasificados bajo otros epígrafes
+NA,NA,6130,Productores y trabajadores calificados de explotaciones agropecuarias mixtas cuya producción se destina al mercado
+NA,NA,6210,Trabajadores forestales calificados y afines
+NA,NA,6221,Trabajadores de explotaciones de acuicultura
+NA,NA,6222,Pescadores de agua dulce y en aguas costeras
+NA,NA,6223,Pescadores de alta mar
+NA,NA,6224,Cazadores y tramperos
+NA,NA,6310,Trabajadores agrícolas de subsistencia
+NA,NA,6320,Trabajadores pecuarios de subsistencia
+NA,NA,6330,Trabajadores agropecuarios de subsistencia
+NA,NA,6340,"Pescadores, cazadores, tramperos y recolectores de subsistencia"
+NA,NA,7111,Constructores de casas
+NA,NA,7112,Albañiles
+NA,NA,7113,"Mamposteros, tronzadores, labrantes y grabadores de piedra"
+NA,NA,7114,"Operarios en cemento armado, enfoscadores y afines"
+NA,NA,7115,Carpinteros de armar y de obra blanca
+NA,NA,7119,Oficiales y operarios de la construcción (obra gruesa) y afines no clasificados bajo otros epígrafes
+NA,NA,7121,Techadores
+NA,NA,7122,Parqueteros y colocadores de suelos
+NA,NA,7123,Revocadores
+NA,NA,7124,Instaladores de material aislante y de insonorización
+NA,NA,7125,Cristaleros
+NA,NA,7126,Fontaneros e instaladores de tuberías
+NA,NA,7127,Mecánicos-montadores de instalaciones de refrigeración y climatización
+NA,NA,7131,Pintores y empapeladores
+NA,NA,7132,Barnizadores y afines
+NA,NA,7133,Limpiadores de fachadas y deshollinadores
+NA,NA,7211,Moldeadores y macheros
+NA,NA,7212,Soldadores y oxicortadores
+NA,NA,7213,Chapistas y caldereros
+NA,NA,7214,Montadores de estructuras metálicas
+NA,NA,7215,Aparejadores y empalmadores de cables
+NA,NA,7221,Herreros y forjadores
+NA,NA,7222,Herramentistas y afines
+NA,NA,7223,Reguladores y operadores de máquinas herramientas
+NA,NA,7224,Pulidores de metales y afiladores de herramientas
+NA,NA,7231,Mecánicos y reparadores de vehículos de motor
+NA,NA,7232,Mecánicos y reparadores de motores de avión
+NA,NA,7233,Mecánicos y reparadores de máquinas agrícolas e industriales
+NA,NA,7234,Reparadores de bicicletas y afines
+NA,NA,7311,Mecánicos y reparadores de instrumentos de precisión
+NA,NA,7312,Fabricantes y afinadores de instrumentos musicales
+NA,NA,7313,"Joyeros, orfebres y plateros"
+NA,NA,7314,"Alfareros y afines (barro, arcilla y abrasivos)"
+NA,NA,7315,"Sopladores, modeladores, laminadores, cortadores y pulidores de vidrio"
+NA,NA,7316,"Redactores de carteles, pintores decorativos y grabadores"
+NA,NA,7317,"Artesanos en madera, cestería y materiales similares"
+NA,NA,7318,"Artesanos de los tejidos, el cuero y materiales similares"
+NA,NA,7319,Artesanos no clasificados bajo otros epígrafes
+NA,NA,7321,"Cajistas, tipógrafos y afines"
+NA,NA,7322,Impresores
+NA,NA,7323,Encuadernadores y afines
+NA,NA,7411,Electricistas de obras y afines
+NA,NA,7412,Mecánicos y ajustadores electricistas
+NA,NA,7413,Instaladores y reparadores de líneas eléctricas
+NA,NA,7421,Mecánicos y reparadores en electrónica
+NA,NA,7422,Instaladores y reparadores en tecnología de la información y las comunicaciones
+NA,NA,7511,"Carniceros, pescaderos y afines"
+NA,NA,7512,"Panaderos, pasteleros y confiteros"
+NA,NA,7513,Operarios de la elaboración de productos lácteos
+NA,NA,7514,"Operarios de la conservación de frutas, legumbres, verduras y afines"
+NA,NA,7515,Catadores y clasificadores de alimentos y bebidas
+NA,NA,7516,Preparadores y elaboradores de tabaco y sus productos
+NA,NA,7521,Operarios del tratamiento de la madera
+NA,NA,7522,Ebanistas y afines
+NA,NA,7523,Reguladores y operadores de máquinas de labrar madera
+NA,NA,7531,"Sastres, modistos, peleteros y sombrereros"
+NA,NA,7532,Patronistas y cortadores de tela y afines
+NA,NA,7533,"Costureros, bordadores y afines"
+NA,NA,7534,"Tapiceros, colchoneros y afines"
+NA,NA,7535,"Apelambradores, pellejeros y curtidores"
+NA,NA,7536,Zapateros y afines
+NA,NA,7541,Buzos
+NA,NA,7542,Dinamiteros y pegadores
+NA,NA,7543,Clasificadores y probadores de productos (excluyendo alimentos y bebidas)
+NA,NA,7544,Fumigadores y otros controladores de plagas y malas hierbas
+NA,NA,7549,"Oficiales, operarios y artesanos de artes mecánicas y de otros oficios no clasificados bajo otros epígrafes"
+NA,NA,8111,Mineros y operadores de instalaciones mineras
+NA,NA,8112,Operadores de instalaciones de procesamiento de minerales y rocas
+NA,NA,8113,Perforadores y sondistas de pozos y afines
+NA,NA,8114,Operadores de máquinas para fabricar cemento y otros productos minerales
+NA,NA,8121,Operadores de instalaciones de procesamiento de metales
+NA,NA,8122,"Operadores de máquinas pulidoras, galvanizadoras y recubridoras  de metales"
+NA,NA,8131,Operadores de plantas y máquinas de productos químicos
+NA,NA,8132,Operadores de máquinas para fabricar productos fotográficos
+NA,NA,8141,Operadores de máquinas para fabricar productos de caucho
+NA,NA,8142,Operadores de máquinas para fabricar productos de material plástico
+NA,NA,8143,Operadores de máquinas para fabricar productos de papel
+NA,NA,8151,"Operadores de máquinas de preparación de fibras, hilado y devanado"
+NA,NA,8152,Operadores de telares y otras máquinas tejedoras
+NA,NA,8153,Operadores de máquinas de coser
+NA,NA,8154,"Operadores de máquinas de blanqueamiento, teñido y limpieza de tejidos"
+NA,NA,8155,Operadores de máquinas de tratamiento de pieles y cueros
+NA,NA,8156,Operadores de máquinas para la fabricación de calzado y afines
+NA,NA,8157,Operadores de máquinas lavarropas
+NA,NA,8159,Operadores de máquinas para fabricar productos textiles y artículos de piel y cuero no clasificados bajo otros epígrafes
+NA,NA,8160,Operadores de máquinas para elaborar alimentos y productos afines
+NA,NA,8171,Operadores de instalaciones para la preparación de pasta para papel y papel
+NA,NA,8172,Operadores de instalaciones de procesamiento de la madera
+NA,NA,8181,Operadores de instalaciones de vidriería y cerámica
+NA,NA,8182,Operadores de máquinas de vapor y calderas
+NA,NA,8183,"Operadores de máquinas de embalaje, embotellamiento y etiquetado"
+NA,NA,8189,Operadores de máquinas y de instalaciones fijas no clasificados bajo otros epígrafes
+NA,NA,8211,Ensambladores de maquinaria mecánica
+NA,NA,8212,Ensambladores de equipos eléctricos y electrónicos
+NA,NA,8219,Ensambladores no clasificados bajo otros epígrafes
+NA,NA,8311,Maquinistas de locomotoras
+NA,NA,8312,"Guardafrenos, guardagujas y agentes de maniobras"
+NA,NA,8321,Conductores de motocicletas
+NA,NA,8322,"Conductores de automóviles, taxis y camionetas"
+NA,NA,8331,Conductores de autobuses y tranvías
+NA,NA,8332,Conductores de camiones pesados
+NA,NA,8341,Operadores de maquinaria agrícola y forestal móvil
+NA,NA,8342,Operadores de máquinas de movimiento de tierras y afines
+NA,NA,8343,"Operadores de grúas, aparatos elevadores y afines"
+NA,NA,8344,Operadores de autoelevadoras
+NA,NA,8350,Marineros de cubierta y afines
+NA,NA,9111,Limpiadores y asistentes domésticos
+NA,NA,9112,"Limpiadores y asistentes de oficinas, hoteles y otros establecimientos"
+NA,NA,9113,Personal doméstico
+NA,NA,9121,Lavanderos y planchadores manuales
+NA,NA,9122,Lavadores de vehículos
+NA,NA,9123,Lavadores de ventanas
+NA,NA,9129,Otro personal de limpieza
+NA,NA,9211,Peones de explotaciones agrícolas
+NA,NA,9212,Peones de explotaciones ganaderas
+NA,NA,9213,Peones de explotaciones de cultivos mixtos y ganaderos
+NA,NA,9214,Peones de jardinería y horticultura
+NA,NA,9215,Peones forestales
+NA,NA,9216,Peones de pesca y acuicultura
+NA,NA,9311,Peones de minas y canteras
+NA,NA,9312,Peones de obras públicas y mantenimiento
+NA,NA,9313,Peones de la construcción de edificios
+NA,NA,9321,Empacadores manuales
+NA,NA,9329,Peones de la industria manufacturera no clasificados bajo otros epígrafes
+NA,NA,9331,Conductores de vehículos accionados a pedal o a brazo
+NA,NA,9332,Conductores de vehículos y máquinas de tracción animal
+NA,NA,9333,Peones de carga
+NA,NA,9334,Reponedores de estanterías
+NA,NA,9411,Cocineros de comidas rápidas
+NA,NA,9412,Ayudantes de cocina
+NA,NA,9510,Trabajadores ambulantes de servicios y afines
+NA,NA,9520,Vendedores ambulantes (excluyendo de comida)
+NA,NA,9611,Recolectores de basura y material reciclable
+NA,NA,9612,Clasificadores de desechos
+NA,NA,9613,Barrenderos y afines
+NA,NA,9621,"Mensajeros, mandaderos, maleteros y repartidores"
+NA,NA,9622,Personas que realizan trabajos varios
+NA,NA,9623,Recolectores de dinero en aparatos de venta automática y lectores de medidores
+NA,NA,9624,Acarreadores de agua y recolectores de leña
+NA,NA,9629,Ocupaciones elementales no clasificadas bajo otros epígrafes
+NA,NA,´0110,Oficiales de las fuerzas armadas
+NA,NA,´0210,Suboficiales de las fuerzas armadas
+NA,NA,´0310,Otros miembros de las fuerzas armadas
+NA,NA,9998,Ocupaciones no especificadas en las anteriores
+NA,NA,9999,Ocupación ignorada
+NA,NA,NA,NA
+AGR_DEDICA,A que se dedica el(a) agresor(a) (sin ingresos),1,Quehaceres del hogar
+NA,NA,2,Vive de su renta o jubilación
+NA,NA,3,Estudiar
+NA,NA,4,Desempleado
+NA,NA,6,Otro
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+OTROS_AGRESORES,Total otros agresores,00 a 20,Total otros agresores
+NA,NA,99,Ignorado total otros agresores
+AGR_OTROS_HOM,Otros agresores hombres     (de 13 años en adelante),00 a 09,Otros agresores hombres
+NA,NA,99,Ignorado otros agresores hombres
+AGR_OTRAS_MUJ,Otras agresoras mujeres      (de 13 años en adelante),00 a 09,Otras agresoras mujeres
+NA,NA,99,Ignorado otras agresoras mujeres
+AGR_OTROS_N_OS,Otros agresores niños          (de 00 a 12 años),00 a 09,Otros agresores niños
+NA,NA,99,Ignorado otros agresores niños
+AGR_OTRAS_N_AS,Otras agresoras niñas           (de 00 a 12 años),00 a 09,Otras agresoras niñas
+NA,NA,99,Ignorado otras agresoras niñas
+NA,NA,NA,NA
+DATOS DE LA INSTITUCIÓN QUE REGISTRA EL HECHO,NA,NA,NA
+NA,NA,NA,NA
+INST_DENUN_HECHO,Nombre  de la institución que registra el hecho,1,Ministerio Público
+NA,NA,2,Procuraduría General de la Nación
+NA,NA,3,Policía Nacional Civil
+NA,NA,4,Organismo Judicial
+NA,NA,5,Bufetes Populares
+NA,NA,6,Procuraduría de los Derechos Humanos
+NA,NA,NA,NA
+ORGANISMO_JURISDICCIONAL,Órgano jurisdiccional que recibe la denuncia,1,Juzgados de Paz
+NA,NA,2,Juzgados de Paz Comunitarios
+NA,NA,3,Juzgados de Paz Penal
+NA,NA,4,"Juzgado de Paz Penal de Conocimiento a Prevención de Delitos de Narcotráfico, Defraudación y Contrabando Aduanero, Violencia Sexual, Explotación y Trata de Personas"
+NA,NA,5,Juzgados de Paz Penal de Turno/24horas
+NA,NA,6,Juzgados de Paz Móvil
+NA,NA,7,"Juzgado de Paz con Competencia Específica para la Protección en Materia de Violencia Intrafamiliar, y de Niñez y Adolescencia Amenazada o Violada en sus Derechos (de turno)"
+NA,NA,8,"Juzgados de Primera Instancia Penal, Narcoactividad y Delitos contra el Ambiente"
+NA,NA,9,"Juzgados de Primera Instancia Penal, Narcoactividad y Delitos contra el Ambiente de Turno/24 horas"
+NA,NA,10,"Juzgado de Turno de Primera Instancia Penal de Delitos de Femicidio y otras formas de  Violencia contra la contra la Mujer y Violencia Sexual, Explotación y Trata de Personas"
+NA,NA,11,Juzgados de Primera Instancia Penal de Delitos de Femicidio y otras formas de Violencia contra la Mujer
+NA,NA,12,"Tribunales de Sentencia Penal, Narcoactividad y Delitos contra el Ambiente"
+NA,NA,13,Tribunales de Sentencia Penal de Delitos de Femicidio y otras formas de Violencia en contra de la Mujer
+NA,NA,14,Juzgados de Primera Instancia Ramo Mixto
+NA,NA,15,Juzgados de Primera Instancia de Familia
+NA,NA,16,Juzgados de Adolescentes en Conflicto con la Ley Penal
+NA,NA,NA,NA
+CONDUCENTE,Se certificó lo conducente,1,Si
+NA,NA,2,No
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+LEY_APLICABLE,Ley que se aplicó en el caso,1,Ley VIF ó Decreto 97-96
+NA,NA,2,Ley VCM ó Decreto 22-2008
+NA,NA,3,Ambas leyes (VIF y VCM)
+NA,NA,4,Código Penal ó Decreto 17-73
+NA,NA,5,Otra
+NA,NA,6,Ley VIF y Código Penal
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+ARTICULOVIF,Artículos aplicados                 (Se registraron hasta 4 artículos de una misma ley),001 a 014,Artículos de la ley VIF
+NA,NA,999,Artículos de la ley VIF ignorado
+ARTICULOVCM,NA,001 a 028,Artículos de la ley VCM
+NA,NA,999,Artículos de la ley VCM ignorado
+ARTICULOCODPEN,NA,001 a 498,Artículos del Código Penal
+NA,NA,999,Artículos del Código Penal ignorado
+ARTICULOTRAS,NA,001 a 500,Artículos otras leyes
+NA,NA,999,Artículos otras leyes ignorado
+NA,NA,NA,NA
+MEDIDAS_SEGURIDAD,Medidas de seguridad otorgadas por el Organismo Judicial,1,Medidas otorgadas
+NA,NA,2,Medidas no otorgadas
+NA,NA,9,Ignorado
+NA,NA,NA,NA
+TIPO_MEDIDA,Tipo de medida de seguridad aplicada,a,"Ordenar al presunto agresor que salga inmediatamente de la residencia común. Si se resiste, se utilizará la     fuerza pública."
+NA,NA,b,"Ordenar la asistencia obligatoria a instituciones con programas terapéutico-educativos, creados para ese fin."
+NA,NA,c,"Ordenar el allanamiento de la morada cuando, por violencia intrafamiliar, se arriesgue gravemente la integridad física, sexual, patrimonial, o psicológica de cualquiera de sus habitantes."
+NA,NA,d,"Prohibir que se introduzcan o se mantengan armas en la casa de habitación, cuando se utilicen para intimidar, amenazar o causar daño a alguna de las personas integrantes del grupo familiar."
+NA,NA,e,"Decomisar las armas en posesión del presunto agresor, aún cuando tenga licencia de portación."
+NA,NA,f,"Suspenderle provisionalmente al presunto agresor, la guarda y custodia de sus hijos e hijas menores de edad."
+NA,NA,g,"Ordenar al presunto agresor abstenerse de interferir, en cualquier forma, en el ejercicio de la guarda, crianza y educación de sus hijos e hijas."
+NA,NA,h,"Suspenderle al presunto agresor el derecho de visitar a sus hijos e hijas, en caso de agresión sexual contra menores de edad."
+NA,NA,i,"Prohibir, al presunto agresor que perturbe o intimide a cualquier integrante del grupo familiar."
+NA,NA,j,Prohibir el acceso del presunto agresor al domicilio permanente o temporal de la persona agredida y a su lugar de trabajo o estudio.
+NA,NA,k,"Fijar una obligación alimentaria provisional, de conformidad con lo establecido en el Código Civil."
+NA,NA,l,"Disponer el embargo preventivo de bienes, del presunto agresor. Para aplicar esta medida no será necesario ningún depósito de garantía. A juicio de la autoridad judicial competente, el embargo recaerá sobre la casa de habitación familiar y sobre los bienes necesarios para respaldar la obligación alimentaria en favor de la persona agredida y los dependientes que correspondan, conforme a la ley."
+NA,NA,m,"Levantar un inventario de los bienes muebles existentes en el núcleo habitacional, en particular el menaje de casa u otros que le sirvan como medio de trabajo a la persona agredida."
+NA,NA,n,"Otorgar el uso exclusivo, por un plazo determinado, del menaje de casa a la persona agredida. Deberán salvaguardarse especialmente la vivienda y el menaje amparado al régimen de patrimonio familiar."
+NA,NA,ñ,"Ordenar, al presunto agresor, que se abstenga de interferir en el uso y disfrute de los instrumentos de trabajo de la persona agredida. Cuando ésta tenga sesenta (60) años o más o sea discapacitada, el presunto agresor no deberá interferir en el uso y disfrute de instrumentos indispensables para que la víctima pueda valerse por sí misma o integrarse a la sociedad."
+NA,NA,o,"Ordenar al presunto agresor, la reparación en dinero efectivo de los daños ocasionados a la persona agredida, o a los bienes que le sean indispensables para continuar su vida normal. Se incluyen gastos de traslado, reparaciones a la propiedad, alojamiento y gastos médicos. El monto se hará efectivo en la forma y procedimiento que la autoridad judicial estime conveniente para garantizar que la misma sea cumplida."
+NA,NA,z,Se ignora la medida de seguridad
+NA,NA,NA,NA
+ORGANISMO_REMITE,Órgano jurisdiccional a donde se remitió,1,Juzgados de Paz
+NA,NA,2,Juzgados de Paz Comunitarios
+NA,NA,3,Juzgados de Paz Penal
+NA,NA,4,"Juzgado de Paz Penal de Conocimiento a Prevención de Delitos de Narcotráfico, Defraudación y Contrabando Aduanero, Violencia Sexual, Explotación y Trata de Personas"
+NA,NA,5,Juzgados de Paz Penal de Turno/24horas
+NA,NA,6,Juzgados de Paz Móvil
+NA,NA,7,"Juzgado de Paz con Competencia Específica para la Protección en Materia de Violencia Intrafamiliar, y de Niñez y Adolescencia Amenazada o Violada en sus Derechos (de turno)"
+NA,NA,8,"Juzgados de Primera Instancia Penal, Narcoactividad y Delitos contra el Ambiente"
+NA,NA,9,"Juzgados de Primera Instancia Penal, Narcoactividad y Delitos contra el Ambiente de Turno/24 horas"
+NA,NA,10,"Juzgado de Turno de Primera Instancia Penal de Delitos de Femicidio y otras formas de  Violencia contra la contra la Mujer y Violencia Sexual, Explotación y Trata de Personas"
+NA,NA,11,Juzgados de Primera Instancia Penal de Delitos de Femicidio y otras formas de Violencia en contra de la Mujer
+NA,NA,12,"Tribunales de Sentencia Penal, Narcoactividad y Delitos contra el Ambiente"
+NA,NA,13,Tribunales de Sentencia Penal de Delitos de Femicidio y otras formas de Violencia en contra de la Mujer
+NA,NA,14,Juzgados de Primera Instancia Ramo Mixto
+NA,NA,15,Juzgados de Primera Instancia de Familia
+NA,NA,16,Juzgados de Adolescentes en Conflicto con la Ley Penal
+NA,NA,17,Ministerio Público (como órgano estatal)
+NA,NA,18,Este mismo órgano
+NA,NA,99,Ignorado
