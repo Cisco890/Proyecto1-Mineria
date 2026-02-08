@@ -1,36 +1,152 @@
 ---
 title: "Proyecto 1"
-output: html_document
-date: "2026-02-2"
 author: "Luis Pedro Lira 23669, Fernando Rocha 23501, Juan Francisco Martínez 23617"
-
+date: "2026-02-02"
+output:
+  pdf_document:
+    latex_engine: xelatex
 ---
+
+
 ```{r}
 
 ```
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-```{r paquetes}
-library(nortest)
-library(ggplot2)
-library(dplyr)
-library(cluster) #Para calcular la silueta
-library(e1071)#para cmeans
-library(mclust) #mixtures of gaussians
-library(fpc) #para hacer el plotcluster
-library(NbClust) #Para determinar el número de clusters óptimo
-library(factoextra) #Para hacer gráficos bonitos de clustering
-library(hopkins) #Para revisar si vale la pena hacer agrupamiento
-library(GGally) #Para hacer el conjunto de graficos
-library(FeatureImpCluster) #Para revisar la importancia de las variables en los grupos.
-library(pheatmap) #Para hacer mapa de calor
-```
-```{r carga_datos}
-movies <- read.csv("movies_2026.csv")
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+
+library(tidyverse)
+library(readr)
 
 ```
 
-#  Análisis exploratorio de Datos
+```{r}
+library(readr)
 
+divorcios <- read_csv("Datos/divorcios_total.csv")
+violencia <- read_csv("Datos/violencia_total.csv")
+
+```
+
+
+
+## Introducción 
+La violencia intrafamiliar constituye un problema social de alta relevancia debido a su impacto en la estabilidad emocional, social y económica de los hogares. Por otro lado, el divorcio representa una consecuencia legal de conflictos persistentes dentro del núcleo familiar, los cuales pueden estar relacionados con dinámicas de violencia y deterioro de la convivencia.
+
+En este proyecto se analiza la posible relación entre los divorcios y la violencia intrafamiliar utilizando datos oficiales correspondientes al año 2022. A través de técnicas de análisis exploratorio de datos y minería de datos, se busca identificar patrones, comportamientos y relaciones entre ambas problemáticas, con el fin de obtener una comprensión más profunda de su interacción a nivel agregado.
+
+El análisis se centra en una exploración descriptiva inicial de los conjuntos de datos, la caracterización de sus variables y la evaluación de posibles relaciones estadísticas entre los indicadores de divorcio y violencia intrafamiliar.
+
+## Objetivos 
+**Objetivo General**
+Analizar la relación entre los divorcios y la violencia intrafamiliar mediante técnicas de análisis exploratorio y minería de datos, utilizando información correspondiente al año 2022.
+
+**Objetivos específicos**
+- Describir las características principales de los conjuntos de datos de divorcios y violencia intrafamiliar.
+- Identificar y clasificar las variables numéricas y categóricas presentes en cada conjunto de datos.
+-	Realizar un análisis exploratorio de las variables relevantes mediante medidas descriptivas y representaciones gráficas.
+- Evaluar posibles relaciones entre indicadores de divorcio y violencia intrafamiliar.
+
+
+
+## Descripción general de los datos
+
+Para el desarrollo del presente proyecto se utilizaron dos conjuntos de datos correspondientes al año 2022. El primero contiene información relacionada con los procesos de divorcio, mientras que el segundo recopila registros asociados a casos de violencia intrafamiliar. Ambos conjuntos de datos fueron obtenidos a partir de fuentes oficiales y procesados previamente para su uso en el análisis.
+
+```{r,echo=FALSE, results='hide'}
+## Dataset de divorcios
+
+str(divorcios)
+str(violencia)
+```
+
+## Descripción de las variables: Violencia intrafamiliar
+
+El conjunto de datos de violencia intrafamiliar contiene información detallada sobre las características sociodemográficas de las víctimas y agresores, así como aspectos relacionados con el hecho de violencia reportado. Las variables incluidas permiten analizar dimensiones como edad, sexo, escolaridad, ocupación, estado civil y relación entre víctima y agresor, entre otras.
+
+
+```{r, echo=FALSE, results='hide'}
+## Resumen de tipos de variables en violencia
+
+glimpse(violencia)
+```
+La mayoría de las variables en el conjunto de datos corresponden a codificaciones numéricas que representan categorías, mientras que otras variables como la edad y las fechas corresponden a valores numéricos continuos o discretos.
+
+```{r}
+violencia <- violencia %>%
+  mutate(
+    vic_edad = ifelse(vic_edad %in% c(99, 999), NA, vic_edad)
+  )
+```
+
+El conjunto de datos de violencia intrafamiliar presenta valores faltantes (`NA`) en diversas variables, los cuales corresponden principalmente a información no aplicable a todos los registros. Adicionalmente, algunas variables contienen códigos numéricos utilizados para representar valores no especificados, los cuales serán tratados como valores faltantes durante el análisis exploratorio.
+
+
+## Descripción de las variables: Divorcios
+
+El conjunto de datos de divorcios contiene información asociada a los procesos de disolución del vínculo matrimonial, incluyendo características temporales, geográficas y sociodemográficas de las personas involucradas. Las variables disponibles permiten analizar aspectos como la edad, escolaridad, ocupación y nacionalidad de los cónyuges, así como el lugar y fecha de ocurrencia del divorcio.
+
+```{r, echo=FALSE, results='hide'}
+## Resumen de variables en divorcios
+glimpse(divorcios)
+```
+
+```{r}
+divorcios <- divorcios %>%
+  mutate(
+    EDADHOM = ifelse(EDADHOM == 999, NA, EDADHOM),
+    EDADMUJ = ifelse(EDADMUJ == 999, NA, EDADMUJ)
+  )
+```
+Es importante destacar que el conjunto de datos contiene valores faltantes (`NA`) en algunas variables, los cuales corresponden principalmente a información no aplicable o no disponible para ciertos registros. Adicionalmente, algunas variables presentan valores codificados para representar información no especificada, los cuales serán tratados adecuadamente durante el análisis exploratorio.
+
+
+___
+
+
+## Exploración de variables numéricas
+
+En esta sección se analizan las principales variables numéricas de los conjuntos de datos de violencia intrafamiliar y divorcios, utilizando medidas de tendencia central, medidas de orden y representaciones gráficas.
+
+```{r}
+summary(violencia$vic_edad)
+```
+
+La edad de la víctima presenta un rango amplio, desde 1 hasta 98 años, lo cual evidencia que la violencia intrafamiliar afecta a personas de distintas etapas de la vida. La mediana de edad es de 31 años, mientras que la media es de aproximadamente 33 años, lo que indica una ligera asimetría positiva en la distribución. El 50% de las víctimas se concentra entre los 24 y 39 años de edad, sugiriendo que los adultos jóvenes representan el grupo más afectado. Se identificaron 5,046 registros sin información de edad, los cuales serán considerados como valores faltantes en el análisis.
+
+
+```{r}
+violencia <- violencia %>%
+  mutate(
+    total_hijos = ifelse(total_hijos == 99, NA, total_hijos)
+  )
+summary(violencia$total_hijos)
+```
+
+El número total de hijos de la víctima presenta una mediana de 2 hijos, lo que indica que la mayoría de los casos corresponde a personas con familias pequeñas. La media es cercana a la mediana, lo cual sugiere una distribución relativamente equilibrada. El 75% de las víctimas tiene tres hijos o menos, mientras que los valores máximos observados corresponden a casos aislados de familias numerosas. Se identificó una proporción considerable de valores faltantes, los cuales fueron tratados adecuadamente durante el análisis exploratorio.
+
+
+
+```{r}
+divorcios <- divorcios %>%
+  mutate(
+    EDADMUJ = ifelse(EDADMUJ == 999, NA, EDADMUJ),
+    EDADHOM = ifelse(EDADHOM == 999, NA, EDADHOM)
+  )
+```
+
+```{r}
+summary(divorcios$EDADMUJ)
+```
+La edad de la mujer en los procesos de divorcio presenta una mediana de 31 años y una media de aproximadamente 33 años, lo que indica que los divorcios se concentran principalmente en edades adultas jóvenes. El 50% de los casos se encuentra entre los 26 y 38 años, mientras que los valores máximos corresponden a casos aislados de edades avanzadas. La distribución muestra una ligera asimetría positiva y se identifican valores faltantes que fueron considerados adecuadamente durante el análisis.
+
+
+```{r}
+summary(divorcios$EDADHOM)
+```
+
+La edad del hombre en los procesos de divorcio presenta una mediana de 34 años y una media de aproximadamente 36 años, lo que sugiere que los hombres tienden a ser ligeramente mayores que las mujeres al momento del divorcio. El rango intercuartílico se ubica entre los 29 y 41 años, concentrando la mayoría de los casos en edades adultas. La distribución presenta una asimetría positiva y algunos valores extremos correspondientes a edades avanzadas.
