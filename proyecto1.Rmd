@@ -3,14 +3,12 @@ title: "Proyecto 1"
 author: "Luis Pedro Lira 23669, Fernando Rocha 23501, Juan Francisco Martínez 23617"
 date: "2026-02-02"
 output:
+  html_document:
+    df_print: paged
   pdf_document:
     latex_engine: xelatex
 ---
 
-
-```{r}
-
-```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -150,3 +148,99 @@ summary(divorcios$EDADHOM)
 ```
 
 La edad del hombre en los procesos de divorcio presenta una mediana de 34 años y una media de aproximadamente 36 años, lo que sugiere que los hombres tienden a ser ligeramente mayores que las mujeres al momento del divorcio. El rango intercuartílico se ubica entre los 29 y 41 años, concentrando la mayoría de los casos en edades adultas. La distribución presenta una asimetría positiva y algunos valores extremos correspondientes a edades avanzadas.
+
+
+---
+
+
+## Exploración de variables categóricas
+
+En esta sección se analizan las principales variables categóricas del conjunto de datos de violencia intrafamiliar. El objetivo es identificar la distribución de los casos según características sociodemográficas y relacionales, utilizando tablas de frecuencia y representaciones gráficas que permitan una mejor comprensión del fenómeno estudiado.
+
+### Sexo de la víctima
+
+Se analiza la distribución de los casos de violencia intrafamiliar según el sexo de la víctima, con el fin de identificar posibles diferencias en la afectación por género.
+
+```{r}
+# Tabla de frecuencia: sexo de la víctima
+tabla_sexo <- violencia %>%
+  filter(!is.na(vic_sexo)) %>%
+  count(vic_sexo) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_sexo
+```
+```{r}
+# Gráfico de barras: sexo de la víctima
+ggplot(tabla_sexo, aes(x = factor(vic_sexo), y = n)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Distribución del sexo de las víctimas",
+    x = "Sexo",
+    y = "Frecuencia"
+  )
+```
+La distribución evidencia que la violencia intrafamiliar afecta de manera diferenciada según el sexo de la víctima, mostrando una concentración mayor en uno de los grupos, lo cual sugiere la presencia de desigualdades estructurales en el contexto familiar.
+
+
+### Estado civil de la víctima
+
+El estado civil de la víctima permite analizar el contexto relacional en el que ocurren los hechos de violencia intrafamiliar.
+
+```{r}
+# Tabla de frecuencia: estado civil
+tabla_estado_civil <- violencia %>%
+  filter(!is.na(vic_est_civ)) %>%
+  count(vic_est_civ) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_estado_civil
+```
+```{r}
+# Gráfico de barras: estado civil
+ggplot(tabla_estado_civil, aes(x = factor(vic_est_civ), y = n)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Distribución del estado civil de las víctimas",
+    x = "Estado civil",
+    y = "Frecuencia"
+  )
+```
+Los resultados muestran que los casos de violencia intrafamiliar se concentran principalmente en ciertos estados civiles, lo cual podría estar asociado a dinámicas de convivencia y conflictos dentro del núcleo familiar.
+
+
+
+### Relación entre la víctima y el agresor
+
+Se examina la relación existente entre la víctima y el agresor para identificar los vínculos más frecuentes en los casos reportados de violencia intrafamiliar.
+
+```{r}
+# Tabla de frecuencia: relación víctima-agresor
+tabla_relacion <- violencia %>%
+  filter(!is.na(vic_rel_agr)) %>%
+  count(vic_rel_agr) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_relacion
+```
+```{r}
+# Gráfico de barras: relación víctima-agresor
+ggplot(tabla_relacion, aes(x = factor(vic_rel_agr), y = n)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Relación entre la víctima y el agresor",
+    x = "Relación",
+    y = "Frecuencia"
+  )
+```
+El análisis evidencia que la mayoría de los casos de violencia intrafamiliar ocurre entre personas con vínculos cercanos, lo cual refuerza la naturaleza intrafamiliar del fenómeno y resalta la importancia de analizar las relaciones personales dentro del hogar.
+
+
+
+##  Tablas de frecuencia
+
+
+---
+
+
+## Relaciones entre las variables. 
