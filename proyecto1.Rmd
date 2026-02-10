@@ -175,7 +175,7 @@ tabla_sexo
 ggplot(tabla_sexo, aes(x = factor(vic_sexo), y = n)) +
   geom_bar(stat = "identity") +
   labs(
-    title = "Distribución del sexo de las víctimas",
+    title = "Distribucion del sexo de las victimas",
     x = "Sexo",
     y = "Frecuencia"
   )
@@ -201,7 +201,7 @@ tabla_estado_civil
 ggplot(tabla_estado_civil, aes(x = factor(vic_est_civ), y = n)) +
   geom_bar(stat = "identity") +
   labs(
-    title = "Distribución del estado civil de las víctimas",
+    title = "Distribucion del estado civil de las victimas",
     x = "Estado civil",
     y = "Frecuencia"
   )
@@ -228,8 +228,8 @@ tabla_relacion
 ggplot(tabla_relacion, aes(x = factor(vic_rel_agr), y = n)) +
   geom_bar(stat = "identity") +
   labs(
-    title = "Relación entre la víctima y el agresor",
-    x = "Relación",
+    title = "Relacion entre la victima y el agresor",
+    x = "Relacion",
     y = "Frecuencia"
   )
 ```
@@ -247,9 +247,9 @@ violencia %>%
   ggplot(aes(x = vic_edad, y = agr_edad)) +
   geom_point(alpha = 0.1, color = "darkred") + 
   geom_abline(intercept = 0, slope = 1, color = "blue", linetype = "dashed") + 
-  labs(title = "Relación de Edades: Víctima vs. Agresor",
-       subtitle = "La línea azul indica la misma edad. Puntos arriba = Agresor mayor.",
-       x = "Edad de la Víctima",
+  labs(title = "Relacion de Edades: Victima vs. Agresor",
+       subtitle = "La linea azul indica la misma edad. Puntos arriba = Agresor mayor.",
+       x = "Edad de la Victima",
        y = "Edad del Agresor") +
   theme_minimal()
 ```
@@ -266,10 +266,50 @@ violencia %>%
   ggplot(aes(x = factor(hec_mes), y = total)) +
   geom_col(fill = "steelblue") +
   labs(title = "Estacionalidad de la Violencia Intrafamiliar",
-       x = "Mes del Año (1 = Enero, 12 = Diciembre)",
+       x = "Mes del Anno (1 = Enero, 12 = Diciembre)",
        y = "Cantidad de Denuncias") +
   theme_classic()
 ```
 El análisis de estacionalidad revela que la incidencia de violencia intrafamiliar mantiene un comportamiento relativamente constante y sostenido durante gran parte del año, sin caídas drásticas. Se observan ligeros repuntes en los meses de marzo, mayo y julio, los cuales concentran los volúmenes más altos de denuncias (superando los 30,000 casos mensuales). Por otro lado, se percibe una leve tendencia decreciente hacia el último trimestre (octubre a diciembre). Cabe destacar la presencia de una barra etiquetada como "99", la cual corresponde a registros donde el mes de ocurrencia no fue especificado o es desconocido, evidenciando la necesidad de considerar estos valores nulos durante la limpieza de datos para evitar sesgos en el análisis temporal.
+
+## Relación: Nivel Educativo de la Pareja (Homogamia)
+
+```{r}
+divorcios %>%
+  filter(!is.na(ESCHOM), !is.na(ESCMUJ)) %>%
+  group_by(ESCHOM, ESCMUJ) %>%
+  count() %>%
+  ggplot(aes(x = factor(ESCHOM), y = factor(ESCMUJ), fill = n)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "red") +
+  labs(title = "Mapa de Calor: Nivel Educativo en Divorcios",
+       subtitle = "Codigos: 1=Ninguno ... 6+=Superior (Verificar diccionario)",
+       x = "Escolaridad del Hombre",
+       y = "Escolaridad de la Mujer",
+       fill = "Cantidad") +
+  theme_minimal()
+```
+
+El análisis de la matriz educativa revela una marcada tendencia hacia la homogamia educativa en las disoluciones matrimoniales. Se observa una concentración de casos a lo largo de la diagonal principal (donde el nivel educativo del hombre y la mujer coinciden), lo que sugiere que las parejas tienden a formarse —y consecuentemente a divorciarse— dentro de sus mismos estratos académicos. Sin embargo, el hallazgo más crítico desde la perspectiva de la minería de datos es la alta densidad observada en la intersección de los códigos "9" (esquina superior derecha, color rojo intenso). Dado que este código corresponde a valores "Ignorados" o "No indicados" en los estándares del INE, esto evidencia un sesgo de información faltante significativo; es decir, en una gran proporción de los divorcios registrados, no se capturó el nivel educativo de ninguno de los cónyuges, lo cual limita la caracterización sociodemográfica precisa de este subgrupo.
+
+## Relacion: Distribución de la Diferencia de Edad en Divorcios
+
+```{r}
+divorcios %>%
+  filter(!is.na(EDADHOM), !is.na(EDADMUJ)) %>%
+  mutate(diferencia_edad = EDADHOM - EDADMUJ) %>%
+  filter(diferencia_edad > -20, diferencia_edad < 30) %>% # Filtramos casos extremos errores
+  ggplot(aes(x = diferencia_edad)) +
+  geom_histogram(binwidth = 1, fill = "purple", color = "white") +
+  geom_vline(xintercept = 0, color = "black", size = 1) +
+  labs(title = "Diferencia de Edad en Parejas que se Divorcian",
+       subtitle = "Valores positivos: Hombre mayor. Valores negativos: Mujer mayor.",
+       x = "Annos de diferencia (Edad Hombre - Edad Mujer)",
+       y = "Frecuencia") +
+  theme_light()
+```
+
+El histograma de distribución de edades en los divorcios muestra una clara asimetría positiva (sesgo hacia la derecha). La mayor concentración de datos se agrupa alrededor de la línea cero, indicando que una gran parte de las disoluciones matrimoniales ocurre en parejas con edades similares (homogamia etaria). Sin embargo, la cola derecha de la distribución es notablemente más larga y densa que la izquierda, lo que revela un patrón social predominante: en las parejas con diferencias de edad significativas que llegan al divorcio, es mucho más frecuente que el hombre sea mayor que la mujer (barras púrpuras extendiéndose hacia los valores positivos). Por el contrario, los casos donde la mujer es considerablemente mayor que el hombre (valores negativos) son estadísticamente menos frecuentes.
+
 
 
