@@ -235,12 +235,41 @@ ggplot(tabla_relacion, aes(x = factor(vic_rel_agr), y = n)) +
 ```
 El análisis evidencia que la mayoría de los casos de violencia intrafamiliar ocurre entre personas con vínculos cercanos, lo cual refuerza la naturaleza intrafamiliar del fenómeno y resalta la importancia de analizar las relaciones personales dentro del hogar.
 
-
-
-##  Tablas de frecuencia
-
-
 ---
 
-
 ## Relaciones entre las variables. 
+
+### Relación: Diferencia de edad entre Agresor y Víctima
+```{r}
+## Análisis de Brecha de Edad: Agresor vs Víctima
+violencia %>%
+  filter(!is.na(vic_edad), !is.na(agr_edad), vic_edad < 90, agr_edad < 90) %>%
+  ggplot(aes(x = vic_edad, y = agr_edad)) +
+  geom_point(alpha = 0.1, color = "darkred") + 
+  geom_abline(intercept = 0, slope = 1, color = "blue", linetype = "dashed") + 
+  labs(title = "Relación de Edades: Víctima vs. Agresor",
+       subtitle = "La línea azul indica la misma edad. Puntos arriba = Agresor mayor.",
+       x = "Edad de la Víctima",
+       y = "Edad del Agresor") +
+  theme_minimal()
+```
+El gráfico de dispersión analiza la brecha generacional existente entre la víctima y el agresor en los casos de violencia intrafamiliar. La línea azul discontinua representa la igualdad de edades; por lo tanto, la notable concentración de puntos por encima de esta referencia evidencia que, en la mayoría de los casos reportados, el agresor tiende a ser mayor que la víctima, lo cual sugiere una posible asimetría de poder vinculada a la edad. Adicionalmente, se observa una alta densidad de incidentes (la "nube" más oscura) donde ambas partes oscilan entre los 20 y 40 años, identificando a los adultos jóvenes como el grupo demográfico más vulnerable y activo en esta problemática.
+
+
+### Relación: Estacionalidad de la Violencia (Mes del hecho)
+```{r}
+## Análisis Temporal: Violencia por Mes
+violencia %>%
+  filter(!is.na(hec_mes)) %>%
+  group_by(hec_mes) %>%
+  summarise(total = n()) %>%
+  ggplot(aes(x = factor(hec_mes), y = total)) +
+  geom_col(fill = "steelblue") +
+  labs(title = "Estacionalidad de la Violencia Intrafamiliar",
+       x = "Mes del Año (1 = Enero, 12 = Diciembre)",
+       y = "Cantidad de Denuncias") +
+  theme_classic()
+```
+El análisis de estacionalidad revela que la incidencia de violencia intrafamiliar mantiene un comportamiento relativamente constante y sostenido durante gran parte del año, sin caídas drásticas. Se observan ligeros repuntes en los meses de marzo, mayo y julio, los cuales concentran los volúmenes más altos de denuncias (superando los 30,000 casos mensuales). Por otro lado, se percibe una leve tendencia decreciente hacia el último trimestre (octubre a diciembre). Cabe destacar la presencia de una barra etiquetada como "99", la cual corresponde a registros donde el mes de ocurrencia no fue especificado o es desconocido, evidenciando la necesidad de considerar estos valores nulos durante la limpieza de datos para evitar sesgos en el análisis temporal.
+
+
