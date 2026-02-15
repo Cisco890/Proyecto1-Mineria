@@ -1,6 +1,7 @@
 ---
 title: "Proyecto 1"
-author: "Luis Pedro Lira 23669, Fernando Rocha 23501, Juan Francisco Martínez 23617"
+author: "Luis Pedro Lira 23669, Fernando Rocha 23501, Juan Francisco Martínez 23617, 
+Luis Gilberto González - 23353, Joel Antonio Jaquez - 23369"  
 date: "2026-02-02"
 output:
   html_document:
@@ -19,6 +20,7 @@ knitr::opts_chunk$set(
 
 library(tidyverse)
 library(readr)
+library(ggplot2)
 
 ```
 
@@ -28,6 +30,76 @@ library(readr)
 divorcios <- read_csv("Datos/divorcios_total.csv")
 violencia <- read_csv("Datos/violencia_total.csv")
 
+```
+
+```{r}
+violencia <- violencia %>%
+  mutate(
+    # Normalizar Depto (101 -> 1)
+    cod_depto = floor(hec_deptomcpio / 100),
+    
+    # Etiquetas de Sexo
+    sexo_label = case_when(
+      vic_sexo == 1 ~ "Hombre",
+      vic_sexo == 2 ~ "Mujer",
+      TRUE ~ "Ignorado"
+    ),
+    
+    # Nombre de Meses
+    mes_nombre = factor(month.name[hec_mes], levels = month.name),
+    
+    # Limpieza de Edad (Quitar 999)
+    vic_edad_clean = ifelse(vic_edad > 110, NA, vic_edad),
+    
+    # Limpieza de Hijos (Quitar 99)
+    total_hijos_clean = ifelse(total_hijos == 99, NA, total_hijos),
+    
+    # Etiquetas de Estado Civil
+    est_civ_label = case_when(
+      vic_est_civ == 1 ~ "Soltero(a)",
+      vic_est_civ == 2 ~ "Casado(a)",
+      vic_est_civ == 3 ~ "Unido(a)",
+      TRUE ~ "Ignorado"
+    ),
+
+    # Etiquetas de Relación con Agresor (¡AQUÍ ESTÁ LO QUE FALTABA!)
+    relacion_label = case_when(
+      vic_rel_agr == 1 ~ "Esposo/Conviviente",
+      vic_rel_agr == 2 ~ "Ex-Esposo/Ex-Pareja",
+      vic_rel_agr == 3 ~ "Padre/Madre",
+      vic_rel_agr == 4 ~ "Hijo(a)",
+      vic_rel_agr == 5 ~ "Hermano(a)",
+      TRUE ~ "Otro/No especificado"
+    )
+  )
+
+# LIMPIEZA DE DIVORCIOS
+divorcios <- divorcios %>%
+  mutate(
+    # Homologar Depto
+    cod_depto = DEPOCU,
+    
+    # Limpieza de Edades y Diferencia
+    edad_hom_clean = ifelse(EDADHOM > 110, NA, EDADHOM),
+    edad_muj_clean = ifelse(EDADMUJ > 110, NA, EDADMUJ),
+    diferencia_edad = edad_hom_clean - edad_muj_clean,
+    
+    # Etiquetas de Educación
+    nivel_edu_hom = case_when(
+      ESCHOM == 1 ~ "Ninguno",
+      ESCHOM %in% c(2,3,4) ~ "Primaria",
+      ESCHOM %in% c(5,6) ~ "Media/Diversificado",
+      ESCHOM >= 7 & ESCHOM < 9 ~ "Superior",
+      TRUE ~ "Ignorado"
+    ),
+    nivel_edu_muj = case_when(
+      ESCMUJ == 1 ~ "Ninguno",
+      ESCMUJ %in% c(2,3,4) ~ "Primaria",
+      ESCMUJ %in% c(5,6) ~ "Media/Diversificado",
+      ESCMUJ >= 7 & ESCMUJ < 9 ~ "Superior",
+      TRUE ~ "Ignorado"
+    )
+  )
 ```
 
 
@@ -72,16 +144,7 @@ El conjunto de datos de violencia intrafamiliar contiene información detallada 
 
 glimpse(violencia)
 ```
-La mayoría de las variables en el conjunto de datos corresponden a codificaciones numéricas que representan categorías, mientras que otras variables como la edad y las fechas corresponden a valores numéricos continuos o discretos.
-
-```{r}
-violencia <- violencia %>%
-  mutate(
-    vic_edad = ifelse(vic_edad %in% c(99, 999), NA, vic_edad)
-  )
-```
-
-El conjunto de datos de violencia intrafamiliar presenta valores faltantes (`NA`) en diversas variables, los cuales corresponden principalmente a información no aplicable a todos los registros. Adicionalmente, algunas variables contienen códigos numéricos utilizados para representar valores no especificados, los cuales serán tratados como valores faltantes durante el análisis exploratorio.
+La mayoría de las variables en el conjunto de datos corresponden a codificaciones numéricas que representan categorías, mientras que otras variables como la edad y las fechas corresponden a valores numéricos continuos o discretos
 
 
 ## Descripción de las variables: Divorcios
@@ -92,16 +155,6 @@ El conjunto de datos de divorcios contiene información asociada a los procesos 
 ## Resumen de variables en divorcios
 glimpse(divorcios)
 ```
-
-```{r}
-divorcios <- divorcios %>%
-  mutate(
-    EDADHOM = ifelse(EDADHOM == 999, NA, EDADHOM),
-    EDADMUJ = ifelse(EDADMUJ == 999, NA, EDADMUJ)
-  )
-```
-Es importante destacar que el conjunto de datos contiene valores faltantes (`NA`) en algunas variables, los cuales corresponden principalmente a información no aplicable o no disponible para ciertos registros. Adicionalmente, algunas variables presentan valores codificados para representar información no especificada, los cuales serán tratados adecuadamente durante el análisis exploratorio.
-
 
 ___
 
@@ -118,24 +171,12 @@ La edad de la víctima presenta un rango amplio, desde 1 hasta 98 años, lo cual
 
 
 ```{r}
-violencia <- violencia %>%
-  mutate(
-    total_hijos = ifelse(total_hijos == 99, NA, total_hijos)
-  )
 summary(violencia$total_hijos)
 ```
 
 El número total de hijos de la víctima presenta una mediana de 2 hijos, lo que indica que la mayoría de los casos corresponde a personas con familias pequeñas. La media es cercana a la mediana, lo cual sugiere una distribución relativamente equilibrada. El 75% de las víctimas tiene tres hijos o menos, mientras que los valores máximos observados corresponden a casos aislados de familias numerosas. Se identificó una proporción considerable de valores faltantes, los cuales fueron tratados adecuadamente durante el análisis exploratorio.
 
 
-
-```{r}
-divorcios <- divorcios %>%
-  mutate(
-    EDADMUJ = ifelse(EDADMUJ == 999, NA, EDADMUJ),
-    EDADHOM = ifelse(EDADHOM == 999, NA, EDADHOM)
-  )
-```
 
 ```{r}
 summary(divorcios$EDADMUJ)
@@ -164,15 +205,16 @@ Se analiza la distribución de los casos de violencia intrafamiliar según el se
 ```{r}
 # Tabla de frecuencia: sexo de la víctima
 tabla_sexo <- violencia %>%
-  filter(!is.na(vic_sexo)) %>%
-  count(vic_sexo) %>%
+  filter(sexo_label != "Ignorado") %>%
+  count(sexo_label) %>%
   mutate(porcentaje = n / sum(n) * 100)
 
 tabla_sexo
 ```
+
 ```{r}
 # Gráfico de barras: sexo de la víctima
-ggplot(tabla_sexo, aes(x = factor(vic_sexo), y = n)) +
+ggplot(tabla_sexo, aes(x = sexo_label, y = n, fill = sexo_label)) +
   geom_bar(stat = "identity") +
   labs(
     title = "Distribucion del sexo de las victimas",
@@ -190,15 +232,16 @@ El estado civil de la víctima permite analizar el contexto relacional en el que
 ```{r}
 # Tabla de frecuencia: estado civil
 tabla_estado_civil <- violencia %>%
-  filter(!is.na(vic_est_civ)) %>%
-  count(vic_est_civ) %>%
+  filter(est_civ_label != "Ignorado") %>%
+  count(est_civ_label) %>%
   mutate(porcentaje = n / sum(n) * 100)
 
 tabla_estado_civil
 ```
+
 ```{r}
 # Gráfico de barras: estado civil
-ggplot(tabla_estado_civil, aes(x = factor(vic_est_civ), y = n)) +
+ggplot(tabla_estado_civil, aes(x = est_civ_label, y = n)) +
   geom_bar(stat = "identity") +
   labs(
     title = "Distribucion del estado civil de las victimas",
@@ -217,21 +260,24 @@ Se examina la relación existente entre la víctima y el agresor para identifica
 ```{r}
 # Tabla de frecuencia: relación víctima-agresor
 tabla_relacion <- violencia %>%
-  filter(!is.na(vic_rel_agr)) %>%
-  count(vic_rel_agr) %>%
+  filter(relacion_label != "Otro/No especificado") %>%
+  count(relacion_label) %>%
   mutate(porcentaje = n / sum(n) * 100)
 
 tabla_relacion
 ```
+
 ```{r}
 # Gráfico de barras: relación víctima-agresor
-ggplot(tabla_relacion, aes(x = factor(vic_rel_agr), y = n)) +
-  geom_bar(stat = "identity") +
+ggplot(tabla_relacion, aes(x = reorder(relacion_label, -n), y = n)) +
+  geom_bar(stat = "identity", fill = "coral") +
   labs(
     title = "Relacion entre la victima y el agresor",
     x = "Relacion",
     y = "Frecuencia"
-  )
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 El análisis evidencia que la mayoría de los casos de violencia intrafamiliar ocurre entre personas con vínculos cercanos, lo cual refuerza la naturaleza intrafamiliar del fenómeno y resalta la importancia de analizar las relaciones personales dentro del hogar.
 
@@ -243,8 +289,8 @@ El análisis evidencia que la mayoría de los casos de violencia intrafamiliar o
 ```{r}
 ## Análisis de Brecha de Edad: Agresor vs Víctima
 violencia %>%
-  filter(!is.na(vic_edad), !is.na(agr_edad), vic_edad < 90, agr_edad < 90) %>%
-  ggplot(aes(x = vic_edad, y = agr_edad)) +
+  filter(!is.na(vic_edad_clean), !is.na(agr_edad), vic_edad_clean < 90, agr_edad < 90) %>%
+  ggplot(aes(x = vic_edad_clean, y = agr_edad)) +
   geom_point(alpha = 0.1, color = "darkred") + 
   geom_abline(intercept = 0, slope = 1, color = "blue", linetype = "dashed") + 
   labs(title = "Relacion de Edades: Victima vs. Agresor",
@@ -260,15 +306,16 @@ El gráfico de dispersión analiza la brecha generacional existente entre la ví
 ```{r}
 ## Análisis Temporal: Violencia por Mes
 violencia %>%
-  filter(!is.na(hec_mes)) %>%
-  group_by(hec_mes) %>%
+  filter(!is.na(mes_nombre)) %>%
+  group_by(mes_nombre) %>%
   summarise(total = n()) %>%
-  ggplot(aes(x = factor(hec_mes), y = total)) +
+  ggplot(aes(x = mes_nombre, y = total)) +
   geom_col(fill = "steelblue") +
   labs(title = "Estacionalidad de la Violencia Intrafamiliar",
-       x = "Mes del Anno (1 = Enero, 12 = Diciembre)",
+       x = "Mes",
        y = "Cantidad de Denuncias") +
   theme_classic()
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 El análisis de estacionalidad revela que la incidencia de violencia intrafamiliar mantiene un comportamiento relativamente constante y sostenido durante gran parte del año, sin caídas drásticas. Se observan ligeros repuntes en los meses de marzo, mayo y julio, los cuales concentran los volúmenes más altos de denuncias (superando los 30,000 casos mensuales). Por otro lado, se percibe una leve tendencia decreciente hacia el último trimestre (octubre a diciembre). Cabe destacar la presencia de una barra etiquetada como "99", la cual corresponde a registros donde el mes de ocurrencia no fue especificado o es desconocido, evidenciando la necesidad de considerar estos valores nulos durante la limpieza de datos para evitar sesgos en el análisis temporal.
 
@@ -276,18 +323,19 @@ El análisis de estacionalidad revela que la incidencia de violencia intrafamili
 
 ```{r}
 divorcios %>%
-  filter(!is.na(ESCHOM), !is.na(ESCMUJ)) %>%
-  group_by(ESCHOM, ESCMUJ) %>%
+  filter(nivel_edu_hom != "Ignorado", nivel_edu_muj != "Ignorado") %>%
+  group_by(nivel_edu_hom, nivel_edu_muj) %>%
   count() %>%
-  ggplot(aes(x = factor(ESCHOM), y = factor(ESCMUJ), fill = n)) +
+  ggplot(aes(x = nivel_edu_hom, y = nivel_edu_muj, fill = n)) +
   geom_tile() +
   scale_fill_gradient(low = "white", high = "red") +
   labs(title = "Mapa de Calor: Nivel Educativo en Divorcios",
-       subtitle = "Codigos: 1=Ninguno ... 6+=Superior (Verificar diccionario)",
+       subtitle = "Comparación de escolaridad entre cónyuges",
        x = "Escolaridad del Hombre",
        y = "Escolaridad de la Mujer",
        fill = "Cantidad") +
   theme_minimal()
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 El análisis de la matriz educativa revela una marcada tendencia hacia la homogamia educativa en las disoluciones matrimoniales. Se observa una concentración de casos a lo largo de la diagonal principal (donde el nivel educativo del hombre y la mujer coinciden), lo que sugiere que las parejas tienden a formarse —y consecuentemente a divorciarse— dentro de sus mismos estratos académicos. Sin embargo, el hallazgo más crítico desde la perspectiva de la minería de datos es la alta densidad observada en la intersección de los códigos "9" (esquina superior derecha, color rojo intenso). Dado que este código corresponde a valores "Ignorados" o "No indicados" en los estándares del INE, esto evidencia un sesgo de información faltante significativo; es decir, en una gran proporción de los divorcios registrados, no se capturó el nivel educativo de ninguno de los cónyuges, lo cual limita la caracterización sociodemográfica precisa de este subgrupo.
@@ -296,8 +344,7 @@ El análisis de la matriz educativa revela una marcada tendencia hacia la homoga
 
 ```{r}
 divorcios %>%
-  filter(!is.na(EDADHOM), !is.na(EDADMUJ)) %>%
-  mutate(diferencia_edad = EDADHOM - EDADMUJ) %>%
+  filter(!is.na(diferencia_edad)) %>%
   filter(diferencia_edad > -20, diferencia_edad < 30) %>% # Filtramos casos extremos errores
   ggplot(aes(x = diferencia_edad)) +
   geom_histogram(binwidth = 1, fill = "purple", color = "white") +
@@ -310,6 +357,9 @@ divorcios %>%
 ```
 
 El histograma de distribución de edades en los divorcios muestra una clara asimetría positiva (sesgo hacia la derecha). La mayor concentración de datos se agrupa alrededor de la línea cero, indicando que una gran parte de las disoluciones matrimoniales ocurre en parejas con edades similares (homogamia etaria). Sin embargo, la cola derecha de la distribución es notablemente más larga y densa que la izquierda, lo que revela un patrón social predominante: en las parejas con diferencias de edad significativas que llegan al divorcio, es mucho más frecuente que el hombre sea mayor que la mujer (barras púrpuras extendiéndose hacia los valores positivos). Por el contrario, los casos donde la mujer es considerablemente mayor que el hombre (valores negativos) son estadísticamente menos frecuentes.
+
+
+
 
 
 
