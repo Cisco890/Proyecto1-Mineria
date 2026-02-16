@@ -558,3 +558,335 @@ Edad del hombre: Al analizar esta gráfica, la falta de normalidad es evidente. 
 Edad de la mujer: Aquí confirmamos que el comportamiento es casi idéntico al de los hombres, pero ocurriendo un poco antes. La línea azul se planta firmemente alrededor de los 35 años, marcando la realidad de la mayoría, después nuevamente, la línea roja (Media) huye hacia la derecha. Esto ratifica estadísticamente que los casos de mujeres mayores distorsionan la media. Al igual que con los hombres, la distribución no es normal, y usar métodos estadísticos que asuman una Campana de Gauss perfecta podría llevarnos a errores.
 
 Diferencia de edad: Esta es la gráfica más tramposa de todas porque a primera vista parece una campana perfecta porque las líneas roja y azul están casi pegadas. Pero si miramos bien, la forma es demasiado puntiaguda (lo que llamamos leptocúrtica). Esto significa que hay una concentración excesiva de datos en el centro porque la inmensa mayoría de las parejas se lleva menos de 5 años, por otro lado las 'colas' largas a los lados (las partes bajas y planas de la curva) nos indican que existen valores extremos—parejas con 20 o 30 años de diferencia que rompen la estructura de una distribución normal estándar, aunque el promedio sea acertado aquí, la variabilidad es engañosa.
+
+```{r Fuentes-diagnostico}
+miss_summary <- function(df, nombre_df){
+  tibble(var = names(df)) %>%
+    mutate(
+      dataset = nombre_df,
+      n = nrow(df),
+      n_na = map_int(var, ~ sum(is.na(df[[.x]]))),
+      pct_na = 100 * n_na / n
+    ) %>%
+    arrange(desc(pct_na))
+}
+
+miss_vio <- miss_summary(violencia, "violencia")
+miss_div <- miss_summary(divorcios, "divorcios")
+
+bind_rows(miss_vio, miss_div) %>% 
+  filter(pct_na > 0) %>% 
+  print(n = 50)
+```
+```{r imputacion simple}
+impute_median <- function(x){
+  if (!is.numeric(x)) return(x)
+  x2 <- x
+  x2[is.na(x2)] <- median(x2, na.rm = TRUE)
+  x2
+}
+
+impute_mode <- function(x){
+  if (is.numeric(x)) return(x)
+  x2 <- x
+  moda <- names(sort(table(x2), decreasing = TRUE))[1]
+  x2[is.na(x2)] <- moda
+  x2
+}
+
+# datasets auxiliares SOLO para correlaciones (no reemplazan tus originales)
+violencia_cor <- violencia %>%
+  mutate(
+    agr_edad_clean = ifelse(is.na(agr_edad) | agr_edad > 110, NA, agr_edad)
+  ) %>%
+  mutate(
+    vic_edad_imp = impute_median(vic_edad_clean),
+    agr_edad_imp = impute_median(agr_edad_clean),
+    hijos_imp = impute_median(total_hijos_clean)
+  )
+
+divorcios_cor <- divorcios %>%
+  mutate(
+    hom_edad_imp = impute_median(edad_hom_clean),
+    muj_edad_imp = impute_median(edad_muj_clean),
+    dif_edad_imp = impute_median(diferencia_edad)
+  )
+```
+```{r outliners-funcionales}
+flag_outlier_iqr <- function(x, k = 1.5){
+  q1 <- quantile(x, 0.25, na.rm = TRUE)
+  q3 <- quantile(x, 0.75, na.rm = TRUE)
+  iqr <- q3 - q1
+  lo <- q1 - k * iqr
+  hi <- q3 + k * iqr
+  x < lo | x > hi
+}
+
+flag_outlier_mad <- function(x, z = 3.5){
+  med <- median(x, na.rm = TRUE)
+  madv <- mad(x, constant = 1, na.rm = TRUE)
+  if (madv == 0 || is.na(madv)) return(rep(FALSE, length(x)))
+  abs(x - med) / madv > z
+}
+```
+```{r outliners-violencia}
+vio_out <- violencia %>%
+  mutate(
+    agr_edad_clean = ifelse(is.na(agr_edad) | agr_edad > 110, NA, agr_edad),
+    out_vic_iqr = flag_outlier_iqr(vic_edad_clean),
+    out_agr_iqr = flag_outlier_iqr(agr_edad_clean),
+    out_hij_iqr = flag_outlier_iqr(total_hijos_clean),
+    out_vic_mad = flag_outlier_mad(vic_edad_clean),
+    out_agr_mad = flag_outlier_mad(agr_edad_clean),
+    out_hij_mad = flag_outlier_mad(total_hijos_clean)
+  )
+
+vio_out %>%
+  summarise(
+    out_vic_iqr = sum(out_vic_iqr, na.rm=TRUE),
+    out_agr_iqr = sum(out_agr_iqr, na.rm=TRUE),
+    out_hij_iqr = sum(out_hij_iqr, na.rm=TRUE),
+    out_vic_mad = sum(out_vic_mad, na.rm=TRUE),
+    out_agr_mad = sum(out_agr_mad, na.rm=TRUE),
+    out_hij_mad = sum(out_hij_mad, na.rm=TRUE)
+  )
+```
+```{r outliners-casos}
+# Top 15 mayores y menores (víctima y agresor)
+vio_out %>%
+  select(cod_depto, hec_mes, vic_edad_clean, agr_edad_clean, total_hijos_clean,
+         out_vic_iqr, out_agr_iqr, out_hij_iqr) %>%
+  arrange(desc(vic_edad_clean)) %>% 
+  slice_head(n = 15)
+
+vio_out %>%
+  select(cod_depto, hec_mes, vic_edad_clean, agr_edad_clean, total_hijos_clean,
+         out_vic_iqr, out_agr_iqr, out_hij_iqr) %>%
+  arrange(vic_edad_clean) %>% 
+  slice_head(n = 15)
+```
+
+
+```{r correlaciones}
+vio_num <- violencia %>%
+  mutate(agr_edad_clean = ifelse(is.na(agr_edad) | agr_edad > 110, NA, agr_edad)) %>%
+  select(vic_edad_clean, agr_edad_clean, total_hijos_clean)
+
+cor(vio_num, use="pairwise.complete.obs", method="pearson")
+cor(vio_num, use="pairwise.complete.obs", method="spearman")
+```
+```{r correlaciones-divorcios}
+div_num <- divorcios %>%
+  select(edad_hom_clean, edad_muj_clean, diferencia_edad)
+
+cor(div_num, use="pairwise.complete.obs", method="pearson")
+cor(div_num, use="pairwise.complete.obs", method="spearman")
+```
+```{r correlaciones scatter}
+# Violencia: víctima vs agresor
+violencia %>%
+  mutate(agr_edad_clean = ifelse(is.na(agr_edad) | agr_edad > 110, NA, agr_edad)) %>%
+  ggplot(aes(x = vic_edad_clean, y = agr_edad_clean)) +
+  geom_point(alpha = 0.25) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title="Edad de víctima vs agresor",
+       x="Edad víctima (limpia)", y="Edad agresor (limpia)") +
+  theme_classic()
+
+# Divorcios: edad hombre vs mujer
+divorcios %>%
+  ggplot(aes(x = edad_hom_clean, y = edad_muj_clean)) +
+  geom_point(alpha = 0.25) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title="Edad hombre vs mujer en divorcios",
+       x="Edad hombre (limpia)", y="Edad mujer (limpia)") +
+  theme_classic()
+```
+```{r correlacipn entre bases}
+vio_depto <- violencia %>%
+  mutate(agr_edad_clean = ifelse(is.na(agr_edad) | agr_edad > 110, NA, agr_edad)) %>%
+  group_by(cod_depto) %>%
+  summarise(
+    violencia_total = n(),
+    edad_victima_med = median(vic_edad_clean, na.rm=TRUE),
+    hijos_med = median(total_hijos_clean, na.rm=TRUE),
+    .groups = "drop"
+  )
+
+div_depto <- divorcios %>%
+  group_by(cod_depto) %>%
+  summarise(
+    divorcios_total = n(),
+    dif_edad_med = median(diferencia_edad, na.rm=TRUE),
+    .groups = "drop"
+  )
+
+depto_join <- vio_depto %>%
+  inner_join(div_depto, by="cod_depto")
+
+cor(depto_join %>% select(violencia_total, divorcios_total), method="spearman")
+cor(depto_join %>% select(violencia_total, divorcios_total), method="pearson")
+
+ggplot(depto_join, aes(x = violencia_total, y = divorcios_total)) +
+  geom_point() +
+  geom_smooth(method="lm", se=FALSE) +
+  labs(title="Violencia intrafamiliar vs divorcios por departamento",
+       x="Total violencia (depto)", y="Total divorcios (depto)") +
+  theme_classic()
+```
+Se identificó que el valor 99 corresponde a la categoría ‘Ignorado’, por lo que constituye un valor faltante codificado. Su presencia generaba acumulaciones artificiales en los diagramas de dispersión (bandas cercanas a 99) y podía distorsionar medidas de asociación, especialmente Pearson. Por ello, se decidió recodificar 99 como NA (y excluir cod_depto = 99 del análisis por departamento), lo cual permite interpretar correctamente las correlaciones: en violencia intrafamiliar se observa una asociación positiva entre la edad de la víctima y del agresor, y una relación moderada entre edad de la víctima y número de hijos; en divorcios, las edades del hombre y la mujer se correlacionan fuertemente; y a nivel departamental, violencia y divorcios presentan una relación monotónica alta, aunque la relación lineal es sensible a outliers y diferencias de escala entre departamentos
+
+```{r categoricas}
+# Función: tabla de frecuencias + porcentajes
+freq_tab <- function(df, var){
+  v <- df[[var]]
+  tibble(valor = v) %>%
+    mutate(valor = fct_explicit_na(as.factor(valor), na_level = "NA")) %>%
+    count(valor, name = "n") %>%
+    mutate(pct = 100 * n / sum(n)) %>%
+    arrange(desc(n))
+}
+
+# Función: gráfico de barras (top k)
+plot_bar <- function(df, var, titulo = NULL, top_k = 15){
+  tab <- freq_tab(df, var) %>% slice_head(n = top_k)
+  ggplot(tab, aes(x = reorder(valor, n), y = n)) +
+    geom_col() +
+    coord_flip() +
+    labs(title = titulo %||% paste("Frecuencia de", var),
+         x = NULL, y = "Frecuencia") +
+    theme_classic()
+}
+
+# Función: Cramér's V para asociación entre 2 categóricas
+cramers_v <- function(x, y){
+  tab <- table(x, y)
+  chi <- suppressWarnings(chisq.test(tab, correct = FALSE))
+  n <- sum(tab)
+  k <- min(nrow(tab), ncol(tab))
+  v <- sqrt(as.numeric(chi$statistic) / (n * (k - 1)))
+  list(V = v, p_value = chi$p.value, chi2 = as.numeric(chi$statistic), df = chi$parameter)
+}
+```
+```{r limpieza}
+violencia_cat <- violencia %>%
+  mutate(
+    # Mes: 99 -> Ignorado (y luego nombre en español opcional)
+    hec_mes_cat = case_when(
+      is.na(hec_mes) ~ NA_character_,
+      hec_mes == 99 ~ "Ignorado",
+      hec_mes %in% 1:12 ~ as.character(hec_mes),
+      TRUE ~ "Otro"
+    ),
+    mes_nombre_es = case_when(
+      hec_mes %in% 1:12 ~ c("Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                           "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre")[hec_mes],
+      hec_mes == 99 ~ "Ignorado",
+      TRUE ~ NA_character_
+    ) %>% factor(levels = c("Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                            "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre","Ignorado")),
+    
+    # Departamento: 99 -> Ignorado (si existe)
+    cod_depto_cat = case_when(
+      is.na(cod_depto) ~ NA_character_,
+      cod_depto == 99 ~ "Ignorado",
+      TRUE ~ as.character(cod_depto)
+    ),
+
+    # Ejemplos típicos de categóricas (usa las tuyas si ya existen)
+    sexo_cat = if ("sexo_label" %in% names(.)) sexo_label else as.character(vic_sexo),
+    est_civ_cat = if ("est_civ_label" %in% names(.)) est_civ_label else as.character(vic_est_civ),
+    relacion_cat = if ("relacion_label" %in% names(.)) relacion_label else as.character(vic_rel_agr)
+  )
+```
+
+```{r tablas y graficas}
+# Tablas
+freq_tab(violencia_cat, "sexo_cat")
+freq_tab(violencia_cat, "est_civ_cat")
+freq_tab(violencia_cat, "relacion_cat")
+freq_tab(violencia_cat, "mes_nombre_es")
+freq_tab(violencia_cat, "cod_depto_cat")
+
+# Gráficas
+plot_bar(violencia_cat, "sexo_cat", "Violencia: Sexo de la víctima", top_k = 10)
+plot_bar(violencia_cat, "est_civ_cat", "Violencia: Estado civil de la víctima", top_k = 10)
+plot_bar(violencia_cat, "relacion_cat", "Violencia: Relación víctima–agresor", top_k = 15)
+plot_bar(violencia_cat, "mes_nombre_es", "Violencia: Mes del hecho (incluye Ignorado)", top_k = 13)
+```
+```{r divorcios}
+divorcios_cat <- divorcios %>%
+  mutate(
+    cod_depto_cat = case_when(
+      is.na(cod_depto) ~ NA_character_,
+      cod_depto == 99 ~ "Ignorado",
+      TRUE ~ as.character(cod_depto)
+    ),
+    edu_hom_cat = if ("nivel_edu_hom" %in% names(.)) nivel_edu_hom else as.character(ESCHOM),
+    edu_muj_cat = if ("nivel_edu_muj" %in% names(.)) nivel_edu_muj else as.character(ESCMUJ)
+  )
+
+# Tablas
+freq_tab(divorcios_cat, "edu_hom_cat")
+freq_tab(divorcios_cat, "edu_muj_cat")
+freq_tab(divorcios_cat, "cod_depto_cat")
+
+# Gráficas
+plot_bar(divorcios_cat, "edu_hom_cat", "Divorcios: Escolaridad del hombre", top_k = 10)
+plot_bar(divorcios_cat, "edu_muj_cat", "Divorcios: Escolaridad de la mujer", top_k = 10)
+```
+
+```{r asociacion de violencia}
+drop_na2 <- function(df, a, b){
+  df %>% filter(!is.na(.data[[a]]), !is.na(.data[[b]]))
+}
+
+# 1) Sexo vs Estado civil
+df1 <- drop_na2(violencia_cat, "sexo_cat", "est_civ_cat")
+res1 <- cramers_v(df1$sexo_cat, df1$est_civ_cat)
+res1
+
+# 2) Sexo vs Relación
+df2 <- drop_na2(violencia_cat, "sexo_cat", "relacion_cat")
+res2 <- cramers_v(df2$sexo_cat, df2$relacion_cat)
+res2
+
+# 3) Mes vs Sexo (incluye Ignorado si quieres)
+df3 <- drop_na2(violencia_cat, "mes_nombre_es", "sexo_cat")
+res3 <- cramers_v(df3$mes_nombre_es, df3$sexo_cat)
+res3
+```
+```{r tablas cruzadas}
+# Tabla cruzada: Sexo vs Relación (top 12 relaciones)
+top_rel <- violencia_cat %>%
+  count(relacion_cat, sort = TRUE) %>%
+  slice_head(n = 12) %>%
+  pull(relacion_cat)
+
+cruz <- violencia_cat %>%
+  filter(relacion_cat %in% top_rel) %>%
+  count(sexo_cat, relacion_cat)
+
+ggplot(cruz, aes(x = relacion_cat, y = sexo_cat, fill = n)) +
+  geom_tile() +
+  labs(title = "Violencia: Sexo vs relación víctima–agresor (top 12)",
+       x = "Relación", y = "Sexo") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+```{r top de departamentos}
+# Violencia: top deptos (excluye Ignorado)
+violencia_cat %>%
+  filter(cod_depto_cat != "Ignorado") %>%
+  count(cod_depto_cat, sort = TRUE) %>%
+  slice_head(n = 10)
+
+# Divorcios: top deptos (excluye Ignorado)
+divorcios_cat %>%
+  filter(cod_depto_cat != "Ignorado") %>%
+  count(cod_depto_cat, sort = TRUE) %>%
+  slice_head(n = 10)
+```
+En las variables categóricas de violencia intrafamiliar se observa un patrón muy marcado: la mayoría de víctimas son mujeres, y en estado civil predominan casado(a) y unido(a), con una proporción no despreciable de “Ignorado” (dato faltante codificado). En la relación víctima–agresor, los casos se concentran principalmente en esposo/conviviente y ex-esposo/ex-pareja, seguidos por “otro/no especificado” y “padre/madre”, mientras que “hijo(a)” y “hermano(a)” aparecen con frecuencias mucho menores. Por mes, la distribución es relativamente pareja a lo largo del año (con leves picos como mayo/julio/agosto) y un grupo pequeño en “Ignorado”, lo que sugiere estacionalidad débil. En divorcios, la escolaridad del hombre y de la mujer muestra un comportamiento similar: “Ignorado” es la categoría más frecuente, seguida por Primaria, luego Ninguno, y finalmente Media/Diversificado. Al evaluar asociación entre categóricas, las pruebas salen “significativas” por el tamaño muestral, pero los tamaños de efecto indican que Sexo vs Estado civil es muy débil (Cramér’s V ≈ 0.063), Sexo vs Relación es la más relevante (V ≈ 0.181, asociación pequeña–moderada) y Mes vs Sexo es prácticamente nula (V ≈ 0.012). Finalmente, en el ranking por departamento, el código 1 lidera ampliamente tanto en violencia como en divorcios, lo cual sugiere que parte del patrón agregado está influido por el tamaño poblacional y el volumen de registros del departamento.
+
+
