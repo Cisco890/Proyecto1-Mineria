@@ -917,6 +917,368 @@ divorcios_cat %>%
 En las variables categóricas de violencia intrafamiliar se observa un patrón muy marcado: la mayoría de víctimas son mujeres, y en estado civil predominan casado(a) y unido(a), con una proporción no despreciable de “Ignorado” (dato faltante codificado). En la relación víctima–agresor, los casos se concentran principalmente en esposo/conviviente y ex-esposo/ex-pareja, seguidos por “otro/no especificado” y “padre/madre”, mientras que “hijo(a)” y “hermano(a)” aparecen con frecuencias mucho menores. Por mes, la distribución es relativamente pareja a lo largo del año (con leves picos como mayo/julio/agosto) y un grupo pequeño en “Ignorado”, lo que sugiere estacionalidad débil. En divorcios, la escolaridad del hombre y de la mujer muestra un comportamiento similar: “Ignorado” es la categoría más frecuente, seguida por Primaria, luego Ninguno, y finalmente Media/Diversificado. Al evaluar asociación entre categóricas, las pruebas salen “significativas” por el tamaño muestral, pero los tamaños de efecto indican que Sexo vs Estado civil es muy débil (Cramér’s V ≈ 0.063), Sexo vs Relación es la más relevante (V ≈ 0.181, asociación pequeña–moderada) y Mes vs Sexo es prácticamente nula (V ≈ 0.012). Finalmente, en el ranking por departamento, el código 1 lidera ampliamente tanto en violencia como en divorcios, lo cual sugiere que parte del patrón agregado está influido por el tamaño poblacional y el volumen de registros del departamento.
 
 
+## Preguntas de investigación basadas en hipótesis
+
+En esta sección se plantean hipótesis preliminares basadas en creencias o supuestos comunes sobre la violencia intrafamiliar y los procesos de divorcio. Cada hipótesis será evaluada mediante análisis de datos, con el objetivo de confirmar o refutar dichas creencias.
+
+### Hipótesis 1: La violencia intrafamiliar afecta principalmente a mujeres jóvenes
+
+Se plantea la hipótesis de que la mayoría de víctimas de violencia intrafamiliar son mujeres jóvenes. Esta creencia se basa en patrones sociales y reportes mediáticos que suelen asociar este fenómeno con mujeres en edad reproductiva.
+
+Para evaluar esta hipótesis se analizará la distribución de la edad de la víctima y su relación con el sexo.
+
+```{r}
+# Proporción por sexo
+table(violencia$vic_sexo)
+prop.table(table(violencia$vic_sexo)) * 100
+```
+
+```{r}
+# Edad promedio por sexo
+aggregate(vic_edad ~ vic_sexo, data = violencia, mean, na.rm = TRUE)
+```
+
+
+#### Resultado e interpretación
+
+El análisis muestra que el 88.5% de las víctimas registradas corresponden a mujeres, mientras que solo el 11.5% corresponde a hombres. Esta diferencia evidencia una marcada concentración del fenómeno en mujeres.
+
+Asimismo, la edad promedio de las mujeres víctimas es de aproximadamente 33 años, con una mediana de 31 años, lo cual indica que la mayoría de los casos se concentra en adultos jóvenes.
+
+En consecuencia, la hipótesis planteada se confirma: la violencia intrafamiliar afecta predominantemente a mujeres jóvenes dentro del conjunto de datos analizado.
+
+
+
+
+### Hipótesis 2: Los hombres son significativamente mayores que las mujeres en los divorcios
+
+Existe la creencia de que los hombres tienden a ser mayores que las mujeres al momento del divorcio. Para evaluar esta hipótesis se compararán las edades promedio y medianas de ambos grupos.
+
+```{r}
+mean(divorcios$EDADHOM, na.rm = TRUE) - 
+mean(divorcios$EDADMUJ, na.rm = TRUE)
+```
+
+```{r}
+diferencia <- divorcios$EDADHOM - divorcios$EDADMUJ
+summary(diferencia)
+```
+```{r}
+divorcios <- divorcios %>%
+  mutate(
+    EDADHOM = ifelse(EDADHOM == 999, NA, EDADHOM),
+    EDADMUJ = ifelse(EDADMUJ == 999, NA, EDADMUJ)
+  )
+
+```
+
+```{r}
+diferencia <- divorcios$EDADHOM - divorcios$EDADMUJ
+summary(diferencia[!is.na(diferencia)])
+```
+
+
+```{r}
+library(tidyr)
+
+edades_long <- divorcios %>%
+  select(EDADHOM, EDADMUJ) %>%
+  pivot_longer(cols = everything(),
+               names_to = "Sexo",
+               values_to = "Edad") %>%
+  filter(!is.na(Edad))
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(edades_long, aes(x = Sexo, y = Edad)) +
+  geom_boxplot() +
+  labs(title = "Comparación de edad en procesos de divorcio",
+       x = "Sexo",
+       y = "Edad")
+```
+
+#### Resultado e interpretación
+
+Se calculó la diferencia entre la edad del hombre y la edad de la mujer en cada proceso de divorcio. La mediana de la diferencia es de 2 años, lo que indica que, en la mayoría de los casos, el hombre es ligeramente mayor que la mujer.
+
+El tercer cuartil muestra que en el 75% de los casos el hombre es hasta 6 años mayor. Sin embargo, también se observan valores negativos, lo que indica que en un porcentaje significativo de casos la mujer es mayor que el hombre.
+
+En consecuencia, la hipótesis se confirma parcialmente: los hombres tienden a ser mayores que las mujeres en los divorcios, aunque la diferencia promedio es moderada y no absoluta.
+
+
+### Los departamentos con mayor violencia tambien representan más divorcios 
+
+Si un departamento tiene muchos casos de violencia intrafamiliar -> ¿también tiene muchos divorcios?
+
+
+```{r}
+violencia_dep <- violencia %>%
+  group_by(depto_mcpio) %>%
+  summarise(casos_violencia = n())
+```
+
+```{r}
+divorcios_dep <- divorcios %>%
+  group_by(DEPREG) %>%
+  summarise(casos_divorcio = n())
+```
+
+```{r}
+head(violencia_dep)
+head(divorcios_dep)
+```
+```{r}
+head(violencia_dep)
+```
+
+
+```{r}
+violencia_dep <- violencia %>%
+  mutate(departamento = floor(depto_mcpio / 100)) %>%
+  group_by(departamento) %>%
+  summarise(casos_violencia = n())
+```
+
+
+```{r}
+head(violencia_dep)
+```
+
+
+```{r}
+datos_dep <- violencia_dep %>%
+  inner_join(divorcios_dep, 
+             by = c("departamento" = "DEPREG"))
+```
+
+
+```{r}
+print(datos_dep, n = 30)
+```
+
+```{r}
+cor(datos_dep$casos_violencia,
+    datos_dep$casos_divorcio)
+```
+
+```{r}
+cor.test(datos_dep$casos_violencia,
+         datos_dep$casos_divorcio)
+```
+#### Resultado e interpretación
+
+Se calculó el coeficiente de correlación de Pearson entre el número de casos de violencia intrafamiliar y el número de divorcios por departamento. El resultado fue r = 0.82, lo que indica una correlación positiva fuerte.
+
+El valor p obtenido (p < 0.001) permite rechazar la hipótesis nula de ausencia de correlación, por lo que la asociación observada es estadísticamente significativa.
+
+En consecuencia, la hipótesis planteada se confirma: los departamentos con mayor número de casos de violencia tienden a presentar también un mayor número de divorcios. Sin embargo, es importante señalar que esta relación puede estar influenciada por el tamaño poblacional de cada departamento, por lo que no se puede establecer causalidad directa.
+
+```{r}
+library(ggplot2)
+
+ggplot(datos_dep, aes(x = casos_violencia,
+                      y = casos_divorcio)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Relación entre violencia intrafamiliar y divorcios por departamento",
+       x = "Casos de violencia",
+       y = "Casos de divorcio")
+```
+El gráfico de dispersión muestra una relación positiva clara entre el número de casos de violencia intrafamiliar y el número de divorcios por departamento. La línea de tendencia ascendente indica que, en general, los departamentos con mayor cantidad de violencia también presentan un mayor número de divorcios.
+
+Sin embargo, se observa que un departamento con valores particularmente altos influye considerablemente en la tendencia general. Esto sugiere que el tamaño poblacional puede estar afectando la relación observada. Por lo tanto, aunque la correlación es fuerte y estadísticamente significativa, no puede interpretarse como una relación causal directa.
+
+Cabe aclara que se pudo haber hecho el analísis por cada 100,000 habitantes pero por falta de información de hbaitantes por departamento. 
+
+### Hipótesis 4: La mayoría de víctimas de violencia intrafamiliar tiene hijos
+
+```{r}
+violencia <- violencia %>%
+  mutate(tiene_hijos = ifelse(total_hijos_clean >= 1, "Sí", "No"))
+```
+
+
+```{r}
+tabla_hijos <- violencia %>%
+  filter(!is.na(total_hijos_clean)) %>%
+  count(tiene_hijos) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_hijos
+```
+#### Resultado e interpretación
+
+El análisis muestra que el 86.34% de las víctimas registradas tiene al menos un hijo, mientras que únicamente el 13.66% no tiene hijos.
+
+En consecuencia, la hipótesis se confirma claramente: la mayoría de los casos de violencia intrafamiliar ocurre en contextos donde existen hijos dentro del entorno familiar.
+
+Este hallazgo sugiere que el impacto del fenómeno no se limita a la víctima directa, sino que potencialmente afecta también a menores presentes en el hogar, lo cual refuerza la dimensión social y familiar del problema.
+
+```{r}
+library(ggplot2)
+
+ggplot(tabla_hijos, aes(x = tiene_hijos,
+                        y = porcentaje,
+                        fill = tiene_hijos)) +
+  geom_bar(stat = "identity", width = 0.6) +
+  geom_text(aes(label = paste0(round(porcentaje, 1), "%")),
+            vjust = -0.5,
+            size = 4) +
+  labs(title = "Proporción de víctimas con hijos",
+       x = "¿Tiene hijos?",
+       y = "Porcentaje") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+La gráfica refuerza visualmente que la mayoría de las víctimas de violencia intrafamiliar tiene hijos, lo cual confirma la hipótesis planteada y evidencia la dimensión familiar del fenómeno.
+
+
+
+### Hipótesis 5: La violencia intrafamiliar ocurre principalmente en áreas urbanas
+
+```{r}
+table(violencia$hec_area)
+```
+
+```{r}
+violencia_area <- violencia %>%
+  filter(hec_area != 9) %>%
+  mutate(area = ifelse(hec_area == 1, "Urbana", "Rural"))
+```
+
+
+```{r}
+tabla_area <- violencia_area %>%
+  count(area) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_area
+```
+#### Resultado e interpretación
+
+El análisis muestra que el 57.04% de los casos de violencia intrafamiliar ocurrió en áreas urbanas, mientras que el 42.96% se registró en áreas rurales.
+
+En consecuencia, la hipótesis se confirma: la violencia intrafamiliar ocurre mayoritariamente en zonas urbanas. Sin embargo, la diferencia no es extrema, lo que indica que el fenómeno también presenta una presencia significativa en áreas rurales, evidenciando que se trata de un problema generalizado y no exclusivamente urbano.
+
+
+```{r}
+ggplot(tabla_area, aes(x = area,
+                       y = porcentaje,
+                       fill = area)) +
+  geom_bar(stat = "identity", width = 0.6) +
+  geom_text(aes(label = paste0(round(porcentaje,1), "%")),
+            vjust = -0.5,
+            size = 4) +
+  labs(title = "Distribución de violencia por área",
+       x = "Área",
+       y = "Porcentaje") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+Aunque la mayoría de los casos se registran en áreas urbanas, esta diferencia podría estar influenciada por la mayor concentración poblacional en dichas zonas. Dado que el análisis se basa en frecuencias absolutas y no en tasas ajustadas por población, no es posible concluir que el riesgo de violencia sea mayor en el área urbana, sino únicamente que el número total de casos es superior.
+
+
+### Determinación del número óptimo de clusters
+
+Para determinar el número adecuado de grupos se utilizaron dos métodos: el método del codo y el método de la silueta.
+
+El método del codo sugiere un punto de inflexión alrededor de tres clusters, ya que a partir de ese valor la reducción en la variabilidad interna se vuelve menos significativa.
+
+Por otro lado, el método de la silueta muestra su valor máximo en k = 2, con una anchura promedio cercana a 0.85, lo cual indica una separación muy clara entre los grupos.
+
+Dado que la silueta evalúa directamente la cohesión y separación de los clusters, se selecciona k = 2 como el número óptimo de grupos para este análisis.
+
+```{r}
+cluster_data <- datos_dep %>%
+  select(casos_violencia, casos_divorcio)
+
+cluster_scaled <- scale(cluster_data)
+```
+
+```{r}
+wss <- numeric(10)
+
+for (k in 1:10) {
+  kmeans_model <- kmeans(cluster_scaled, centers = k, nstart = 25)
+  wss[k] <- kmeans_model$tot.withinss
+}
+
+plot(1:10, wss,
+     type = "b",
+     pch = 19,
+     frame = FALSE,
+     xlab = "Número de clusters",
+     ylab = "Within-cluster sum of squares",
+     main = "Método del Codo")
+```
+### Método del Codo
+
+El método del codo permite identificar el número adecuado de clusters analizando la variación interna (within-cluster sum of squares) a medida que aumenta el número de grupos. En la gráfica se observa una disminución pronunciada de la variabilidad interna entre uno y tres clusters. A partir de este punto, la reducción se vuelve progresivamente menor, indicando que agregar más grupos no aporta una mejora sustancial en la cohesión interna.
+
+Este comportamiento sugiere la presencia de una estructura natural en los datos alrededor de tres clusters, donde se produce el cambio más notable en la pendiente de la curva.
+
+
+
+```{r}
+library(cluster)
+
+sil_width <- numeric(10)
+
+for (k in 2:10) {
+  kmeans_model <- kmeans(cluster_scaled, centers = k, nstart = 25)
+  ss <- silhouette(kmeans_model$cluster, dist(cluster_scaled))
+  sil_width[k] <- mean(ss[, 3])
+}
+
+plot(2:10, sil_width[2:10],
+     type = "b",
+     pch = 19,
+     frame = FALSE,
+     xlab = "Número de clusters",
+     ylab = "Silhouette width",
+     main = "Método de la Silueta")
+```
+### Método de la Silueta
+
+El método de la silueta evalúa la calidad del agrupamiento midiendo qué tan bien se separan los elementos de distintos clusters y qué tan cohesionados están dentro de su propio grupo. En la gráfica se observa que el valor máximo de la anchura promedio de la silueta se alcanza cuando k = 2, con un valor cercano a 0.85.
+
+Un valor de silueta superior a 0.5 indica una separación clara entre grupos, mientras que valores cercanos a 1 representan una estructura muy bien definida. Por lo tanto, el resultado sugiere que la partición en dos clusters proporciona la mejor separación y cohesión para los datos analizados.
+
+
+
+
+```{r}
+set.seed(123)  # Para reproducibilidad
+
+kmeans_model <- kmeans(cluster_scaled, centers = 2, nstart = 25)
+
+datos_dep$cluster <- factor(kmeans_model$cluster)
+
+datos_dep
+```
+
+
+
+```{r}
+datos_dep %>%
+  group_by(cluster) %>%
+  summarise(
+    promedio_violencia = mean(casos_violencia),
+    promedio_divorcio = mean(casos_divorcio),
+    n_departamentos = n()
+  )
+```
+
+
+### Aplicación del algoritmo K-means
+
+Se aplicó el algoritmo K-means con k = 2, determinado previamente mediante el método de la silueta. El resultado muestra que uno de los clusters contiene únicamente un departamento, caracterizado por niveles significativamente más altos de violencia y divorcios en comparación con el resto.
+
+Este departamento corresponde al departamento de Guatemala, el cual presenta valores extremos que lo diferencian claramente del resto del país. El segundo cluster agrupa los otros 21 departamentos, que presentan niveles considerablemente menores en ambas variables.
+
+El resultado indica que la estructura natural de los datos está fuertemente influenciada por la magnitud de los valores del departamento de Guatemala, lo cual genera una separación clara entre este y el resto.
 
 
 
