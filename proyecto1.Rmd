@@ -925,6 +925,10 @@ En esta sección se plantean hipótesis preliminares basadas en creencias o supu
 
 ### Hipótesis 1: La violencia intrafamiliar afecta principalmente a mujeres jóvenes
 
+**Pregunta de investigación:**  
+¿La violencia intrafamiliar afecta principalmente a mujeres jóvenes dentro del conjunto de datos analizado?
+
+
 Se plantea la hipótesis de que la mayoría de víctimas de violencia intrafamiliar son mujeres jóvenes. Esta creencia se basa en patrones sociales y reportes mediáticos que suelen asociar este fenómeno con mujeres en edad reproductiva.
 
 Para evaluar esta hipótesis se analizará la distribución de la edad de la víctima y su relación con el sexo.
@@ -953,6 +957,10 @@ En consecuencia, la hipótesis planteada se confirma: la violencia intrafamiliar
 
 
 ### Hipótesis 2: Los hombres son significativamente mayores que las mujeres en los divorcios
+
+**Pregunta de investigación:**  
+¿Existe una diferencia significativa en la edad entre hombres y mujeres en los procesos de divorcio, siendo los hombres mayores en promedio?
+
 
 Existe la creencia de que los hombres tienden a ser mayores que las mujeres al momento del divorcio. Para evaluar esta hipótesis se compararán las edades promedio y medianas de ambos grupos.
 
@@ -1010,7 +1018,11 @@ El tercer cuartil muestra que en el 75% de los casos el hombre es hasta 6 años 
 En consecuencia, la hipótesis se confirma parcialmente: los hombres tienden a ser mayores que las mujeres en los divorcios, aunque la diferencia promedio es moderada y no absoluta.
 
 
-### Los departamentos con mayor violencia tambien representan más divorcios 
+### Hipotesis 3: Los departamentos con mayor violencia tambien representan más divorcios
+
+**Pregunta de investigación:**  
+¿Existe una relación positiva y estadísticamente significativa entre el número de casos de violencia intrafamiliar y el número de divorcios a nivel departamental?
+
 
 Si un departamento tiene muchos casos de violencia intrafamiliar -> ¿también tiene muchos divorcios?
 
@@ -1092,9 +1104,14 @@ El gráfico de dispersión muestra una relación positiva clara entre el número
 
 Sin embargo, se observa que un departamento con valores particularmente altos influye considerablemente en la tendencia general. Esto sugiere que el tamaño poblacional puede estar afectando la relación observada. Por lo tanto, aunque la correlación es fuerte y estadísticamente significativa, no puede interpretarse como una relación causal directa.
 
-Cabe aclara que se pudo haber hecho el analísis por cada 100,000 habitantes pero por falta de información de hbaitantes por departamento. 
+Cabe aclara que se pudo haber hecho el analísis por cada 100,000 habitantes pero por falta de información de hbaitantes por departamento.
+
 
 ### Hipótesis 4: La mayoría de víctimas de violencia intrafamiliar tiene hijos
+
+**Pregunta de investigación:**  
+¿La mayoría de las víctimas de violencia intrafamiliar tiene al menos un hijo?
+
 
 ```{r}
 violencia <- violencia %>%
@@ -1139,6 +1156,10 @@ La gráfica refuerza visualmente que la mayoría de las víctimas de violencia i
 
 
 ### Hipótesis 5: La violencia intrafamiliar ocurre principalmente en áreas urbanas
+
+**Pregunta de investigación:**  
+¿Existe una mayor concentración de casos de violencia intrafamiliar en áreas urbanas en comparación con áreas rurales?
+
 
 ```{r}
 table(violencia$hec_area)
