@@ -122,6 +122,7 @@ Analizar la relación entre los divorcios y la violencia intrafamiliar mediante 
 - Evaluar posibles relaciones entre indicadores de divorcio y violencia intrafamiliar.
 
 
+# Avances
 
 ## Descripción general de los datos
 
@@ -358,8 +359,202 @@ divorcios %>%
 
 El histograma de distribución de edades en los divorcios muestra una clara asimetría positiva (sesgo hacia la derecha). La mayor concentración de datos se agrupa alrededor de la línea cero, indicando que una gran parte de las disoluciones matrimoniales ocurre en parejas con edades similares (homogamia etaria). Sin embargo, la cola derecha de la distribución es notablemente más larga y densa que la izquierda, lo que revela un patrón social predominante: en las parejas con diferencias de edad significativas que llegan al divorcio, es mucho más frecuente que el hombre sea mayor que la mujer (barras púrpuras extendiéndose hacia los valores positivos). Por el contrario, los casos donde la mujer es considerablemente mayor que el hombre (valores negativos) son estadísticamente menos frecuentes.
 
+# Análisis Exploratorio
+
+## Estadística Descriptiva Detallada
+```{r}
+obtener_estadisticas <- function(data, variable) {
+  data %>%
+    summarise(
+      Variable = variable,
+      Media = mean(!!sym(variable), na.rm = TRUE),
+      Mediana = median(!!sym(variable), na.rm = TRUE),
+      Desv_Estandar = sd(!!sym(variable), na.rm = TRUE),
+      Varianza = var(!!sym(variable), na.rm = TRUE),
+      Minimo = min(!!sym(variable), na.rm = TRUE),
+      Maximo = max(!!sym(variable), na.rm = TRUE),
+      Rango_Intercuartil = IQR(!!sym(variable), na.rm = TRUE),
+      N_Validos = sum(!is.na(!!sym(variable)))
+    )
+}
+
+# Calculo para violencia
+stats_violencia <- obtener_estadisticas(violencia, "vic_edad_clean")
+
+# Calculo para Divorcios
+stats_divorcios <- obtener_estadisticas(divorcios, "diferencia_edad")
+
+# Tabla comparativa
+tabla_descriptiva <- bind_rows(stats_violencia, stats_divorcios)
+print(tabla_descriptiva)
+```
+### Procedimiento
+Para el análisis descriptivo, se programó una función en R que extrajo medidas de tendencia central (media y mediana), dispersión (desviación estándar y rango intercuartílico) y valores extremos. Lo importante fue la depuración de los datos, donde convertimos los códigos de error del INE (como el 999 en edad) en valores NA. Esto evitó que los promedios se dispararan falsamente y permitió que el análisis se basara únicamente en registros válidos, garantizando que la desviación estándar refleje la variabilidad real del fenómeno y no el ruido de la base de datos original.
+
+### Hallazgos
+Los resultados revelan una asimetría positiva en la edad de las víctimas, con una mediana de 31 años; esto significa que el grueso de los casos ocurre en adultos jóvenes, aunque existen víctimas de la tercera edad que elevan la media a 34 años. En cuanto a los divorcios, se detectó una diferencia de edad promedio de 3.16 años (con el hombre siendo mayor), pero lo más impactante fue hallar outliers extremos (diferencias de hasta 75 años). Estos hallazgos confirman que, aunque hay un patrón de comportamiento estándar, existen nichos de vulnerabilidad y dinámicas de pareja muy asimétricas que requieren una atención especial en los modelos de agrupamiento.
+
+## Gráficos Exploratorios
+
+### Análisis del dataset de Violencia
+
+#### Edad de la Víctima
+```{r}
+par(mfrow=c(1,2))
+hist(violencia$vic_edad_clean, main="Histograma Edad Víctima", col="lightblue", xlab="Edad")
+boxplot(violencia$vic_edad_clean, main="Boxplot Edad Víctima", col="orange", horizontal=TRUE)
+par(mfrow=c(1,1))
+```
+Al ver las gráficas, lo primero que notamos es que la violencia se concentra muchísimo en los adultos jóvenes, especialmente entre los 20 y 35 años. La 'cola' larga hacia la derecha nos indica que, aunque es menos común, también hay víctimas de la tercera edad (esos puntos negros o outliers que aparecen después de los 65 años). Un detalle clave que encontramos es ese pico extraño al final, justo en los 99 años. Eso no significa que haya muchas víctimas de esa edad, sino que es un código que usan para decir 'edad desconocida'. Es importante haberlo detectado visualmente, porque si no lo limpiamos, nos va a inflar el promedio artificialmente.
+
+#### Edad del Agresor
+```{r}
+par(mfrow=c(1,2))
+hist(violencia$agr_edad, main="Histograma Edad Agresor", col="lightblue", xlab="Edad")
+boxplot(violencia$agr_edad, main="Boxplot Edad Agresor", col="orange", horizontal=TRUE)
+par(mfrow=c(1,1))
+```
+Lo primero que salta a la vista es que la gran mayoría de los casos se concentran en familias pequeñas, de entre 0 y 3 hijos. El histograma tiene una caída muy brusca, lo que nos confirma que tener muchos hijos es algo poco común en este grupo. Por otro lado, el diagrama de caja nos muestra una fila larga de puntos negros a la derecha. Estos son los valores atípicos (outliers). Ojo, no necesariamente son errores de datos, estos representan familias reales que tienen 8, 10 o hasta 15 hijos, pero que estadísticamente se comportan muy diferente al promedio general.
+
+#### Total de Hijos
+```{r}
+par(mfrow=c(1,2))
+hist(violencia$total_hijos_clean, main="Histograma Total Hijos", col="lightblue", xlab="Cantidad")
+boxplot(violencia$total_hijos_clean, main="Boxplot Total Hijos", col="orange", horizontal=TRUE)
+par(mfrow=c(1,1))
+```
+Al ver estas gráficas, es evidente que la gran mayoría de los casos involucran familias muy pequeñas, de entre 0 y 3 hijos. El histograma cae en picada, lo que nos confirma que tener una familia numerosa es la excepción y no la regla en este grupo. Por otro lado, el diagrama de caja nos muestra una larga fila de puntos negros hacia la derecha. Estos son los valores atípicos, pero ojo, no son errores, sino familias reales numerosas (de 6 hasta más de 15 hijos) que, aunque existen, estadísticamente se salen por completo del comportamiento 'normal' o promedio de la población estudiada.
+
+#### Hijos Hombres y Mujeres (Desglosado)
+```{r}
+par(mfrow=c(2,2)) # Para ver los 4 juntos
+hist(violencia$num_hij_hom, main="Hist. Hijos Hombres", col="lightblue")
+boxplot(violencia$num_hij_hom, main="Boxplot Hijos Hombres", col="orange")
+hist(violencia$num_hij_muj, main="Hist. Hijas Mujeres", col="lightblue")
+boxplot(violencia$num_hij_muj, main="Boxplot Hijas Mujeres", col="orange")
+par(mfrow=c(1,1)) # Resetear vista
+```
+Al separar los datos entre hijos hombres y mujeres, confirmamos un patrón técnico muy importante. Si observan los histogramas, la inmensa mayoría se agrupa en el cero o números bajos, pero vuelve a aparecer esa barra extraña al final, cerca del 100. Los diagramas de caja lo hacen evidente: ese punto solitario allá arriba no representa a una familia con 99 hijos varones, sino que es indudablemente un código de dato no registrado. Este es un hallazgo clave de limpieza, porque si no filtramos esos '99', cualquier cálculo de promedio de hijos saldrá totalmente erróneo.
+
+### Análisis del dataset de Divorcios
+
+#### Edad del Hombre
+```{r}
+par(mfrow=c(1,2))
+hist(divorcios$edad_hom_clean, main="Distribución Edad Hombre", 
+     col="skyblue", xlab="Edad", ylab="Frecuencia")
+boxplot(divorcios$edad_hom_clean, main="Outliers Hombre", 
+        col="orange", horizontal=TRUE)
+par(mfrow=c(1,1))
+```
+Al analizar la edad de los hombres al momento del divorcio, vemos claramente que es un fenómeno concentrado en la adultez media. El histograma tiene su pico más alto entre los 30 y 40 años, lo que nos indica que esa es la etapa más crítica para las disoluciones matrimoniales en este grupo. Por otro lado, el diagrama de caja nos cuenta la historia completa de que aunque el grueso de los casos está en esa franja joven, la fila de puntos negros a la derecha (los outliers) nos confirma que el divorcio no tiene edad límite. Existen casos registrados de hombres de 70, 80 y hasta casi 100 años separándose, lo cual es estadísticamente atípico pero socialmente real.
 
 
+#### Edad de la Mujer
+```{r}
+par(mfrow=c(1,2))
+hist(divorcios$edad_muj_clean, main="Distribución Edad Mujer", 
+     col="pink", xlab="Edad", ylab="Frecuencia")
+boxplot(divorcios$edad_muj_clean, main="Outliers Mujer", 
+        col="orange", horizontal=TRUE)
+par(mfrow=c(1,1))
+```
+Al ver las gráficas de las mujeres, notamos un patrón muy similar al de los hombres, pero con una diferencia clave: el pico de divorcios ocurre un poco antes. El histograma nos grita que la mayor concentración de casos está entre los 25 y 35 años, confirmando que las mujeres tienden a pasar por este proceso siendo ligeramente más jóvenes que sus exparejas. El diagrama de caja confirma esta tendencia con una mediana baja, pero también nos muestra una larga cola de outliers que llega hasta los 80 años. Esto significa que, aunque la estadística dice que el divorcio es cosa de jóvenes, hay un grupo real y visible de mujeres de la tercera edad que también están disolviendo sus matrimonios
 
+#### Diferencia de edad
+```{r}
+par(mfrow=c(1,2))
+hist(divorcios$diferencia_edad, main="Brecha de Edad (Hombre - Mujer)", 
+     col="#9b59b6", xlab="Diferencia (Años)", ylab="Frecuencia")
+boxplot(divorcios$diferencia_edad, main="Detectando Brechas Extremas", 
+        col="orange", horizontal=TRUE)
+par(mfrow=c(1,1))
+```
+Lo primero que salta a la vista es que la gran mayoría de las parejas tienen edades muy similares. Ese pico gigante y puntiagudo en el centro del histograma nos confirma que lo estándar es divorciarse de alguien de tu misma generación, con una diferencia de apenas 0 a 5 años. Pero lo más interesante está en el diagrama de caja, por ejemplo fíjense en la cantidad brutal de puntos negros a los lados. Esos son los outliers extremos. Tenemos casos donde el hombre es hasta 70 años mayor que su pareja (lado derecho), y otros donde la mujer es 40 años mayor que él (lado izquierdo). Aunque son casos raros, existen y rompen por completo la regla de la edad similar.
 
+## Distribución de variables numéricos
 
+### Análisis del dataset de violencia
+```{r}
+# --- 1. EDAD VÍCTIMA ---
+p1 <- ggplot(violencia, aes(x = vic_edad_clean)) +
+  geom_density(fill = "#5DADE2", alpha = 0.5) +
+  geom_vline(aes(xintercept = mean(vic_edad_clean, na.rm=T)), color="red", linetype="dashed", size=1) +
+  geom_vline(aes(xintercept = median(vic_edad_clean, na.rm=T)), color="blue", size=1) +
+  labs(title="Distribución: Edad Víctima", subtitle="Roja=Media | Azul=Mediana") + theme_minimal()
+
+# --- 2. EDAD AGRESOR ---
+p2 <- ggplot(violencia, aes(x = agr_edad)) +
+  geom_density(fill = "#AF7AC5", alpha = 0.5) +
+  geom_vline(aes(xintercept = mean(agr_edad, na.rm=T)), color="red", linetype="dashed", size=1) +
+  geom_vline(aes(xintercept = median(agr_edad, na.rm=T)), color="blue", size=1) +
+  labs(title="Distribución: Edad Agresor", subtitle="Roja=Media | Azul=Mediana") + theme_minimal()
+
+# --- 3. TOTAL DE HIJOS ---
+p3 <- ggplot(violencia, aes(x = total_hijos_clean)) +
+  geom_density(fill = "#52BE80", alpha = 0.5) +
+  geom_vline(aes(xintercept = mean(total_hijos_clean, na.rm=T)), color="red", linetype="dashed", size=1) +
+  geom_vline(aes(xintercept = median(total_hijos_clean, na.rm=T)), color="blue", size=1) +
+  labs(title="Distribución: Total Hijos", subtitle="Roja=Media | Azul=Mediana") + theme_minimal()
+
+# Imprimir los 3
+print(p1)
+print(p2)
+print(p3)
+```
+Edad de la víctima: Al observar este gráfico, la prueba de que no existe normalidad es clara ya que las líneas no coinciden, por ejemplo la línea azul (Mediana) nos marca el punto real donde se divide la población (alrededor de los 30 años), mientras que la línea roja (Media) está desplazada hacia la derecha, pero ¿por qué pasa esto? Por la 'cola' de datos que vemos a la derecha y, sobre todo, por ese pequeño pico extraño al final (cerca de los 100 años). Esos valores extremos están 'inflando' el promedio artificialmente. Por eso, para este proyecto, la Mediana será un dato mucho más confiable que el promedio para describir a la víctima típica.
+
+Edad del agresor: Aquí el fenómeno es aún más evidente porque vemos nuevamente que la línea roja (Media) se separa de la azul hacia la derecha, confirmando un sesgo positivo. Pero lo más importante para la limpieza de datos es notar cómo la curva sube repentinamente al final del gráfico (a la derecha del todo). Ese levantamiento es causado por los códigos '99' (edad desconocida). Al estar esos datos ahí, están arrastrando la línea roja, haciendo parecer que la edad promedio de los agresores es mayor de lo que realmente es por esto debemos limpiar esos '99' antes de modelar.
+
+Total hijos: Esta gráfica tiene forma de sierra pero lo crítico es la posición de las líneas. La línea azul (Mediana) está clavada en 2 hijos, que es la realidad más común de las familias en la base de datos. Sin embargo, la línea roja (Media) está corrida a la derecha. Esto sucede porque las familias 'atípicas' con 8, 10 o 15 hijos pesan mucho en el cálculo matemático, moviendo el promedio, al final podemos ver que la variable no es normal y está fuertemente sesgada ya que al usar el promedio aquí nos daría un número decimal que no representa la realidad del hogar típico.
+
+### Análisis del dataset de divorcios
+```{r}
+# --- DETERMINACIÓN DE DISTRIBUCIÓN: DIVORCIOS ---
+
+# 1. EDAD HOMBRE
+p_hom <- ggplot(divorcios, aes(x = edad_hom_clean)) +
+  geom_density(fill = "skyblue", alpha = 0.5) +
+  geom_vline(aes(xintercept = mean(edad_hom_clean, na.rm=T)), 
+             color="red", linetype="dashed", size=1) +
+  geom_vline(aes(xintercept = median(edad_hom_clean, na.rm=T)), 
+             color="blue", size=1) +
+  labs(title="Distribución: Edad Hombre", 
+       subtitle="Línea Roja (Media) vs Azul (Mediana)",
+       x = "Edad", y = "Densidad") +
+  theme_minimal()
+
+# 2. EDAD MUJER
+p_muj <- ggplot(divorcios, aes(x = edad_muj_clean)) +
+  geom_density(fill = "pink", alpha = 0.5) +
+  geom_vline(aes(xintercept = mean(edad_muj_clean, na.rm=T)), 
+             color="red", linetype="dashed", size=1) +
+  geom_vline(aes(xintercept = median(edad_muj_clean, na.rm=T)), 
+             color="blue", size=1) +
+  labs(title="Distribución: Edad Mujer", 
+       subtitle="Línea Roja (Media) vs Azul (Mediana)",
+       x = "Edad", y = "Densidad") +
+  theme_minimal()
+
+# 3. DIFERENCIA DE EDAD
+p_dif <- ggplot(divorcios, aes(x = diferencia_edad)) +
+  geom_density(fill = "#9b59b6", alpha = 0.5) +
+  geom_vline(aes(xintercept = mean(diferencia_edad, na.rm=T)), 
+             color="red", linetype="dashed", size=1) +
+  geom_vline(aes(xintercept = median(diferencia_edad, na.rm=T)), 
+             color="blue", size=1) +
+  labs(title="Distribución: Diferencia de Edad", 
+       subtitle="Línea Roja (Media) vs Azul (Mediana)",
+       x = "Diferencia (Años)", y = "Densidad") +
+  theme_minimal()
+
+# Mostrar los gráficos
+print(p_hom)
+print(p_muj)
+print(p_dif)
+```
+Edad del hombre: Al analizar esta gráfica, la falta de normalidad es evidente. La línea azul (Mediana) nos muestra que el hombre 'típico' se divorcia cerca de los 38 años. Sin embargo, la línea roja (Media) aparece desplazada hacia la derecha, esto nos dice que tenemos una asimetría positiva. Aunque el grueso de los divorcios ocurre en la adultez media, hay suficientes hombres de 60, 70 o más años divorciándose como para inflar el promedio matemático, por eso, si solo viéramos el promedio, creeríamos que la gente se divorcia más vieja de lo que realmente es lo común.
+
+Edad de la mujer: Aquí confirmamos que el comportamiento es casi idéntico al de los hombres, pero ocurriendo un poco antes. La línea azul se planta firmemente alrededor de los 35 años, marcando la realidad de la mayoría, después nuevamente, la línea roja (Media) huye hacia la derecha. Esto ratifica estadísticamente que los casos de mujeres mayores distorsionan la media. Al igual que con los hombres, la distribución no es normal, y usar métodos estadísticos que asuman una Campana de Gauss perfecta podría llevarnos a errores.
+
+Diferencia de edad: Esta es la gráfica más tramposa de todas porque a primera vista parece una campana perfecta porque las líneas roja y azul están casi pegadas. Pero si miramos bien, la forma es demasiado puntiaguda (lo que llamamos leptocúrtica). Esto significa que hay una concentración excesiva de datos en el centro porque la inmensa mayoría de las parejas se lleva menos de 5 años, por otro lado las 'colas' largas a los lados (las partes bajas y planas de la curva) nos indican que existen valores extremos—parejas con 20 o 30 años de diferencia que rompen la estructura de una distribución normal estándar, aunque el promedio sea acertado aquí, la variabilidad es engañosa.
