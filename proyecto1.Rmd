@@ -194,6 +194,40 @@ La edad del hombre en los procesos de divorcio presenta una mediana de 34 años 
 
 ---
 
+___
+
+## Metodología y explicación de procedimientos
+
+### Tratamiento de valores faltantes y códigos especiales
+
+Antes de realizar el análisis estadístico, se revisaron los conjuntos de datos para identificar valores faltantes y códigos especiales utilizados para representar información no especificada. En ambos conjuntos se encontraron valores como 99 y 999, que no representan datos reales sino ausencia de información.
+
+Estos valores fueron transformados en NA con el objetivo de evitar distorsiones en las medidas de tendencia central y en los análisis posteriores. Esta decisión metodológica permitió obtener estadísticas más representativas del comportamiento real de las variables estudiadas.
+
+
+### Análisis descriptivo de variables numéricas
+
+Para las variables cuantitativas seleccionadas se calcularon medidas de tendencia central (media y mediana) y medidas de orden (cuartiles). Estas estadísticas permitieron identificar la concentración de los datos y evaluar la dispersión de cada variable.
+
+En el caso de la edad de las víctimas de violencia intrafamiliar, se observó que la mediana se concentra en adultos jóvenes, lo cual indica que este grupo etario representa una proporción importante de los casos registrados. Asimismo, la ligera diferencia entre media y mediana sugiere una asimetría moderada en la distribución.
+
+En los procesos de divorcio, se identificó que los hombres tienden a ser ligeramente mayores que las mujeres al momento del divorcio. Este patrón consistente refuerza la coherencia interna del conjunto de datos.
+
+
+### Interpretación de la distribución y valores extremos
+
+El análisis exploratorio permitió observar que las variables numéricas no siguen una distribución perfectamente normal, sino que presentan asimetrías moderadas, lo cual es común en fenómenos sociales reales.
+
+Los valores extremos fueron examinados para determinar si correspondían a errores de registro o a casos poco frecuentes pero posibles. En general, los valores observados se consideran coherentes dentro del contexto del fenómeno estudiado, por lo que no fueron eliminados arbitrariamente.
+
+
+### Coherencia y consistencia de los datos
+
+Los resultados obtenidos muestran patrones consistentes entre los diferentes análisis realizados. La concentración de casos en adultos jóvenes tanto en violencia intrafamiliar como en divorcios sugiere dinámicas sociales relevantes que merecen un análisis más profundo.
+
+Es importante destacar que hasta este punto del estudio se han identificado asociaciones descriptivas, sin establecer relaciones causales. Los análisis posteriores permitirán profundizar en la comprensión de estas dinámicas.
+___
+
 
 ## Exploración de variables categóricas
 
@@ -683,15 +717,7 @@ cor(div_num, use="pairwise.complete.obs", method="pearson")
 cor(div_num, use="pairwise.complete.obs", method="spearman")
 ```
 ```{r correlaciones scatter}
-# Violencia: víctima vs agresor
-violencia %>%
-  mutate(agr_edad_clean = ifelse(is.na(agr_edad) | agr_edad > 110, NA, agr_edad)) %>%
-  ggplot(aes(x = vic_edad_clean, y = agr_edad_clean)) +
-  geom_point(alpha = 0.25) +
-  geom_smooth(method = "lm", se = FALSE) +
-  labs(title="Edad de víctima vs agresor",
-       x="Edad víctima (limpia)", y="Edad agresor (limpia)") +
-  theme_classic()
+
 
 # Divorcios: edad hombre vs mujer
 divorcios %>%
@@ -702,6 +728,7 @@ divorcios %>%
        x="Edad hombre (limpia)", y="Edad mujer (limpia)") +
   theme_classic()
 ```
+
 ```{r correlacipn entre bases}
 vio_depto <- violencia %>%
   mutate(agr_edad_clean = ifelse(is.na(agr_edad) | agr_edad > 110, NA, agr_edad)) %>%
@@ -888,5 +915,8 @@ divorcios_cat %>%
   slice_head(n = 10)
 ```
 En las variables categóricas de violencia intrafamiliar se observa un patrón muy marcado: la mayoría de víctimas son mujeres, y en estado civil predominan casado(a) y unido(a), con una proporción no despreciable de “Ignorado” (dato faltante codificado). En la relación víctima–agresor, los casos se concentran principalmente en esposo/conviviente y ex-esposo/ex-pareja, seguidos por “otro/no especificado” y “padre/madre”, mientras que “hijo(a)” y “hermano(a)” aparecen con frecuencias mucho menores. Por mes, la distribución es relativamente pareja a lo largo del año (con leves picos como mayo/julio/agosto) y un grupo pequeño en “Ignorado”, lo que sugiere estacionalidad débil. En divorcios, la escolaridad del hombre y de la mujer muestra un comportamiento similar: “Ignorado” es la categoría más frecuente, seguida por Primaria, luego Ninguno, y finalmente Media/Diversificado. Al evaluar asociación entre categóricas, las pruebas salen “significativas” por el tamaño muestral, pero los tamaños de efecto indican que Sexo vs Estado civil es muy débil (Cramér’s V ≈ 0.063), Sexo vs Relación es la más relevante (V ≈ 0.181, asociación pequeña–moderada) y Mes vs Sexo es prácticamente nula (V ≈ 0.012). Finalmente, en el ranking por departamento, el código 1 lidera ampliamente tanto en violencia como en divorcios, lo cual sugiere que parte del patrón agregado está influido por el tamaño poblacional y el volumen de registros del departamento.
+
+
+
 
 
