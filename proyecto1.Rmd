@@ -1,11 +1,13 @@
 ---
 title: "Proyecto 1"
-author: "Luis Pedro Lira 23669, Fernando Rocha 23501, Juan Francisco Martínez 23617, 
-Luis Gilberto González - 23353, Joel Antonio Jaquez - 23369"  
+author:
+  - Luis Pedro Lira (23669)
+  - Fernando Rocha (23501)
+  - Juan Francisco Martínez (23617)
+  - Luis Gilberto González (23353)
+  - Joel Antonio Jaquez (23369)
 date: "2026-02-02"
 output:
-  html_document:
-    df_print: paged
   pdf_document:
     latex_engine: xelatex
 ---
@@ -1281,4 +1283,34 @@ Este departamento corresponde al departamento de Guatemala, el cual presenta val
 El resultado indica que la estructura natural de los datos está fuertemente influenciada por la magnitud de los valores del departamento de Guatemala, lo cual genera una separación clara entre este y el resto.
 
 
+
+
+# Hallazgos del Análisis Exploratorio
+
+
+1.  **Perfil de la Víctima:** La violencia intrafamiliar posee un sesgo de género y edad muy marcado. El **88.5% de las víctimas son mujeres**, con una mediana de edad de **31 años**, confirmando que el fenómeno afecta desproporcionadamente a mujeres adultas jóvenes en etapa reproductiva y de crianza (el 86.3% tiene hijos).
+
+2.  **La Trampa de la Correlación:** Existe una correlación lineal fuerte ($r=0.82$) entre la cantidad de denuncias de violencia y la cantidad de divorcios por departamento. Sin embargo, este dato es engañoso: está impulsado casi exclusivamente por el **Departamento de Guatemala**, cuyo volumen poblacional infla las cifras, actuando como un *outlier* que distorsiona la tendencia nacional.
+
+3.  **Homogamia en Rupturas:** En los divorcios, se rompe el mito de las grandes diferencias de edad. La mayoría de las parejas que disuelven su vínculo tienen edades similares (diferencia mediana de 2 años), lo que sugiere que las tensiones que llevan al divorcio y/o violencia ocurren entre pares generacionales.
+
+# Caracterización de los Grupos (Nombres Propuestos)
+
+El algoritmo *K-Means* ($k=2$) identificó una estructura polarizada en el país. Basado en sus características, se proponen los siguientes nombres para los grupos:
+
+### Grupo 1: "El Núcleo Metropolitano (Outlier)"
+* **Integrantes:** Únicamente el **Departamento de Guatemala**.
+* **Características:** Representa un escenario de "alta intensidad" que no es comparable con el resto del país. Sus cifras de violencia (aprox. 68k casos) y divorcios (27k) rompen la escala, siendo entre 6 y 20 veces superiores al promedio de los demás departamentos. Estadísticamente, es un caso atípico extremo.
+
+### Grupo 2: "El Interior Estándar"
+* **Integrantes:** Los **21 departamentos restantes** (Huehuetenango, San Marcos, Petén, Zacapa, etc.).
+* **Características:** A pesar de sus diferencias culturales y geográficas, estos departamentos se agrupan por tener volúmenes de casos "bajos" o "medios" en comparación con la capital. Para el algoritmo, todos son similares simplemente porque "no son la capital".
+
+# Plan de Siguientes Pasos
+
+Para corregir el sesgo identificado y profundizar en el análisis, se propone la siguiente hoja de ruta:
+
+1.  **Zoom-In (Sub-segmentación):** Ejecutar una segunda iteración de *clustering* **excluyendo al Departamento de Guatemala**. Al retirar este *outlier*, se podrán revelar los matices y diferencias reales entre los departamentos del interior (ej. diferenciar zonas de alta violencia en oriente vs. occidente).
+2.  **Normalización Demográfica:** Sustituir el análisis de frecuencias absolutas por **Tasas por cada 100,000 habitantes**. Esto es crucial para determinar si departamentos pequeños (como El Progreso o Zacapa) tienen en realidad una *intensidad* de violencia mayor que la capital, aunque tengan menos casos totales.
+3.  **Variable de Ratio:** Crear y analizar la métrica `Divorcios / Denuncias de Violencia`. Esto permitirá identificar departamentos donde existe una alta denuncia pero baja disolución legal, lo cual podría indicar barreras culturales, económicas o legales específicas de esa región.
 
