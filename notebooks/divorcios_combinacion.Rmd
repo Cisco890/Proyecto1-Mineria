@@ -1,0 +1,165 @@
+---
+title: "Combine SPSS .sav files (one per year) into one dataset"
+output: html_document
+date: "`r format(Sys.Date())`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = TRUE)
+```
+
+# 1) Packages
+
+```{r packages}
+# Install (only if missing)
+
+library(haven)
+library(dplyr)
+library(purrr)
+library(stringr)
+library(tibble)
+```
+
+# 2) Locate the .sav files
+
+```{r files}
+ruta <- "D:/Documentos_Universidad/cuarto/Primer_semestre/Mineria_datos/Proyecto1/Divorcios"
+
+stopifnot(dir.exists(ruta))
+
+# Buscar archivos
+archivos <- list.files(
+  ruta,
+  pattern = "\\.(sav|zsav)$",
+  full.names = TRUE,
+  recursive = TRUE,
+  ignore.case = TRUE
+)
+
+length(archivos)
+head(basename(archivos), 20)
+```
+
+# 3) Validate that filenames are years (e.g., 2017.sav)
+
+```{r validate_filenames}
+# Año basado en nombre del archivo
+anio_archivo <- suppressWarnings(as.integer(tools::file_path_sans_ext(basename(archivos))))
+
+validos <- !is.na(anio_archivo) & anio_archivo >= 1900 & anio_archivo <= 2100
+
+tibble(
+  archivo = basename(archivos),
+  year_from_name = anio_archivo,
+  valid_year_name = validos
+)
+
+# Catch en caso de faltar renombrar archivos
+if (any(!validos)) {
+  stop("Some files are not named like a year (e.g., 2017.sav). Fix these filenames:\n",
+       paste(basename(archivos)[!validos], collapse = "\n"))
+}
+```
+
+# 4) (Optional) Report different column names per file
+
+```{r schema_report}
+nombres_por_archivo <- map(archivos, ~names(read_sav(.x)))
+
+resumen <- tibble(
+  archivo = basename(archivos),
+  year    = as.integer(tools::file_path_sans_ext(basename(archivos))),
+  n_cols  = map_int(nombres_por_archivo, length),
+  preview = map_chr(nombres_por_archivo, ~paste(head(.x, 15), collapse = ", "))
+) %>% arrange(year)
+
+resumen
+
+todas_cols_names <- sort(unique(unlist(nombres_por_archivo)))
+faltantes <- map(nombres_por_archivo, ~setdiff(todas_cols_names, .x))
+
+faltantes_tbl <- tibble(
+  archivo = basename(archivos),
+  year    = as.integer(tools::file_path_sans_ext(basename(archivos))),
+  n_faltantes = map_int(faltantes, length),
+  faltantes = map_chr(faltantes, ~paste(.x, collapse = ", "))
+) %>% arrange(desc(n_faltantes), year)
+
+faltantes_tbl
+```
+
+# 5) Read + harmonize + remove labels + add year
+
+```{r read_and_prepare}
+leer_preparar <- function(path) {
+  df <- read_sav(path)
+
+  # Diferencias de archivos
+  if ("PUEHOM" %in% names(df)) names(df)[names(df) == "PUEHOM"] <- "PPERHOM"
+  if ("PUEMUJ" %in% names(df)) names(df)[names(df) == "PUEMUJ"] <- "PPERMUJ"
+
+  # Remover SPSS 
+  df <- zap_labels(df)
+
+  # Año del archivo
+  anio <- as.integer(tools::file_path_sans_ext(basename(path)))
+  df <- df %>% mutate(year = anio)
+
+  df
+}
+
+# Leer
+dfs_raw <- map(archivos, leer_preparar)
+
+map_int(dfs_raw, nrow)
+map_int(dfs_raw, ncol)
+```
+
+# 6) Detect type conflicts and fix automatically
+
+```{r type_conflicts}
+todas_cols <- sort(unique(unlist(map(dfs_raw, names))))
+
+cols_conflict <- keep(todas_cols, function(col) {
+  tipos <- unique(na.omit(map_chr(
+    dfs_raw,
+    ~ if (col %in% names(.x)) typeof(.x[[col]]) else NA_character_
+  )))
+  length(tipos) > 1
+})
+
+cols_conflict
+```
+
+```{r coerce_and_bind}
+# Conflictos
+dfs_ok <- map(dfs_raw, ~ .x %>% mutate(across(any_of(cols_conflict), as.character)))
+
+#Combinar
+datos_total <- bind_rows(dfs_ok)
+
+dim(datos_total)
+glimpse(datos_total)
+```
+
+# 7) Sanity checks
+
+```{r checks}
+#filas por año
+table(datos_total$year, useNA = "ifany")
+
+# variables faltantes
+sort(colSums(is.na(datos_total)), decreasing = TRUE)[1:10]
+```
+
+# 8) Export the combined dataset
+
+```{r export}
+# Guarar archivo
+write_sav(datos_total, file.path(ruta, "datos_total.sav"))
+write.csv(datos_total, file.path(ruta, "datos_total.csv"), row.names = FALSE)
+
+# guardar reportes
+write.csv(resumen, file.path(ruta, "schema_preview_by_file.csv"), row.names = FALSE)
+write.csv(faltantes_tbl, file.path(ruta, "schema_missing_by_file.csv"), row.names = FALSE)
+```

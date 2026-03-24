@@ -2,3 +2,19 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Outputs grandes (modelos entrenados)
+outputs/models/*.pkl
+outputs/models/*.joblib
+
+# OS
+.DS_Store

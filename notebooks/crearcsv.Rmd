@@ -1,0 +1,42 @@
+---
+title: "Archivo para xlsx->csv"
+---
+  
+```{r}
+library(readxl)
+library(readr)
+
+# =========================
+# Dataset de Divorcios
+# =========================
+
+divorcios_raw <- read_excel(
+  path = "Datos/diccionario_divorcios_2022.xlsx",
+  sheet = "Divorcios"
+)
+
+write_csv(
+  divorcios_raw,
+  "Datos/divorcios_2022.csv"
+)
+```
+
+
+```{r}
+# =========================
+# Dataset de Violencia
+# =========================
+
+violencia_raw <- read_excel(
+  path = "Datos/diccionario_violencia_2022.xlsx"
+)
+
+write_csv(
+  violencia_raw,
+  "Datos/violencia_2022.csv"
+)
+
+```
+
+
+

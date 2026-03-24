@@ -1,0 +1,1074 @@
+Valores de las variables divorcios,...2,...3
+Valor,Código,Etiqueta
+Departamento de registro,1,Guatemala
+NA,2,El Progreso
+NA,3,Sacatepéquez
+NA,4,Chimaltenango
+NA,5,Escuintla
+NA,6,Santa Rosa
+NA,7,Sololá
+NA,8,Totonicapán
+NA,9,Quetzaltenango
+NA,10,Suchitepéquez
+NA,11,Retalhuleu
+NA,12,San Marcos
+NA,13,Huehuetenango
+NA,14,Quiché
+NA,15,Baja Verapaz
+NA,16,Alta Verapaz
+NA,17,Petén
+NA,18,Izabal
+NA,19,Zacapa
+NA,20,Chiquimula
+NA,21,Jalapa
+NA,22,Jutiapa
+Municipio de registro,0101,Guatemala
+NA,0102,Santa Catarina Pinula
+NA,0103,San José Pinula
+NA,0104,San José del Golfo
+NA,0105,Palencia
+NA,0106,Chinautla
+NA,0107,San Pedro Ayampuc
+NA,0108,Mixco
+NA,0109,San Pedro Sacatepéquez
+NA,0110,San Juan Sacatepéquez
+NA,0111,San Raymundo
+NA,0112,Chuarrancho
+NA,0113,Fraijanes
+NA,0114,Amatitlán
+NA,0115,Villa Nueva
+NA,0116,Villa Canales
+NA,0117,Petapa
+NA,0201,Guastatoya
+NA,0202,Morazán
+NA,0203,San Agustín Acasaguastlán
+NA,0204,San Cristóbal Acasaguastlán
+NA,0205,El Jícaro
+NA,0206,Sansare
+NA,0207,Sanarate
+NA,0208,San Antonio la Paz
+NA,0301,Antigua Guatemala
+NA,0302,Jocotenango
+NA,0303,Pastores
+NA,0304,Sumpango
+NA,0305,Santo Domingo Xenacoj
+NA,0306,Santiago Sacatepéquez
+NA,0307,San Bartolomé Milpas Altas
+NA,0308,San Lucas Sacatepéquez
+NA,0309,Santa Lucía Milpas Altas
+NA,0310,Magdalena Milpas Altas
+NA,0311,Santa María de Jesús
+NA,0312,Ciudad Vieja
+NA,0313,San Miguel Dueñas
+NA,0314,Alotenango
+NA,0315,San Antonio Aguas Calientes
+NA,0316,Santa Catarina Barahona
+NA,0401,Chimaltenango
+NA,0402,San José Poaquil
+NA,0403,San Martín Jilotepeque
+NA,0404,Comalapa
+NA,0405,Santa Apolonia
+NA,0406,Tecpán Guatemala
+NA,0407,Patzún
+NA,0408,Pochuta
+NA,0409,Patzicía
+NA,0410,Santa Cruz Balanyá
+NA,0411,Acatenango
+NA,0412,Yepocapa
+NA,0413,San Andrés Itzapa
+NA,0414,Parramos
+NA,0415,Zaragoza
+NA,0416,El Tejar
+NA,0501,Escuintla
+NA,0502,Santa Lucía Cotzumalguapa
+NA,0503,La Democracia
+NA,0504,Siquinalá
+NA,0505,Masagua
+NA,0506,Tiquisate
+NA,0507,La Gomera
+NA,0508,Guanagazapa
+NA,0509,San José
+NA,0510,Iztapa
+NA,0511,Palín
+NA,0512,San Vicente Pacaya
+NA,0513,Nueva Concepción
+NA,0514,Sipacate
+NA,0601,Cuilapa
+NA,0602,Barberena
+NA,0603,Santa Rosa de Lima
+NA,0604,Casillas
+NA,0605,San Rafael las Flores
+NA,0606,Oratorio
+NA,0607,San Juan Tecuaco
+NA,0608,Chiquimulilla
+NA,0609,Taxisco
+NA,0610,Santa María Ixhuatán
+NA,0611,Guazacapán
+NA,0612,Santa Cruz Naranjo
+NA,0613,Pueblo Nuevo Viñas
+NA,0614,Nueva Santa Rosa
+NA,0701,Sololá
+NA,0702,San José Chacayá
+NA,0703,Santa María Visitación
+NA,0704,Santa Lucía Utatlán
+NA,0705,Nahualá
+NA,0706,Santa Catarina Ixtahuacán
+NA,0707,Santa Clara la Laguna
+NA,0708,Concepción
+NA,0709,San Andrés Semetabaj
+NA,0710,Panajachel
+NA,0711,Santa Catarina Palopó
+NA,0712,San Antonio Palopó
+NA,0713,San Lucas Tolimán
+NA,0714,Santa Cruz la Laguna
+NA,0715,San Pablo la Laguna
+NA,0716,San Marcos la Laguna
+NA,0717,San Juan la Laguna
+NA,0718,San Pedro la Laguna
+NA,0719,Santiago Atitlán
+NA,0801,Totonicapán
+NA,0802,San Cristóbal Totonicapán
+NA,0803,San Francisco el Alto
+NA,0804,San Andrés Xecul
+NA,0805,Momostenango
+NA,0806,Santa María Chiquimula
+NA,0807,Santa Lucía la Reforma
+NA,0808,San Bartolo
+NA,0901,Quetzaltenango
+NA,0902,Salcajá
+NA,0903,Olintepeque
+NA,0904,San Carlos Sija
+NA,0905,Sibilia
+NA,0906,Cabricán
+NA,0907,Cajolá
+NA,0908,San Miguel Siguilá
+NA,0909,Ostuncalco
+NA,0910,San Mateo
+NA,0911,Concepción Chiquirichapa
+NA,0912,San Martín Sacatepéquez
+NA,0913,Almolonga
+NA,0914,Cantel
+NA,0915,Huitán
+NA,0916,Zunil
+NA,0917,Colomba
+NA,0918,San Francisco la Unión
+NA,0919,El Palmar
+NA,0920,Coatepeque
+NA,0921,Génova
+NA,0922,Flores Costa Cuca
+NA,0923,La Esperanza
+NA,0924,Palestina de los Altos
+NA,1001,Mazatenango
+NA,1002,Cuyotenango
+NA,1003,San Francisco Zapotitlán
+NA,1004,San Bernardino
+NA,1005,San José el Idolo
+NA,1006,Santo Domingo Suchitepéquez
+NA,1007,San Lorenzo
+NA,1008,Samayac
+NA,1009,San Pablo Jocopilas
+NA,1010,San Antonio Suchitepéquez
+NA,1011,San Miguel Panán
+NA,1012,San Gabriel
+NA,1013,Chicacao
+NA,1014,Patulul
+NA,1015,Santa Bárbara
+NA,1016,San Juan Bautista
+NA,1017,Santo Tomás la Unión
+NA,1018,Zunilito
+NA,1019,Pueblo Nuevo
+NA,1020,Río Bravo
+NA,1021,San José La Máquina
+NA,1101,Retalhuleu
+NA,1102,San Sebastián
+NA,1103,Santa Cruz Muluá
+NA,1104,San Martín Zapotitlán
+NA,1105,San Felipe
+NA,1106,San Andrés Villa Seca
+NA,1107,Champerico
+NA,1108,Nuevo San Carlos
+NA,1109,El Asintal
+NA,1201,San Marcos
+NA,1202,San Pedro Sacatepéquez
+NA,1203,San Antonio Sacatepéquez
+NA,1204,Comitancillo
+NA,1205,San Miguel Ixtahuacán
+NA,1206,Concepción Tutuapa
+NA,1207,Tacaná
+NA,1208,Sibinal
+NA,1209,Tajumulco
+NA,1210,Tejutla
+NA,1211,San Rafael Pié de la Cuesta
+NA,1212,Nuevo Progreso
+NA,1213,El Tumbador
+NA,1214,El Rodeo
+NA,1215,Malacatán
+NA,1216,Catarina
+NA,1217,Ayutla
+NA,1218,Ocós
+NA,1219,San Pablo
+NA,1220,El Quetzal
+NA,1221,La Reforma
+NA,1222,Pajapita
+NA,1223,Ixchiguán
+NA,1224,San José Ojetenán
+NA,1225,San Cristóbal Cucho
+NA,1226,Sipacapa
+NA,1227,Esquipulas Palo Gordo
+NA,1228,Río Blanco
+NA,1229,San Lorenzo
+NA,1230,La Blanca
+NA,1301,Huehuetenango
+NA,1302,Chiantla
+NA,1303,Malacatancito
+NA,1304,Cuilco
+NA,1305,Nentón
+NA,1306,San Pedro Necta
+NA,1307,Jacaltenango
+NA,1308,Soloma
+NA,1309,Ixtahuacán
+NA,1310,Santa Bárbara
+NA,1311,La Libertad
+NA,1312,La Democracia
+NA,1313,San Miguel Acatán
+NA,1314,San Rafael la Independencia
+NA,1315,Todos Santos Cuchumatán
+NA,1316,San Juan Atitán
+NA,1317,Santa Eulalia
+NA,1318,San Mateo Ixtatán
+NA,1319,Colotenango
+NA,1320,San Sebastián Huehuetenango
+NA,1321,Tectitán
+NA,1322,Concepción Huista
+NA,1323,San Juan Ixcoy
+NA,1324,San Antonio Huista
+NA,1325,San Sebastián Coatán
+NA,1326,Barillas
+NA,1327,Aguacatán
+NA,1328,San Rafael Petzal
+NA,1329,San Gaspar Ixchil
+NA,1330,Santiago Chimaltenango
+NA,1331,Santa Ana Huista
+NA,1332,Unión Cantinil
+NA,1333,Petatán
+NA,1401,Santa Cruz del Quiché
+NA,1402,Chiché
+NA,1403,Chinique
+NA,1404,Zacualpa
+NA,1405,Chajul
+NA,1406,Chichicastenango
+NA,1407,Patzité
+NA,1408,San Antonio Ilotenango
+NA,1409,San Pedro Jocopilas
+NA,1410,Cunén
+NA,1411,San Juan Cotzal
+NA,1412,Joyabaj
+NA,1413,Nebaj
+NA,1414,San Andrés Sajcabajá
+NA,1415,Uspantán
+NA,1416,Sacapulas
+NA,1417,San Bartolomé Jocotenango
+NA,1418,Canillá
+NA,1419,Chicamán
+NA,1420,Ixcán
+NA,1421,Pachalum
+NA,1501,Salamá
+NA,1502,San Miguel Chicaj
+NA,1503,Rabinal
+NA,1504,Cubulco
+NA,1505,Granados
+NA,1506,El Chol
+NA,1507,San Jerónimo
+NA,1508,Purulhá
+NA,1601,Cobán
+NA,1602,Santa Cruz Verapaz
+NA,1603,San Cristóbal Verapaz
+NA,1604,Tactic
+NA,1605,Tamahú
+NA,1606,Tucurú
+NA,1607,Panzós
+NA,1608,Senahú
+NA,1609,San Pedro Carchá
+NA,1610,San Juan Chamelco
+NA,1611,Lanquín
+NA,1612,Cahabón
+NA,1613,Chisec
+NA,1614,Chahal
+NA,1615,Fray Bartolomé de las Casas
+NA,1616,Santa Catalina la Tinta
+NA,1617,Raxruhá
+NA,1701,Flores
+NA,1702,San José
+NA,1703,San Benito
+NA,1704,San Andrés
+NA,1705,La Libertad
+NA,1706,San Francisco
+NA,1707,Santa Ana
+NA,1708,Dolores
+NA,1709,San Luis
+NA,1710,Sayaxché
+NA,1711,Melchor de Mencos
+NA,1712,Poptún
+NA,1713,Las Cruces
+NA,1714,El Chal
+NA,1801,Puerto Barrios
+NA,1802,Livingston
+NA,1803,El Estor
+NA,1804,Morales
+NA,1805,Los Amates
+NA,1901,Zacapa
+NA,1902,Estanzuela
+NA,1903,Río Hondo
+NA,1904,Gualán
+NA,1905,Teculután
+NA,1906,Usumatlán
+NA,1907,Cabañas
+NA,1908,San Diego
+NA,1909,La Unión
+NA,1910,Huité
+NA,1911,San Jorge
+NA,2001,Chiquimula
+NA,2002,San José La Arada
+NA,2003,San Juan Ermita
+NA,2004,Jocotán
+NA,2005,Camotán
+NA,2006,Olopa
+NA,2007,Esquipulas
+NA,2008,Concepción Las Minas
+NA,2009,Quetzaltepeque
+NA,2010,San Jacinto
+NA,2011,Ipala
+NA,2101,Jalapa
+NA,2102,San Pedro Pinula
+NA,2103,San Luis Jilotepeque
+NA,2104,San Manuel Chaparrón
+NA,2105,San Carlos Alzatate
+NA,2106,Monjas
+NA,2107,Mataquescuintla
+NA,2201,Jutiapa
+NA,2202,El Progreso
+NA,2203,Santa Catarina Mita
+NA,2204,Agua Blanca
+NA,2205,Asunción Mita
+NA,2206,Yupiltepeque
+NA,2207,Atescatempa
+NA,2208,Jerez
+NA,2209,El Adelanto
+NA,2210,Zapotitlán
+NA,2211,Comapa
+NA,2212,Jalpatagua
+NA,2213,Conguaco
+NA,2214,Moyuta
+NA,2215,Pasaco
+NA,2216,San José Acatempa
+NA,2217,Quesada
+Mes de registro,1,Enero
+NA,2,Febrero
+NA,3,Marzo
+NA,4,Abril
+NA,5,Mayo
+NA,6,Junio
+NA,7,Julio
+NA,8,Agosto
+NA,9,Septiembre
+NA,10,Octubre
+NA,11,Noviembre
+NA,12,Diciembre
+Año de registro,2022,2022
+NA,2023,2023
+Día de ocurrencia,1,1
+NA,2,2
+NA,3,3
+NA,4,4
+NA,5,5
+NA,6,6
+NA,7,7
+NA,8,8
+NA,9,9
+NA,10,10
+NA,11,11
+NA,12,12
+NA,13,13
+NA,14,14
+NA,15,15
+NA,16,16
+NA,17,17
+NA,18,18
+NA,19,19
+NA,20,20
+NA,21,21
+NA,22,22
+NA,23,23
+NA,24,24
+NA,25,25
+NA,26,26
+NA,27,27
+NA,28,28
+NA,29,29
+NA,30,30
+NA,31,31
+Mes de ocurrencia,1,Enero
+NA,2,Febrero
+NA,3,Marzo
+NA,4,Abril
+NA,5,Mayo
+NA,6,Junio
+NA,7,Julio
+NA,8,Agosto
+NA,9,Septiembre
+NA,10,Octubre
+NA,11,Noviembre
+NA,12,Diciembre
+Año ocurrencia,2022,2022
+Departamento de ocurrencia,1,Guatemala
+NA,2,El Progreso
+NA,3,Sacatepéquez
+NA,4,Chimaltenango
+NA,5,Escuintla
+NA,6,Santa Rosa
+NA,7,Sololá
+NA,8,Totonicapán
+NA,9,Quetzaltenango
+NA,10,Suchitepéquez
+NA,11,Retalhuleu
+NA,12,San Marcos
+NA,13,Huehuetenango
+NA,14,Quiché
+NA,15,Baja Verapaz
+NA,16,Alta Verapaz
+NA,17,Petén
+NA,18,Izabal
+NA,19,Zacapa
+NA,20,Chiquimula
+NA,21,Jalapa
+NA,22,Jutiapa
+Municipio de ocurrencia,0101,Guatemala
+NA,0102,Santa Catarina Pinula
+NA,0103,San José Pinula
+NA,0104,San José del Golfo
+NA,0105,Palencia
+NA,0106,Chinautla
+NA,0107,San Pedro Ayampuc
+NA,0108,Mixco
+NA,0109,San Pedro Sacatepéquez
+NA,0110,San Juan Sacatepéquez
+NA,0111,San Raymundo
+NA,0112,Chuarrancho
+NA,0113,Fraijanes
+NA,0114,Amatitlán
+NA,0115,Villa Nueva
+NA,0116,Villa Canales
+NA,0117,Petapa
+NA,0201,Guastatoya
+NA,0202,Morazán
+NA,0203,San Agustín Acasaguastlán
+NA,0204,San Cristóbal Acasaguastlán
+NA,0205,El Jícaro
+NA,0206,Sansare
+NA,0207,Sanarate
+NA,0208,San Antonio la Paz
+NA,0301,Antigua Guatemala
+NA,0302,Jocotenango
+NA,0303,Pastores
+NA,0304,Sumpango
+NA,0305,Santo Domingo Xenacoj
+NA,0306,Santiago Sacatepéquez
+NA,0307,San Bartolomé Milpas Altas
+NA,0308,San Lucas Sacatepéquez
+NA,0309,Santa Lucía Milpas Altas
+NA,0310,Magdalena Milpas Altas
+NA,0311,Santa María de Jesús
+NA,0312,Ciudad Vieja
+NA,0313,San Miguel Dueñas
+NA,0314,Alotenango
+NA,0315,San Antonio Aguas Calientes
+NA,0316,Santa Catarina Barahona
+NA,0401,Chimaltenango
+NA,0402,San José Poaquil
+NA,0403,San Martín Jilotepeque
+NA,0404,Comalapa
+NA,0405,Santa Apolonia
+NA,0406,Tecpán Guatemala
+NA,0407,Patzún
+NA,0408,Pochuta
+NA,0409,Patzicía
+NA,0410,Santa Cruz Balanyá
+NA,0411,Acatenango
+NA,0412,Yepocapa
+NA,0413,San Andrés Itzapa
+NA,0414,Parramos
+NA,0415,Zaragoza
+NA,0416,El Tejar
+NA,0501,Escuintla
+NA,0502,Santa Lucía Cotzumalguapa
+NA,0503,La Democracia
+NA,0504,Siquinalá
+NA,0505,Masagua
+NA,0506,Tiquisate
+NA,0507,La Gomera
+NA,0508,Guanagazapa
+NA,0509,San José
+NA,0510,Iztapa
+NA,0511,Palín
+NA,0512,San Vicente Pacaya
+NA,0513,Nueva Concepción
+NA,0514,Sipacate
+NA,0601,Cuilapa
+NA,0602,Barberena
+NA,0603,Santa Rosa de Lima
+NA,0604,Casillas
+NA,0605,San Rafael las Flores
+NA,0606,Oratorio
+NA,0607,San Juan Tecuaco
+NA,0608,Chiquimulilla
+NA,0609,Taxisco
+NA,0610,Santa María Ixhuatán
+NA,0611,Guazacapán
+NA,0612,Santa Cruz Naranjo
+NA,0613,Pueblo Nuevo Viñas
+NA,0614,Nueva Santa Rosa
+NA,0701,Sololá
+NA,0702,San José Chacayá
+NA,0703,Santa María Visitación
+NA,0704,Santa Lucía Utatlán
+NA,0705,Nahualá
+NA,0706,Santa Catarina Ixtahuacán
+NA,0707,Santa Clara la Laguna
+NA,0708,Concepción
+NA,0709,San Andrés Semetabaj
+NA,0710,Panajachel
+NA,0711,Santa Catarina Palopó
+NA,0712,San Antonio Palopó
+NA,0713,San Lucas Tolimán
+NA,0714,Santa Cruz la Laguna
+NA,0715,San Pablo la Laguna
+NA,0716,San Marcos la Laguna
+NA,0717,San Juan la Laguna
+NA,0718,San Pedro la Laguna
+NA,0719,Santiago Atitlán
+NA,0801,Totonicapán
+NA,0802,San Cristóbal Totonicapán
+NA,0803,San Francisco el Alto
+NA,0804,San Andrés Xecul
+NA,0805,Momostenango
+NA,0806,Santa María Chiquimula
+NA,0807,Santa Lucía la Reforma
+NA,0808,San Bartolo
+NA,0901,Quetzaltenango
+NA,0902,Salcajá
+NA,0903,Olintepeque
+NA,0904,San Carlos Sija
+NA,0905,Sibilia
+NA,0906,Cabricán
+NA,0907,Cajolá
+NA,0908,San Miguel Siguilá
+NA,0909,Ostuncalco
+NA,0910,San Mateo
+NA,0911,Concepción Chiquirichapa
+NA,0912,San Martín Sacatepéquez
+NA,0913,Almolonga
+NA,0914,Cantel
+NA,0915,Huitán
+NA,0916,Zunil
+NA,0917,Colomba
+NA,0918,San Francisco la Unión
+NA,0919,El Palmar
+NA,0920,Coatepeque
+NA,0921,Génova
+NA,0922,Flores Costa Cuca
+NA,0923,La Esperanza
+NA,0924,Palestina de los Altos
+NA,1001,Mazatenango
+NA,1002,Cuyotenango
+NA,1003,San Francisco Zapotitlán
+NA,1004,San Bernardino
+NA,1005,San José el Idolo
+NA,1006,Santo Domingo Suchitepéquez
+NA,1007,San Lorenzo
+NA,1008,Samayac
+NA,1009,San Pablo Jocopilas
+NA,1010,San Antonio Suchitepéquez
+NA,1011,San Miguel Panán
+NA,1012,San Gabriel
+NA,1013,Chicacao
+NA,1014,Patulul
+NA,1015,Santa Bárbara
+NA,1016,San Juan Bautista
+NA,1017,Santo Tomás la Unión
+NA,1018,Zunilito
+NA,1019,Pueblo Nuevo
+NA,1020,Río Bravo
+NA,1021,San José La Máquina
+NA,1101,Retalhuleu
+NA,1102,San Sebastián
+NA,1103,Santa Cruz Muluá
+NA,1104,San Martín Zapotitlán
+NA,1105,San Felipe
+NA,1106,San Andrés Villa Seca
+NA,1107,Champerico
+NA,1108,Nuevo San Carlos
+NA,1109,El Asintal
+NA,1201,San Marcos
+NA,1202,San Pedro Sacatepéquez
+NA,1203,San Antonio Sacatepéquez
+NA,1204,Comitancillo
+NA,1205,San Miguel Ixtahuacán
+NA,1206,Concepción Tutuapa
+NA,1207,Tacaná
+NA,1208,Sibinal
+NA,1209,Tajumulco
+NA,1210,Tejutla
+NA,1211,San Rafael Pié de la Cuesta
+NA,1212,Nuevo Progreso
+NA,1213,El Tumbador
+NA,1214,El Rodeo
+NA,1215,Malacatán
+NA,1216,Catarina
+NA,1217,Ayutla
+NA,1218,Ocós
+NA,1219,San Pablo
+NA,1220,El Quetzal
+NA,1221,La Reforma
+NA,1222,Pajapita
+NA,1223,Ixchiguán
+NA,1224,San José Ojetenán
+NA,1225,San Cristóbal Cucho
+NA,1226,Sipacapa
+NA,1227,Esquipulas Palo Gordo
+NA,1228,Río Blanco
+NA,1229,San Lorenzo
+NA,1230,La Blanca
+NA,1301,Huehuetenango
+NA,1302,Chiantla
+NA,1303,Malacatancito
+NA,1304,Cuilco
+NA,1305,Nentón
+NA,1306,San Pedro Necta
+NA,1307,Jacaltenango
+NA,1308,Soloma
+NA,1309,Ixtahuacán
+NA,1310,Santa Bárbara
+NA,1311,La Libertad
+NA,1312,La Democracia
+NA,1313,San Miguel Acatán
+NA,1314,San Rafael la Independencia
+NA,1315,Todos Santos Cuchumatán
+NA,1316,San Juan Atitán
+NA,1317,Santa Eulalia
+NA,1318,San Mateo Ixtatán
+NA,1319,Colotenango
+NA,1320,San Sebastián Huehuetenango
+NA,1321,Tectitán
+NA,1322,Concepción Huista
+NA,1323,San Juan Ixcoy
+NA,1324,San Antonio Huista
+NA,1325,San Sebastián Coatán
+NA,1326,Barillas
+NA,1327,Aguacatán
+NA,1328,San Rafael Petzal
+NA,1329,San Gaspar Ixchil
+NA,1330,Santiago Chimaltenango
+NA,1331,Santa Ana Huista
+NA,1332,Unión Cantinil
+NA,1333,Petatán
+NA,1401,Santa Cruz del Quiché
+NA,1402,Chiché
+NA,1403,Chinique
+NA,1404,Zacualpa
+NA,1405,Chajul
+NA,1406,Chichicastenango
+NA,1407,Patzité
+NA,1408,San Antonio Ilotenango
+NA,1409,San Pedro Jocopilas
+NA,1410,Cunén
+NA,1411,San Juan Cotzal
+NA,1412,Joyabaj
+NA,1413,Nebaj
+NA,1414,San Andrés Sajcabajá
+NA,1415,Uspantán
+NA,1416,Sacapulas
+NA,1417,San Bartolomé Jocotenango
+NA,1418,Canillá
+NA,1419,Chicamán
+NA,1420,Ixcán
+NA,1421,Pachalum
+NA,1501,Salamá
+NA,1502,San Miguel Chicaj
+NA,1503,Rabinal
+NA,1504,Cubulco
+NA,1505,Granados
+NA,1506,El Chol
+NA,1507,San Jerónimo
+NA,1508,Purulhá
+NA,1601,Cobán
+NA,1602,Santa Cruz Verapaz
+NA,1603,San Cristóbal Verapaz
+NA,1604,Tactic
+NA,1605,Tamahú
+NA,1606,Tucurú
+NA,1607,Panzós
+NA,1608,Senahú
+NA,1609,San Pedro Carchá
+NA,1610,San Juan Chamelco
+NA,1611,Lanquín
+NA,1612,Cahabón
+NA,1613,Chisec
+NA,1614,Chahal
+NA,1615,Fray Bartolomé de las Casas
+NA,1616,Santa Catalina la Tinta
+NA,1617,Raxruhá
+NA,1701,Flores
+NA,1702,San José
+NA,1703,San Benito
+NA,1704,San Andrés
+NA,1705,La Libertad
+NA,1706,San Francisco
+NA,1707,Santa Ana
+NA,1708,Dolores
+NA,1709,San Luis
+NA,1710,Sayaxché
+NA,1711,Melchor de Mencos
+NA,1712,Poptún
+NA,1713,Las Cruces
+NA,1714,El Chal
+NA,1801,Puerto Barrios
+NA,1802,Livingston
+NA,1803,El Estor
+NA,1804,Morales
+NA,1805,Los Amates
+NA,1901,Zacapa
+NA,1902,Estanzuela
+NA,1903,Río Hondo
+NA,1904,Gualán
+NA,1905,Teculután
+NA,1906,Usumatlán
+NA,1907,Cabañas
+NA,1908,San Diego
+NA,1909,La Unión
+NA,1910,Huité
+NA,1911,San Jorge
+NA,2001,Chiquimula
+NA,2002,San José La Arada
+NA,2003,San Juan Ermita
+NA,2004,Jocotán
+NA,2005,Camotán
+NA,2006,Olopa
+NA,2007,Esquipulas
+NA,2008,Concepción Las Minas
+NA,2009,Quetzaltepeque
+NA,2010,San Jacinto
+NA,2011,Ipala
+NA,2101,Jalapa
+NA,2102,San Pedro Pinula
+NA,2103,San Luis Jilotepeque
+NA,2104,San Manuel Chaparrón
+NA,2105,San Carlos Alzatate
+NA,2106,Monjas
+NA,2107,Mataquescuintla
+NA,2201,Jutiapa
+NA,2202,El Progreso
+NA,2203,Santa Catarina Mita
+NA,2204,Agua Blanca
+NA,2205,Asunción Mita
+NA,2206,Yupiltepeque
+NA,2207,Atescatempa
+NA,2208,Jerez
+NA,2209,El Adelanto
+NA,2210,Zapotitlán
+NA,2211,Comapa
+NA,2212,Jalpatagua
+NA,2213,Conguaco
+NA,2214,Moyuta
+NA,2215,Pasaco
+NA,2216,San José Acatempa
+NA,2217,Quesada
+Edad del hombre,19,19
+NA,20,20
+NA,21,21
+NA,22,22
+NA,23,23
+NA,24,24
+NA,25,25
+NA,26,26
+NA,27,27
+NA,28,28
+NA,29,29
+NA,30,30
+NA,31,31
+NA,32,32
+NA,33,33
+NA,34,34
+NA,35,35
+NA,36,36
+NA,37,37
+NA,38,38
+NA,39,39
+NA,40,40
+NA,41,41
+NA,42,42
+NA,43,43
+NA,44,44
+NA,45,45
+NA,46,46
+NA,47,47
+NA,48,48
+NA,49,49
+NA,50,50
+NA,51,51
+NA,52,52
+NA,53,53
+NA,54,54
+NA,55,55
+NA,56,56
+NA,57,57
+NA,58,58
+NA,59,59
+NA,60,60
+NA,61,61
+NA,62,62
+NA,63,63
+NA,64,64
+NA,65,65
+NA,66,66
+NA,67,67
+NA,68,68
+NA,69,69
+NA,70,70
+NA,71,71
+NA,72,72
+NA,73,73
+NA,74,74
+NA,75,75
+NA,76,76
+NA,77,77
+NA,79,79
+NA,82,82
+NA,83,83
+NA,85,85
+NA,86,86
+NA,87,87
+NA,88,88
+NA,999,Ignorado
+Edad de la mujer,19,19
+NA,20,20
+NA,21,21
+NA,22,22
+NA,23,23
+NA,24,24
+NA,25,25
+NA,26,26
+NA,27,27
+NA,28,28
+NA,29,29
+NA,30,30
+NA,31,31
+NA,32,32
+NA,33,33
+NA,34,34
+NA,35,35
+NA,36,36
+NA,37,37
+NA,38,38
+NA,39,39
+NA,40,40
+NA,41,41
+NA,42,42
+NA,43,43
+NA,44,44
+NA,45,45
+NA,46,46
+NA,47,47
+NA,48,48
+NA,49,49
+NA,50,50
+NA,51,51
+NA,52,52
+NA,53,53
+NA,54,54
+NA,55,55
+NA,56,56
+NA,57,57
+NA,58,58
+NA,59,59
+NA,60,60
+NA,61,61
+NA,62,62
+NA,63,63
+NA,64,64
+NA,65,65
+NA,66,66
+NA,67,67
+NA,68,68
+NA,69,69
+NA,70,70
+NA,71,71
+NA,72,72
+NA,73,73
+NA,74,74
+NA,75,75
+NA,77,77
+NA,999,Ignorado
+Pueblo de pertenencia del hombre,1,Maya
+NA,2,Garífuna
+NA,3,Xinka
+NA,4,Mestizo / Ladino
+NA,5,Otro
+NA,9,Ignorado
+Pueblo de pertenencia de la mujer,1,Maya
+NA,2,Garífuna
+NA,3,Xinka
+NA,4,Mestizo / Ladino
+NA,5,Otro
+NA,9,Ignorado
+Nacionalidad del hombre,10,Turquía
+NA,32,Argentina
+NA,36,Australia
+NA,68,Bolivia
+NA,84,Belice
+NA,124,Canadá
+NA,152,Chile
+NA,156,China
+NA,170,Colombia
+NA,192,Cuba
+NA,214,República Dominicana
+NA,218,Ecuador
+NA,222,El Salvador
+NA,276,Alemania
+NA,320,Guatemala
+NA,340,Honduras
+NA,352,Islandia
+NA,364,Rep. Islamica De Irán
+NA,368,Irak
+NA,376,Israel
+NA,380,Italia
+NA,410,República De Corea
+NA,484,México
+NA,524,Nepal
+NA,568,G. Bretaña E Irl. Del N.
+NA,578,Noruega
+NA,604,Perú
+NA,630,Puerto Rico
+NA,720,Nicaragua
+NA,724,España
+NA,729,Sudán
+NA,752,Suecia
+NA,840,Estados Unidos De América
+NA,862,República Bolivariana De Venezuela
+NA,1020,Francia
+NA,1021,India
+NA,1026,Panamá
+NA,9999,Ignorado
+Nacionalidad de la mujer,32,Argentina
+NA,40,Austria
+NA,56,Bélgica
+NA,76,Brasil
+NA,124,Canadá
+NA,152,Chile
+NA,170,Colombia
+NA,192,Cuba
+NA,214,República Dominicana
+NA,222,El Salvador
+NA,320,Guatemala
+NA,340,Honduras
+NA,380,Italia
+NA,392,Japón
+NA,484,México
+NA,568,G. Bretaña E Irl. Del N.
+NA,604,Perú
+NA,643,Rusia
+NA,718,Holanda (Paises Bajos)
+NA,720,Nicaragua
+NA,724,España
+NA,840,Estados Unidos De América
+NA,1020,Francia
+NA,1026,Panamá
+NA,9999,Ignorado
+Escolaridad del hombre,1,Ninguno
+NA,2,Primaria
+NA,3,Básica
+NA,4,Diversificado
+NA,5,Universitario
+NA,6,Postgrado
+NA,9,Ignorado
+Escolaridad de la mujer,1,Ninguno
+NA,2,Primaria
+NA,3,Básica
+NA,4,Diversificado
+NA,5,Universitario
+NA,6,Postgrado
+NA,9,Ignorado
+"Ocupación (Subgrupos, CIUO-08) del hombre",01,Oficiales de las fuerzas armadas
+NA,03,Otros miembros de las fuerzas armadas
+NA,11,"Directores ejecutivos, personal directivo de administración pública, miembros del poder ejecutivo y cuerpos legislativos"
+NA,12,Directores administradores y comerciales
+NA,13,Directores y gerentes de producción y operaciones
+NA,14,"Gerentes de hoteles, restaurantes, comercios y otros servicios"
+NA,21,Profesionales de las ciencias y de la ingeniería
+NA,22,Profesionales de la salud
+NA,23,Profesionales de la enseñanza
+NA,24,Especialistas en organización de la administración publica y de empresas
+NA,25,Profesionales de tecnología de la información y las comunicaciones
+NA,26,"Profesionales en derecho, en ciencias sociales y culturales"
+NA,31,Profesionales de las ciencias y la ingeniería de nivel medio
+NA,32,Profesionales de nivel medio de la salud
+NA,33,Profesionales de nivel medio en operaciones financieras y administrativas
+NA,34,"Profesionales de nivel medio de servicios jurídicos, sociales, culturales y afines"
+NA,35,Técnicos de la tecnología de la información y las comunicaciones
+NA,41,Oficinistas
+NA,42,Empleados en trato directo con el público
+NA,43,Empleados contables y encargados del registro de materiales
+NA,44,Otro personal de apoyo administrativo
+NA,51,Trabajadores de los servicios personales
+NA,52,Vendedores
+NA,54,Personal de los servicios de protección
+NA,61,Agricultores y trabajadores calificados de explotaciones agropecuarias con destino al mercado
+NA,62,"Trabajadores forestales calificados, pescadores y cazadores"
+NA,71,Oficiales y operarios de la construcción excluyendo electricistas
+NA,72,"Oficiales y operarios de la metalurgia, la construcción mecánica y afines"
+NA,73,Artesanos y operarios de las artes gráficas
+NA,74,Trabajadores especializados en electricidad y la elecrotecnología
+NA,75,"Operarios y oficiales de procesamiento de alimentos, de la confección, ebanistas, otros artesanos y afines"
+NA,81,Operadores de instalaciones fijas y máquinas
+NA,82,Ensambladores
+NA,83,Conductores de vehículos y operadores de equipos pesados móviles
+NA,91,Limpiadores y asistentes
+NA,92,"Peones agropecuarios, pesqueros y forestales"
+NA,93,"Peones de la minería, la construcción, la industria manufacturera y el transporte"
+NA,95,Vendedores ambulantes de servicios y afines
+NA,96,Recolectores de desechos y otras ocupaciones elementales
+NA,97,No especificado en otro grupo
+NA,99,Ignorado
+"Ocupación (Subgrupos, CIUO-08) de la mujer",01,Oficiales de las fuerzas armadas
+NA,03,Otros miembros de las fuerzas armadas
+NA,11,"Directores ejecutivos, personal directivo de administración pública, miembros del poder ejecutivo y cuerpos legislativos"
+NA,12,Directores administradores y comerciales
+NA,14,"Gerentes de hoteles, restaurantes, comercios y otros servicios"
+NA,21,Profesionales de las ciencias y de la ingeniería
+NA,22,Profesionales de la salud
+NA,23,Profesionales de la enseñanza
+NA,24,Especialistas en organización de la administración publica y de empresas
+NA,25,Profesionales de tecnología de la información y las comunicaciones
+NA,26,"Profesionales en derecho, en ciencias sociales y culturales"
+NA,31,Profesionales de las ciencias y la ingeniería de nivel medio
+NA,32,Profesionales de nivel medio de la salud
+NA,33,Profesionales de nivel medio en operaciones financieras y administrativas
+NA,34,"Profesionales de nivel medio de servicios jurídicos, sociales, culturales y afines"
+NA,35,Técnicos de la tecnología de la información y las comunicaciones
+NA,41,Oficinistas
+NA,42,Empleados en trato directo con el público
+NA,43,Empleados contables y encargados del registro de materiales
+NA,44,Otro personal de apoyo administrativo
+NA,51,Trabajadores de los servicios personales
+NA,52,Vendedores
+NA,53,Trabajadores de los cuidados personales
+NA,54,Personal de los servicios de protección
+NA,72,"Oficiales y operarios de la metalurgia, la construcción mecánica y afines"
+NA,73,Artesanos y operarios de las artes gráficas
+NA,75,"Operarios y oficiales de procesamiento de alimentos, de la confección, ebanistas, otros artesanos y afines"
+NA,81,Operadores de instalaciones fijas y máquinas
+NA,91,Limpiadores y asistentes
+NA,92,"Peones agropecuarios, pesqueros y forestales"
+NA,93,"Peones de la minería, la construcción, la industria manufacturera y el transporte"
+NA,94,Ayudantes de preparación de alimentos
+NA,97,No especificado en otro grupo
+NA,99,Ignorado

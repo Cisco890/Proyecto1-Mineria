@@ -1,0 +1,1337 @@
+---
+title: "Proyecto 1"
+author:
+  - Luis Pedro Lira (23669)
+  - Fernando Rocha (23501)
+  - Juan Francisco Martínez (23617)
+  - Luis Gilberto González (23353)
+  - Joel Antonio Jaquez (23369)
+date: "2026-02-02"
+output:
+  pdf_document:
+    latex_engine: xelatex
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+
+library(tidyverse)
+library(readr)
+library(ggplot2)
+
+```
+
+```{r}
+library(readr)
+
+divorcios <- read_csv("Datos/divorcios_total.csv")
+violencia <- read_csv("Datos/violencia_total.csv")
+
+```
+
+```{r}
+violencia <- violencia %>%
+  mutate(
+    # Normalizar Depto (101 -> 1)
+    cod_depto = floor(hec_deptomcpio / 100),
+    
+    # Etiquetas de Sexo
+    sexo_label = case_when(
+      vic_sexo == 1 ~ "Hombre",
+      vic_sexo == 2 ~ "Mujer",
+      TRUE ~ "Ignorado"
+    ),
+    
+    # Nombre de Meses
+    mes_nombre = factor(month.name[hec_mes], levels = month.name),
+    
+    # Limpieza de Edad (Quitar 999)
+    vic_edad_clean = ifelse(vic_edad > 110, NA, vic_edad),
+    
+    # Limpieza de Hijos (Quitar 99)
+    total_hijos_clean = ifelse(total_hijos == 99, NA, total_hijos),
+    
+    # Etiquetas de Estado Civil
+    est_civ_label = case_when(
+      vic_est_civ == 1 ~ "Soltero(a)",
+      vic_est_civ == 2 ~ "Casado(a)",
+      vic_est_civ == 3 ~ "Unido(a)",
+      TRUE ~ "Ignorado"
+    ),
+
+    # Etiquetas de Relación con Agresor (¡AQUÍ ESTÁ LO QUE FALTABA!)
+    relacion_label = case_when(
+      vic_rel_agr == 1 ~ "Esposo/Conviviente",
+      vic_rel_agr == 2 ~ "Ex-Esposo/Ex-Pareja",
+      vic_rel_agr == 3 ~ "Padre/Madre",
+      vic_rel_agr == 4 ~ "Hijo(a)",
+      vic_rel_agr == 5 ~ "Hermano(a)",
+      TRUE ~ "Otro/No especificado"
+    )
+  )
+
+# LIMPIEZA DE DIVORCIOS
+divorcios <- divorcios %>%
+  mutate(
+    # Homologar Depto
+    cod_depto = DEPOCU,
+    
+    # Limpieza de Edades y Diferencia
+    edad_hom_clean = ifelse(EDADHOM > 110, NA, EDADHOM),
+    edad_muj_clean = ifelse(EDADMUJ > 110, NA, EDADMUJ),
+    diferencia_edad = edad_hom_clean - edad_muj_clean,
+    
+    # Etiquetas de Educación
+    nivel_edu_hom = case_when(
+      ESCHOM == 1 ~ "Ninguno",
+      ESCHOM %in% c(2,3,4) ~ "Primaria",
+      ESCHOM %in% c(5,6) ~ "Media/Diversificado",
+      ESCHOM >= 7 & ESCHOM < 9 ~ "Superior",
+      TRUE ~ "Ignorado"
+    ),
+    nivel_edu_muj = case_when(
+      ESCMUJ == 1 ~ "Ninguno",
+      ESCMUJ %in% c(2,3,4) ~ "Primaria",
+      ESCMUJ %in% c(5,6) ~ "Media/Diversificado",
+      ESCMUJ >= 7 & ESCMUJ < 9 ~ "Superior",
+      TRUE ~ "Ignorado"
+    )
+  )
+```
+
+
+
+## Introducción 
+La violencia intrafamiliar constituye un problema social de alta relevancia debido a su impacto en la estabilidad emocional, social y económica de los hogares. Por otro lado, el divorcio representa una consecuencia legal de conflictos persistentes dentro del núcleo familiar, los cuales pueden estar relacionados con dinámicas de violencia y deterioro de la convivencia.
+
+En este proyecto se analiza la posible relación entre los divorcios y la violencia intrafamiliar utilizando datos oficiales correspondientes al año 2022. A través de técnicas de análisis exploratorio de datos y minería de datos, se busca identificar patrones, comportamientos y relaciones entre ambas problemáticas, con el fin de obtener una comprensión más profunda de su interacción a nivel agregado.
+
+El análisis se centra en una exploración descriptiva inicial de los conjuntos de datos, la caracterización de sus variables y la evaluación de posibles relaciones estadísticas entre los indicadores de divorcio y violencia intrafamiliar.
+
+## Objetivos 
+**Objetivo General**
+Analizar la relación entre los divorcios y la violencia intrafamiliar mediante técnicas de análisis exploratorio y minería de datos, utilizando información correspondiente al año 2022.
+
+**Objetivos específicos**
+- Describir las características principales de los conjuntos de datos de divorcios y violencia intrafamiliar.
+- Identificar y clasificar las variables numéricas y categóricas presentes en cada conjunto de datos.
+-	Realizar un análisis exploratorio de las variables relevantes mediante medidas descriptivas y representaciones gráficas.
+- Evaluar posibles relaciones entre indicadores de divorcio y violencia intrafamiliar.
+
+
+# Avances
+
+## Descripción general de los datos
+
+Para el desarrollo del presente proyecto se utilizaron dos conjuntos de datos correspondientes al año 2022. El primero contiene información relacionada con los procesos de divorcio, mientras que el segundo recopila registros asociados a casos de violencia intrafamiliar. Ambos conjuntos de datos fueron obtenidos a partir de fuentes oficiales y procesados previamente para su uso en el análisis.
+
+```{r,echo=FALSE, results='hide'}
+## Dataset de divorcios
+
+str(divorcios)
+str(violencia)
+```
+
+## Descripción de las variables: Violencia intrafamiliar
+
+El conjunto de datos de violencia intrafamiliar contiene información detallada sobre las características sociodemográficas de las víctimas y agresores, así como aspectos relacionados con el hecho de violencia reportado. Las variables incluidas permiten analizar dimensiones como edad, sexo, escolaridad, ocupación, estado civil y relación entre víctima y agresor, entre otras.
+
+
+```{r, echo=FALSE, results='hide'}
+## Resumen de tipos de variables en violencia
+
+glimpse(violencia)
+```
+La mayoría de las variables en el conjunto de datos corresponden a codificaciones numéricas que representan categorías, mientras que otras variables como la edad y las fechas corresponden a valores numéricos continuos o discretos
+
+
+## Descripción de las variables: Divorcios
+
+El conjunto de datos de divorcios contiene información asociada a los procesos de disolución del vínculo matrimonial, incluyendo características temporales, geográficas y sociodemográficas de las personas involucradas. Las variables disponibles permiten analizar aspectos como la edad, escolaridad, ocupación y nacionalidad de los cónyuges, así como el lugar y fecha de ocurrencia del divorcio.
+
+```{r, echo=FALSE, results='hide'}
+## Resumen de variables en divorcios
+glimpse(divorcios)
+```
+
+___
+
+
+## Exploración de variables numéricas
+
+En esta sección se analizan las principales variables numéricas de los conjuntos de datos de violencia intrafamiliar y divorcios, utilizando medidas de tendencia central, medidas de orden y representaciones gráficas.
+
+```{r}
+summary(violencia$vic_edad)
+```
+
+La edad de la víctima presenta un rango amplio, desde 1 hasta 98 años, lo cual evidencia que la violencia intrafamiliar afecta a personas de distintas etapas de la vida. La mediana de edad es de 31 años, mientras que la media es de aproximadamente 33 años, lo que indica una ligera asimetría positiva en la distribución. El 50% de las víctimas se concentra entre los 24 y 39 años de edad, sugiriendo que los adultos jóvenes representan el grupo más afectado. Se identificaron 5,046 registros sin información de edad, los cuales serán considerados como valores faltantes en el análisis.
+
+
+```{r}
+summary(violencia$total_hijos)
+```
+
+El número total de hijos de la víctima presenta una mediana de 2 hijos, lo que indica que la mayoría de los casos corresponde a personas con familias pequeñas. La media es cercana a la mediana, lo cual sugiere una distribución relativamente equilibrada. El 75% de las víctimas tiene tres hijos o menos, mientras que los valores máximos observados corresponden a casos aislados de familias numerosas. Se identificó una proporción considerable de valores faltantes, los cuales fueron tratados adecuadamente durante el análisis exploratorio.
+
+
+
+```{r}
+summary(divorcios$EDADMUJ)
+```
+La edad de la mujer en los procesos de divorcio presenta una mediana de 31 años y una media de aproximadamente 33 años, lo que indica que los divorcios se concentran principalmente en edades adultas jóvenes. El 50% de los casos se encuentra entre los 26 y 38 años, mientras que los valores máximos corresponden a casos aislados de edades avanzadas. La distribución muestra una ligera asimetría positiva y se identifican valores faltantes que fueron considerados adecuadamente durante el análisis.
+
+
+```{r}
+summary(divorcios$EDADHOM)
+```
+
+La edad del hombre en los procesos de divorcio presenta una mediana de 34 años y una media de aproximadamente 36 años, lo que sugiere que los hombres tienden a ser ligeramente mayores que las mujeres al momento del divorcio. El rango intercuartílico se ubica entre los 29 y 41 años, concentrando la mayoría de los casos en edades adultas. La distribución presenta una asimetría positiva y algunos valores extremos correspondientes a edades avanzadas.
+
+
+---
+
+___
+
+## Metodología y explicación de procedimientos
+
+### Tratamiento de valores faltantes y códigos especiales
+
+Antes de realizar el análisis estadístico, se revisaron los conjuntos de datos para identificar valores faltantes y códigos especiales utilizados para representar información no especificada. En ambos conjuntos se encontraron valores como 99 y 999, que no representan datos reales sino ausencia de información.
+
+Estos valores fueron transformados en NA con el objetivo de evitar distorsiones en las medidas de tendencia central y en los análisis posteriores. Esta decisión metodológica permitió obtener estadísticas más representativas del comportamiento real de las variables estudiadas.
+
+
+### Análisis descriptivo de variables numéricas
+
+Para las variables cuantitativas seleccionadas se calcularon medidas de tendencia central (media y mediana) y medidas de orden (cuartiles). Estas estadísticas permitieron identificar la concentración de los datos y evaluar la dispersión de cada variable.
+
+En el caso de la edad de las víctimas de violencia intrafamiliar, se observó que la mediana se concentra en adultos jóvenes, lo cual indica que este grupo etario representa una proporción importante de los casos registrados. Asimismo, la ligera diferencia entre media y mediana sugiere una asimetría moderada en la distribución.
+
+En los procesos de divorcio, se identificó que los hombres tienden a ser ligeramente mayores que las mujeres al momento del divorcio. Este patrón consistente refuerza la coherencia interna del conjunto de datos.
+
+
+### Interpretación de la distribución y valores extremos
+
+El análisis exploratorio permitió observar que las variables numéricas no siguen una distribución perfectamente normal, sino que presentan asimetrías moderadas, lo cual es común en fenómenos sociales reales.
+
+Los valores extremos fueron examinados para determinar si correspondían a errores de registro o a casos poco frecuentes pero posibles. En general, los valores observados se consideran coherentes dentro del contexto del fenómeno estudiado, por lo que no fueron eliminados arbitrariamente.
+
+
+### Coherencia y consistencia de los datos
+
+Los resultados obtenidos muestran patrones consistentes entre los diferentes análisis realizados. La concentración de casos en adultos jóvenes tanto en violencia intrafamiliar como en divorcios sugiere dinámicas sociales relevantes que merecen un análisis más profundo.
+
+Es importante destacar que hasta este punto del estudio se han identificado asociaciones descriptivas, sin establecer relaciones causales. Los análisis posteriores permitirán profundizar en la comprensión de estas dinámicas.
+___
+
+
+## Exploración de variables categóricas
+
+En esta sección se analizan las principales variables categóricas del conjunto de datos de violencia intrafamiliar. El objetivo es identificar la distribución de los casos según características sociodemográficas y relacionales, utilizando tablas de frecuencia y representaciones gráficas que permitan una mejor comprensión del fenómeno estudiado.
+
+### Sexo de la víctima
+
+Se analiza la distribución de los casos de violencia intrafamiliar según el sexo de la víctima, con el fin de identificar posibles diferencias en la afectación por género.
+
+```{r}
+# Tabla de frecuencia: sexo de la víctima
+tabla_sexo <- violencia %>%
+  filter(sexo_label != "Ignorado") %>%
+  count(sexo_label) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_sexo
+```
+
+```{r}
+# Gráfico de barras: sexo de la víctima
+ggplot(tabla_sexo, aes(x = sexo_label, y = n, fill = sexo_label)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Distribucion del sexo de las victimas",
+    x = "Sexo",
+    y = "Frecuencia"
+  )
+```
+La distribución evidencia que la violencia intrafamiliar afecta de manera diferenciada según el sexo de la víctima, mostrando una concentración mayor en uno de los grupos, lo cual sugiere la presencia de desigualdades estructurales en el contexto familiar.
+
+
+### Estado civil de la víctima
+
+El estado civil de la víctima permite analizar el contexto relacional en el que ocurren los hechos de violencia intrafamiliar.
+
+```{r}
+# Tabla de frecuencia: estado civil
+tabla_estado_civil <- violencia %>%
+  filter(est_civ_label != "Ignorado") %>%
+  count(est_civ_label) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_estado_civil
+```
+
+```{r}
+# Gráfico de barras: estado civil
+ggplot(tabla_estado_civil, aes(x = est_civ_label, y = n)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Distribucion del estado civil de las victimas",
+    x = "Estado civil",
+    y = "Frecuencia"
+  )
+```
+Los resultados muestran que los casos de violencia intrafamiliar se concentran principalmente en ciertos estados civiles, lo cual podría estar asociado a dinámicas de convivencia y conflictos dentro del núcleo familiar.
+
+
+
+### Relación entre la víctima y el agresor
+
+Se examina la relación existente entre la víctima y el agresor para identificar los vínculos más frecuentes en los casos reportados de violencia intrafamiliar.
+
+```{r}
+# Tabla de frecuencia: relación víctima-agresor
+tabla_relacion <- violencia %>%
+  filter(relacion_label != "Otro/No especificado") %>%
+  count(relacion_label) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_relacion
+```
+
+```{r}
+# Gráfico de barras: relación víctima-agresor
+ggplot(tabla_relacion, aes(x = reorder(relacion_label, -n), y = n)) +
+  geom_bar(stat = "identity", fill = "coral") +
+  labs(
+    title = "Relacion entre la victima y el agresor",
+    x = "Relacion",
+    y = "Frecuencia"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+El análisis evidencia que la mayoría de los casos de violencia intrafamiliar ocurre entre personas con vínculos cercanos, lo cual refuerza la naturaleza intrafamiliar del fenómeno y resalta la importancia de analizar las relaciones personales dentro del hogar.
+
+---
+
+## Relaciones entre las variables. 
+
+### Relación: Diferencia de edad entre Agresor y Víctima
+```{r}
+## Análisis de Brecha de Edad: Agresor vs Víctima
+violencia %>%
+  filter(!is.na(vic_edad_clean), !is.na(agr_edad), vic_edad_clean < 90, agr_edad < 90) %>%
+  ggplot(aes(x = vic_edad_clean, y = agr_edad)) +
+  geom_point(alpha = 0.1, color = "darkred") + 
+  geom_abline(intercept = 0, slope = 1, color = "blue", linetype = "dashed") + 
+  labs(title = "Relacion de Edades: Victima vs. Agresor",
+       subtitle = "La linea azul indica la misma edad. Puntos arriba = Agresor mayor.",
+       x = "Edad de la Victima",
+       y = "Edad del Agresor") +
+  theme_minimal()
+```
+El gráfico de dispersión analiza la brecha generacional existente entre la víctima y el agresor en los casos de violencia intrafamiliar. La línea azul discontinua representa la igualdad de edades; por lo tanto, la notable concentración de puntos por encima de esta referencia evidencia que, en la mayoría de los casos reportados, el agresor tiende a ser mayor que la víctima, lo cual sugiere una posible asimetría de poder vinculada a la edad. Adicionalmente, se observa una alta densidad de incidentes (la "nube" más oscura) donde ambas partes oscilan entre los 20 y 40 años, identificando a los adultos jóvenes como el grupo demográfico más vulnerable y activo en esta problemática.
+
+
+### Relación: Estacionalidad de la Violencia (Mes del hecho)
+```{r}
+## Análisis Temporal: Violencia por Mes
+violencia %>%
+  filter(!is.na(mes_nombre)) %>%
+  group_by(mes_nombre) %>%
+  summarise(total = n()) %>%
+  ggplot(aes(x = mes_nombre, y = total)) +
+  geom_col(fill = "steelblue") +
+  labs(title = "Estacionalidad de la Violencia Intrafamiliar",
+       x = "Mes",
+       y = "Cantidad de Denuncias") +
+  theme_classic()
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+El análisis de estacionalidad revela que la incidencia de violencia intrafamiliar mantiene un comportamiento relativamente constante y sostenido durante gran parte del año, sin caídas drásticas. Se observan ligeros repuntes en los meses de marzo, mayo y julio, los cuales concentran los volúmenes más altos de denuncias (superando los 30,000 casos mensuales). Por otro lado, se percibe una leve tendencia decreciente hacia el último trimestre (octubre a diciembre). Cabe destacar la presencia de una barra etiquetada como "99", la cual corresponde a registros donde el mes de ocurrencia no fue especificado o es desconocido, evidenciando la necesidad de considerar estos valores nulos durante la limpieza de datos para evitar sesgos en el análisis temporal.
+
+## Relación: Nivel Educativo de la Pareja (Homogamia)
+
+```{r}
+divorcios %>%
+  filter(nivel_edu_hom != "Ignorado", nivel_edu_muj != "Ignorado") %>%
+  group_by(nivel_edu_hom, nivel_edu_muj) %>%
+  count() %>%
+  ggplot(aes(x = nivel_edu_hom, y = nivel_edu_muj, fill = n)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "red") +
+  labs(title = "Mapa de Calor: Nivel Educativo en Divorcios",
+       subtitle = "Comparación de escolaridad entre cónyuges",
+       x = "Escolaridad del Hombre",
+       y = "Escolaridad de la Mujer",
+       fill = "Cantidad") +
+  theme_minimal()
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+El análisis de la matriz educativa revela una marcada tendencia hacia la homogamia educativa en las disoluciones matrimoniales. Se observa una concentración de casos a lo largo de la diagonal principal (donde el nivel educativo del hombre y la mujer coinciden), lo que sugiere que las parejas tienden a formarse —y consecuentemente a divorciarse— dentro de sus mismos estratos académicos. Sin embargo, el hallazgo más crítico desde la perspectiva de la minería de datos es la alta densidad observada en la intersección de los códigos "9" (esquina superior derecha, color rojo intenso). Dado que este código corresponde a valores "Ignorados" o "No indicados" en los estándares del INE, esto evidencia un sesgo de información faltante significativo; es decir, en una gran proporción de los divorcios registrados, no se capturó el nivel educativo de ninguno de los cónyuges, lo cual limita la caracterización sociodemográfica precisa de este subgrupo.
+
+## Relacion: Distribución de la Diferencia de Edad en Divorcios
+
+```{r}
+divorcios %>%
+  filter(!is.na(diferencia_edad)) %>%
+  filter(diferencia_edad > -20, diferencia_edad < 30) %>% # Filtramos casos extremos errores
+  ggplot(aes(x = diferencia_edad)) +
+  geom_histogram(binwidth = 1, fill = "purple", color = "white") +
+  geom_vline(xintercept = 0, color = "black", size = 1) +
+  labs(title = "Diferencia de Edad en Parejas que se Divorcian",
+       subtitle = "Valores positivos: Hombre mayor. Valores negativos: Mujer mayor.",
+       x = "Annos de diferencia (Edad Hombre - Edad Mujer)",
+       y = "Frecuencia") +
+  theme_light()
+```
+
+El histograma de distribución de edades en los divorcios muestra una clara asimetría positiva (sesgo hacia la derecha). La mayor concentración de datos se agrupa alrededor de la línea cero, indicando que una gran parte de las disoluciones matrimoniales ocurre en parejas con edades similares (homogamia etaria). Sin embargo, la cola derecha de la distribución es notablemente más larga y densa que la izquierda, lo que revela un patrón social predominante: en las parejas con diferencias de edad significativas que llegan al divorcio, es mucho más frecuente que el hombre sea mayor que la mujer (barras púrpuras extendiéndose hacia los valores positivos). Por el contrario, los casos donde la mujer es considerablemente mayor que el hombre (valores negativos) son estadísticamente menos frecuentes.
+
+# Análisis Exploratorio
+
+## Estadística Descriptiva Detallada
+```{r}
+obtener_estadisticas <- function(data, variable) {
+  data %>%
+    summarise(
+      Variable = variable,
+      Media = mean(!!sym(variable), na.rm = TRUE),
+      Mediana = median(!!sym(variable), na.rm = TRUE),
+      Desv_Estandar = sd(!!sym(variable), na.rm = TRUE),
+      Varianza = var(!!sym(variable), na.rm = TRUE),
+      Minimo = min(!!sym(variable), na.rm = TRUE),
+      Maximo = max(!!sym(variable), na.rm = TRUE),
+      Rango_Intercuartil = IQR(!!sym(variable), na.rm = TRUE),
+      N_Validos = sum(!is.na(!!sym(variable)))
+    )
+}
+
+# Calculo para violencia
+stats_violencia <- obtener_estadisticas(violencia, "vic_edad_clean")
+
+# Calculo para Divorcios
+stats_divorcios <- obtener_estadisticas(divorcios, "diferencia_edad")
+
+# Tabla comparativa
+tabla_descriptiva <- bind_rows(stats_violencia, stats_divorcios)
+print(tabla_descriptiva)
+```
+### Procedimiento
+Para el análisis descriptivo, se programó una función en R que extrajo medidas de tendencia central (media y mediana), dispersión (desviación estándar y rango intercuartílico) y valores extremos. Lo importante fue la depuración de los datos, donde convertimos los códigos de error del INE (como el 999 en edad) en valores NA. Esto evitó que los promedios se dispararan falsamente y permitió que el análisis se basara únicamente en registros válidos, garantizando que la desviación estándar refleje la variabilidad real del fenómeno y no el ruido de la base de datos original.
+
+### Hallazgos
+Los resultados revelan una asimetría positiva en la edad de las víctimas, con una mediana de 31 años; esto significa que el grueso de los casos ocurre en adultos jóvenes, aunque existen víctimas de la tercera edad que elevan la media a 34 años. En cuanto a los divorcios, se detectó una diferencia de edad promedio de 3.16 años (con el hombre siendo mayor), pero lo más impactante fue hallar outliers extremos (diferencias de hasta 75 años). Estos hallazgos confirman que, aunque hay un patrón de comportamiento estándar, existen nichos de vulnerabilidad y dinámicas de pareja muy asimétricas que requieren una atención especial en los modelos de agrupamiento.
+
+## Gráficos Exploratorios
+
+### Análisis del dataset de Violencia
+
+#### Edad de la Víctima
+```{r}
+par(mfrow=c(1,2))
+hist(violencia$vic_edad_clean, main="Histograma Edad Víctima", col="lightblue", xlab="Edad")
+boxplot(violencia$vic_edad_clean, main="Boxplot Edad Víctima", col="orange", horizontal=TRUE)
+par(mfrow=c(1,1))
+```
+Al ver las gráficas, lo primero que notamos es que la violencia se concentra muchísimo en los adultos jóvenes, especialmente entre los 20 y 35 años. La 'cola' larga hacia la derecha nos indica que, aunque es menos común, también hay víctimas de la tercera edad (esos puntos negros o outliers que aparecen después de los 65 años). Un detalle clave que encontramos es ese pico extraño al final, justo en los 99 años. Eso no significa que haya muchas víctimas de esa edad, sino que es un código que usan para decir 'edad desconocida'. Es importante haberlo detectado visualmente, porque si no lo limpiamos, nos va a inflar el promedio artificialmente.
+
+#### Edad del Agresor
+```{r}
+par(mfrow=c(1,2))
+hist(violencia$agr_edad, main="Histograma Edad Agresor", col="lightblue", xlab="Edad")
+boxplot(violencia$agr_edad, main="Boxplot Edad Agresor", col="orange", horizontal=TRUE)
+par(mfrow=c(1,1))
+```
+Lo primero que salta a la vista es que la gran mayoría de los casos se concentran en familias pequeñas, de entre 0 y 3 hijos. El histograma tiene una caída muy brusca, lo que nos confirma que tener muchos hijos es algo poco común en este grupo. Por otro lado, el diagrama de caja nos muestra una fila larga de puntos negros a la derecha. Estos son los valores atípicos (outliers). Ojo, no necesariamente son errores de datos, estos representan familias reales que tienen 8, 10 o hasta 15 hijos, pero que estadísticamente se comportan muy diferente al promedio general.
+
+#### Total de Hijos
+```{r}
+par(mfrow=c(1,2))
+hist(violencia$total_hijos_clean, main="Histograma Total Hijos", col="lightblue", xlab="Cantidad")
+boxplot(violencia$total_hijos_clean, main="Boxplot Total Hijos", col="orange", horizontal=TRUE)
+par(mfrow=c(1,1))
+```
+Al ver estas gráficas, es evidente que la gran mayoría de los casos involucran familias muy pequeñas, de entre 0 y 3 hijos. El histograma cae en picada, lo que nos confirma que tener una familia numerosa es la excepción y no la regla en este grupo. Por otro lado, el diagrama de caja nos muestra una larga fila de puntos negros hacia la derecha. Estos son los valores atípicos, pero ojo, no son errores, sino familias reales numerosas (de 6 hasta más de 15 hijos) que, aunque existen, estadísticamente se salen por completo del comportamiento 'normal' o promedio de la población estudiada.
+
+#### Hijos Hombres y Mujeres (Desglosado)
+```{r}
+par(mfrow=c(2,2)) # Para ver los 4 juntos
+hist(violencia$num_hij_hom, main="Hist. Hijos Hombres", col="lightblue")
+boxplot(violencia$num_hij_hom, main="Boxplot Hijos Hombres", col="orange")
+hist(violencia$num_hij_muj, main="Hist. Hijas Mujeres", col="lightblue")
+boxplot(violencia$num_hij_muj, main="Boxplot Hijas Mujeres", col="orange")
+par(mfrow=c(1,1)) # Resetear vista
+```
+Al separar los datos entre hijos hombres y mujeres, confirmamos un patrón técnico muy importante. Si observan los histogramas, la inmensa mayoría se agrupa en el cero o números bajos, pero vuelve a aparecer esa barra extraña al final, cerca del 100. Los diagramas de caja lo hacen evidente: ese punto solitario allá arriba no representa a una familia con 99 hijos varones, sino que es indudablemente un código de dato no registrado. Este es un hallazgo clave de limpieza, porque si no filtramos esos '99', cualquier cálculo de promedio de hijos saldrá totalmente erróneo.
+
+### Análisis del dataset de Divorcios
+
+#### Edad del Hombre
+```{r}
+par(mfrow=c(1,2))
+hist(divorcios$edad_hom_clean, main="Distribución Edad Hombre", 
+     col="skyblue", xlab="Edad", ylab="Frecuencia")
+boxplot(divorcios$edad_hom_clean, main="Outliers Hombre", 
+        col="orange", horizontal=TRUE)
+par(mfrow=c(1,1))
+```
+Al analizar la edad de los hombres al momento del divorcio, vemos claramente que es un fenómeno concentrado en la adultez media. El histograma tiene su pico más alto entre los 30 y 40 años, lo que nos indica que esa es la etapa más crítica para las disoluciones matrimoniales en este grupo. Por otro lado, el diagrama de caja nos cuenta la historia completa de que aunque el grueso de los casos está en esa franja joven, la fila de puntos negros a la derecha (los outliers) nos confirma que el divorcio no tiene edad límite. Existen casos registrados de hombres de 70, 80 y hasta casi 100 años separándose, lo cual es estadísticamente atípico pero socialmente real.
+
+
+#### Edad de la Mujer
+```{r}
+par(mfrow=c(1,2))
+hist(divorcios$edad_muj_clean, main="Distribución Edad Mujer", 
+     col="pink", xlab="Edad", ylab="Frecuencia")
+boxplot(divorcios$edad_muj_clean, main="Outliers Mujer", 
+        col="orange", horizontal=TRUE)
+par(mfrow=c(1,1))
+```
+Al ver las gráficas de las mujeres, notamos un patrón muy similar al de los hombres, pero con una diferencia clave: el pico de divorcios ocurre un poco antes. El histograma nos grita que la mayor concentración de casos está entre los 25 y 35 años, confirmando que las mujeres tienden a pasar por este proceso siendo ligeramente más jóvenes que sus exparejas. El diagrama de caja confirma esta tendencia con una mediana baja, pero también nos muestra una larga cola de outliers que llega hasta los 80 años. Esto significa que, aunque la estadística dice que el divorcio es cosa de jóvenes, hay un grupo real y visible de mujeres de la tercera edad que también están disolviendo sus matrimonios
+
+#### Diferencia de edad
+```{r}
+par(mfrow=c(1,2))
+hist(divorcios$diferencia_edad, main="Brecha de Edad (Hombre - Mujer)", 
+     col="#9b59b6", xlab="Diferencia (Años)", ylab="Frecuencia")
+boxplot(divorcios$diferencia_edad, main="Detectando Brechas Extremas", 
+        col="orange", horizontal=TRUE)
+par(mfrow=c(1,1))
+```
+Lo primero que salta a la vista es que la gran mayoría de las parejas tienen edades muy similares. Ese pico gigante y puntiagudo en el centro del histograma nos confirma que lo estándar es divorciarse de alguien de tu misma generación, con una diferencia de apenas 0 a 5 años. Pero lo más interesante está en el diagrama de caja, por ejemplo fíjense en la cantidad brutal de puntos negros a los lados. Esos son los outliers extremos. Tenemos casos donde el hombre es hasta 70 años mayor que su pareja (lado derecho), y otros donde la mujer es 40 años mayor que él (lado izquierdo). Aunque son casos raros, existen y rompen por completo la regla de la edad similar.
+
+## Distribución de variables numéricos
+
+### Análisis del dataset de violencia
+```{r}
+# --- 1. EDAD VÍCTIMA ---
+p1 <- ggplot(violencia, aes(x = vic_edad_clean)) +
+  geom_density(fill = "#5DADE2", alpha = 0.5) +
+  geom_vline(aes(xintercept = mean(vic_edad_clean, na.rm=T)), color="red", linetype="dashed", size=1) +
+  geom_vline(aes(xintercept = median(vic_edad_clean, na.rm=T)), color="blue", size=1) +
+  labs(title="Distribución: Edad Víctima", subtitle="Roja=Media | Azul=Mediana") + theme_minimal()
+
+# --- 2. EDAD AGRESOR ---
+p2 <- ggplot(violencia, aes(x = agr_edad)) +
+  geom_density(fill = "#AF7AC5", alpha = 0.5) +
+  geom_vline(aes(xintercept = mean(agr_edad, na.rm=T)), color="red", linetype="dashed", size=1) +
+  geom_vline(aes(xintercept = median(agr_edad, na.rm=T)), color="blue", size=1) +
+  labs(title="Distribución: Edad Agresor", subtitle="Roja=Media | Azul=Mediana") + theme_minimal()
+
+# --- 3. TOTAL DE HIJOS ---
+p3 <- ggplot(violencia, aes(x = total_hijos_clean)) +
+  geom_density(fill = "#52BE80", alpha = 0.5) +
+  geom_vline(aes(xintercept = mean(total_hijos_clean, na.rm=T)), color="red", linetype="dashed", size=1) +
+  geom_vline(aes(xintercept = median(total_hijos_clean, na.rm=T)), color="blue", size=1) +
+  labs(title="Distribución: Total Hijos", subtitle="Roja=Media | Azul=Mediana") + theme_minimal()
+
+# Imprimir los 3
+print(p1)
+print(p2)
+print(p3)
+```
+Edad de la víctima: Al observar este gráfico, la prueba de que no existe normalidad es clara ya que las líneas no coinciden, por ejemplo la línea azul (Mediana) nos marca el punto real donde se divide la población (alrededor de los 30 años), mientras que la línea roja (Media) está desplazada hacia la derecha, pero ¿por qué pasa esto? Por la 'cola' de datos que vemos a la derecha y, sobre todo, por ese pequeño pico extraño al final (cerca de los 100 años). Esos valores extremos están 'inflando' el promedio artificialmente. Por eso, para este proyecto, la Mediana será un dato mucho más confiable que el promedio para describir a la víctima típica.
+
+Edad del agresor: Aquí el fenómeno es aún más evidente porque vemos nuevamente que la línea roja (Media) se separa de la azul hacia la derecha, confirmando un sesgo positivo. Pero lo más importante para la limpieza de datos es notar cómo la curva sube repentinamente al final del gráfico (a la derecha del todo). Ese levantamiento es causado por los códigos '99' (edad desconocida). Al estar esos datos ahí, están arrastrando la línea roja, haciendo parecer que la edad promedio de los agresores es mayor de lo que realmente es por esto debemos limpiar esos '99' antes de modelar.
+
+Total hijos: Esta gráfica tiene forma de sierra pero lo crítico es la posición de las líneas. La línea azul (Mediana) está clavada en 2 hijos, que es la realidad más común de las familias en la base de datos. Sin embargo, la línea roja (Media) está corrida a la derecha. Esto sucede porque las familias 'atípicas' con 8, 10 o 15 hijos pesan mucho en el cálculo matemático, moviendo el promedio, al final podemos ver que la variable no es normal y está fuertemente sesgada ya que al usar el promedio aquí nos daría un número decimal que no representa la realidad del hogar típico.
+
+### Análisis del dataset de divorcios
+```{r}
+# --- DETERMINACIÓN DE DISTRIBUCIÓN: DIVORCIOS ---
+
+# 1. EDAD HOMBRE
+p_hom <- ggplot(divorcios, aes(x = edad_hom_clean)) +
+  geom_density(fill = "skyblue", alpha = 0.5) +
+  geom_vline(aes(xintercept = mean(edad_hom_clean, na.rm=T)), 
+             color="red", linetype="dashed", size=1) +
+  geom_vline(aes(xintercept = median(edad_hom_clean, na.rm=T)), 
+             color="blue", size=1) +
+  labs(title="Distribución: Edad Hombre", 
+       subtitle="Línea Roja (Media) vs Azul (Mediana)",
+       x = "Edad", y = "Densidad") +
+  theme_minimal()
+
+# 2. EDAD MUJER
+p_muj <- ggplot(divorcios, aes(x = edad_muj_clean)) +
+  geom_density(fill = "pink", alpha = 0.5) +
+  geom_vline(aes(xintercept = mean(edad_muj_clean, na.rm=T)), 
+             color="red", linetype="dashed", size=1) +
+  geom_vline(aes(xintercept = median(edad_muj_clean, na.rm=T)), 
+             color="blue", size=1) +
+  labs(title="Distribución: Edad Mujer", 
+       subtitle="Línea Roja (Media) vs Azul (Mediana)",
+       x = "Edad", y = "Densidad") +
+  theme_minimal()
+
+# 3. DIFERENCIA DE EDAD
+p_dif <- ggplot(divorcios, aes(x = diferencia_edad)) +
+  geom_density(fill = "#9b59b6", alpha = 0.5) +
+  geom_vline(aes(xintercept = mean(diferencia_edad, na.rm=T)), 
+             color="red", linetype="dashed", size=1) +
+  geom_vline(aes(xintercept = median(diferencia_edad, na.rm=T)), 
+             color="blue", size=1) +
+  labs(title="Distribución: Diferencia de Edad", 
+       subtitle="Línea Roja (Media) vs Azul (Mediana)",
+       x = "Diferencia (Años)", y = "Densidad") +
+  theme_minimal()
+
+# Mostrar los gráficos
+print(p_hom)
+print(p_muj)
+print(p_dif)
+```
+Edad del hombre: Al analizar esta gráfica, la falta de normalidad es evidente. La línea azul (Mediana) nos muestra que el hombre 'típico' se divorcia cerca de los 38 años. Sin embargo, la línea roja (Media) aparece desplazada hacia la derecha, esto nos dice que tenemos una asimetría positiva. Aunque el grueso de los divorcios ocurre en la adultez media, hay suficientes hombres de 60, 70 o más años divorciándose como para inflar el promedio matemático, por eso, si solo viéramos el promedio, creeríamos que la gente se divorcia más vieja de lo que realmente es lo común.
+
+Edad de la mujer: Aquí confirmamos que el comportamiento es casi idéntico al de los hombres, pero ocurriendo un poco antes. La línea azul se planta firmemente alrededor de los 35 años, marcando la realidad de la mayoría, después nuevamente, la línea roja (Media) huye hacia la derecha. Esto ratifica estadísticamente que los casos de mujeres mayores distorsionan la media. Al igual que con los hombres, la distribución no es normal, y usar métodos estadísticos que asuman una Campana de Gauss perfecta podría llevarnos a errores.
+
+Diferencia de edad: Esta es la gráfica más tramposa de todas porque a primera vista parece una campana perfecta porque las líneas roja y azul están casi pegadas. Pero si miramos bien, la forma es demasiado puntiaguda (lo que llamamos leptocúrtica). Esto significa que hay una concentración excesiva de datos en el centro porque la inmensa mayoría de las parejas se lleva menos de 5 años, por otro lado las 'colas' largas a los lados (las partes bajas y planas de la curva) nos indican que existen valores extremos—parejas con 20 o 30 años de diferencia que rompen la estructura de una distribución normal estándar, aunque el promedio sea acertado aquí, la variabilidad es engañosa.
+
+```{r Fuentes-diagnostico}
+miss_summary <- function(df, nombre_df){
+  tibble(var = names(df)) %>%
+    mutate(
+      dataset = nombre_df,
+      n = nrow(df),
+      n_na = map_int(var, ~ sum(is.na(df[[.x]]))),
+      pct_na = 100 * n_na / n
+    ) %>%
+    arrange(desc(pct_na))
+}
+
+miss_vio <- miss_summary(violencia, "violencia")
+miss_div <- miss_summary(divorcios, "divorcios")
+
+bind_rows(miss_vio, miss_div) %>% 
+  filter(pct_na > 0) %>% 
+  print(n = 50)
+```
+```{r imputacion simple}
+impute_median <- function(x){
+  if (!is.numeric(x)) return(x)
+  x2 <- x
+  x2[is.na(x2)] <- median(x2, na.rm = TRUE)
+  x2
+}
+
+impute_mode <- function(x){
+  if (is.numeric(x)) return(x)
+  x2 <- x
+  moda <- names(sort(table(x2), decreasing = TRUE))[1]
+  x2[is.na(x2)] <- moda
+  x2
+}
+
+# datasets auxiliares SOLO para correlaciones (no reemplazan tus originales)
+violencia_cor <- violencia %>%
+  mutate(
+    agr_edad_clean = ifelse(is.na(agr_edad) | agr_edad > 110, NA, agr_edad)
+  ) %>%
+  mutate(
+    vic_edad_imp = impute_median(vic_edad_clean),
+    agr_edad_imp = impute_median(agr_edad_clean),
+    hijos_imp = impute_median(total_hijos_clean)
+  )
+
+divorcios_cor <- divorcios %>%
+  mutate(
+    hom_edad_imp = impute_median(edad_hom_clean),
+    muj_edad_imp = impute_median(edad_muj_clean),
+    dif_edad_imp = impute_median(diferencia_edad)
+  )
+```
+```{r outliners-funcionales}
+flag_outlier_iqr <- function(x, k = 1.5){
+  q1 <- quantile(x, 0.25, na.rm = TRUE)
+  q3 <- quantile(x, 0.75, na.rm = TRUE)
+  iqr <- q3 - q1
+  lo <- q1 - k * iqr
+  hi <- q3 + k * iqr
+  x < lo | x > hi
+}
+
+flag_outlier_mad <- function(x, z = 3.5){
+  med <- median(x, na.rm = TRUE)
+  madv <- mad(x, constant = 1, na.rm = TRUE)
+  if (madv == 0 || is.na(madv)) return(rep(FALSE, length(x)))
+  abs(x - med) / madv > z
+}
+```
+```{r outliners-violencia}
+vio_out <- violencia %>%
+  mutate(
+    agr_edad_clean = ifelse(is.na(agr_edad) | agr_edad > 110, NA, agr_edad),
+    out_vic_iqr = flag_outlier_iqr(vic_edad_clean),
+    out_agr_iqr = flag_outlier_iqr(agr_edad_clean),
+    out_hij_iqr = flag_outlier_iqr(total_hijos_clean),
+    out_vic_mad = flag_outlier_mad(vic_edad_clean),
+    out_agr_mad = flag_outlier_mad(agr_edad_clean),
+    out_hij_mad = flag_outlier_mad(total_hijos_clean)
+  )
+
+vio_out %>%
+  summarise(
+    out_vic_iqr = sum(out_vic_iqr, na.rm=TRUE),
+    out_agr_iqr = sum(out_agr_iqr, na.rm=TRUE),
+    out_hij_iqr = sum(out_hij_iqr, na.rm=TRUE),
+    out_vic_mad = sum(out_vic_mad, na.rm=TRUE),
+    out_agr_mad = sum(out_agr_mad, na.rm=TRUE),
+    out_hij_mad = sum(out_hij_mad, na.rm=TRUE)
+  )
+```
+```{r outliners-casos}
+# Top 15 mayores y menores (víctima y agresor)
+vio_out %>%
+  select(cod_depto, hec_mes, vic_edad_clean, agr_edad_clean, total_hijos_clean,
+         out_vic_iqr, out_agr_iqr, out_hij_iqr) %>%
+  arrange(desc(vic_edad_clean)) %>% 
+  slice_head(n = 15)
+
+vio_out %>%
+  select(cod_depto, hec_mes, vic_edad_clean, agr_edad_clean, total_hijos_clean,
+         out_vic_iqr, out_agr_iqr, out_hij_iqr) %>%
+  arrange(vic_edad_clean) %>% 
+  slice_head(n = 15)
+```
+
+
+```{r correlaciones}
+vio_num <- violencia %>%
+  mutate(agr_edad_clean = ifelse(is.na(agr_edad) | agr_edad > 110, NA, agr_edad)) %>%
+  select(vic_edad_clean, agr_edad_clean, total_hijos_clean)
+
+cor(vio_num, use="pairwise.complete.obs", method="pearson")
+cor(vio_num, use="pairwise.complete.obs", method="spearman")
+```
+```{r correlaciones-divorcios}
+div_num <- divorcios %>%
+  select(edad_hom_clean, edad_muj_clean, diferencia_edad)
+
+cor(div_num, use="pairwise.complete.obs", method="pearson")
+cor(div_num, use="pairwise.complete.obs", method="spearman")
+```
+```{r correlaciones scatter}
+
+
+# Divorcios: edad hombre vs mujer
+divorcios %>%
+  ggplot(aes(x = edad_hom_clean, y = edad_muj_clean)) +
+  geom_point(alpha = 0.25) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title="Edad hombre vs mujer en divorcios",
+       x="Edad hombre (limpia)", y="Edad mujer (limpia)") +
+  theme_classic()
+```
+
+```{r correlacipn entre bases}
+vio_depto <- violencia %>%
+  mutate(agr_edad_clean = ifelse(is.na(agr_edad) | agr_edad > 110, NA, agr_edad)) %>%
+  group_by(cod_depto) %>%
+  summarise(
+    violencia_total = n(),
+    edad_victima_med = median(vic_edad_clean, na.rm=TRUE),
+    hijos_med = median(total_hijos_clean, na.rm=TRUE),
+    .groups = "drop"
+  )
+
+div_depto <- divorcios %>%
+  group_by(cod_depto) %>%
+  summarise(
+    divorcios_total = n(),
+    dif_edad_med = median(diferencia_edad, na.rm=TRUE),
+    .groups = "drop"
+  )
+
+depto_join <- vio_depto %>%
+  inner_join(div_depto, by="cod_depto")
+
+cor(depto_join %>% select(violencia_total, divorcios_total), method="spearman")
+cor(depto_join %>% select(violencia_total, divorcios_total), method="pearson")
+
+ggplot(depto_join, aes(x = violencia_total, y = divorcios_total)) +
+  geom_point() +
+  geom_smooth(method="lm", se=FALSE) +
+  labs(title="Violencia intrafamiliar vs divorcios por departamento",
+       x="Total violencia (depto)", y="Total divorcios (depto)") +
+  theme_classic()
+```
+Se identificó que el valor 99 corresponde a la categoría ‘Ignorado’, por lo que constituye un valor faltante codificado. Su presencia generaba acumulaciones artificiales en los diagramas de dispersión (bandas cercanas a 99) y podía distorsionar medidas de asociación, especialmente Pearson. Por ello, se decidió recodificar 99 como NA (y excluir cod_depto = 99 del análisis por departamento), lo cual permite interpretar correctamente las correlaciones: en violencia intrafamiliar se observa una asociación positiva entre la edad de la víctima y del agresor, y una relación moderada entre edad de la víctima y número de hijos; en divorcios, las edades del hombre y la mujer se correlacionan fuertemente; y a nivel departamental, violencia y divorcios presentan una relación monotónica alta, aunque la relación lineal es sensible a outliers y diferencias de escala entre departamentos
+
+```{r categoricas}
+# Función: tabla de frecuencias + porcentajes
+freq_tab <- function(df, var){
+  v <- df[[var]]
+  tibble(valor = v) %>%
+    mutate(valor = fct_explicit_na(as.factor(valor), na_level = "NA")) %>%
+    count(valor, name = "n") %>%
+    mutate(pct = 100 * n / sum(n)) %>%
+    arrange(desc(n))
+}
+
+# Función: gráfico de barras (top k)
+plot_bar <- function(df, var, titulo = NULL, top_k = 15){
+  tab <- freq_tab(df, var) %>% slice_head(n = top_k)
+  ggplot(tab, aes(x = reorder(valor, n), y = n)) +
+    geom_col() +
+    coord_flip() +
+    labs(title = titulo %||% paste("Frecuencia de", var),
+         x = NULL, y = "Frecuencia") +
+    theme_classic()
+}
+
+# Función: Cramér's V para asociación entre 2 categóricas
+cramers_v <- function(x, y){
+  tab <- table(x, y)
+  chi <- suppressWarnings(chisq.test(tab, correct = FALSE))
+  n <- sum(tab)
+  k <- min(nrow(tab), ncol(tab))
+  v <- sqrt(as.numeric(chi$statistic) / (n * (k - 1)))
+  list(V = v, p_value = chi$p.value, chi2 = as.numeric(chi$statistic), df = chi$parameter)
+}
+```
+```{r limpieza}
+violencia_cat <- violencia %>%
+  mutate(
+    # Mes: 99 -> Ignorado (y luego nombre en español opcional)
+    hec_mes_cat = case_when(
+      is.na(hec_mes) ~ NA_character_,
+      hec_mes == 99 ~ "Ignorado",
+      hec_mes %in% 1:12 ~ as.character(hec_mes),
+      TRUE ~ "Otro"
+    ),
+    mes_nombre_es = case_when(
+      hec_mes %in% 1:12 ~ c("Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                           "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre")[hec_mes],
+      hec_mes == 99 ~ "Ignorado",
+      TRUE ~ NA_character_
+    ) %>% factor(levels = c("Enero","Febrero","Marzo","Abril","Mayo","Junio",
+                            "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre","Ignorado")),
+    
+    # Departamento: 99 -> Ignorado (si existe)
+    cod_depto_cat = case_when(
+      is.na(cod_depto) ~ NA_character_,
+      cod_depto == 99 ~ "Ignorado",
+      TRUE ~ as.character(cod_depto)
+    ),
+
+    # Ejemplos típicos de categóricas (usa las tuyas si ya existen)
+    sexo_cat = if ("sexo_label" %in% names(.)) sexo_label else as.character(vic_sexo),
+    est_civ_cat = if ("est_civ_label" %in% names(.)) est_civ_label else as.character(vic_est_civ),
+    relacion_cat = if ("relacion_label" %in% names(.)) relacion_label else as.character(vic_rel_agr)
+  )
+```
+
+```{r tablas y graficas}
+# Tablas
+freq_tab(violencia_cat, "sexo_cat")
+freq_tab(violencia_cat, "est_civ_cat")
+freq_tab(violencia_cat, "relacion_cat")
+freq_tab(violencia_cat, "mes_nombre_es")
+freq_tab(violencia_cat, "cod_depto_cat")
+
+# Gráficas
+plot_bar(violencia_cat, "sexo_cat", "Violencia: Sexo de la víctima", top_k = 10)
+plot_bar(violencia_cat, "est_civ_cat", "Violencia: Estado civil de la víctima", top_k = 10)
+plot_bar(violencia_cat, "relacion_cat", "Violencia: Relación víctima–agresor", top_k = 15)
+plot_bar(violencia_cat, "mes_nombre_es", "Violencia: Mes del hecho (incluye Ignorado)", top_k = 13)
+```
+```{r divorcios}
+divorcios_cat <- divorcios %>%
+  mutate(
+    cod_depto_cat = case_when(
+      is.na(cod_depto) ~ NA_character_,
+      cod_depto == 99 ~ "Ignorado",
+      TRUE ~ as.character(cod_depto)
+    ),
+    edu_hom_cat = if ("nivel_edu_hom" %in% names(.)) nivel_edu_hom else as.character(ESCHOM),
+    edu_muj_cat = if ("nivel_edu_muj" %in% names(.)) nivel_edu_muj else as.character(ESCMUJ)
+  )
+
+# Tablas
+freq_tab(divorcios_cat, "edu_hom_cat")
+freq_tab(divorcios_cat, "edu_muj_cat")
+freq_tab(divorcios_cat, "cod_depto_cat")
+
+# Gráficas
+plot_bar(divorcios_cat, "edu_hom_cat", "Divorcios: Escolaridad del hombre", top_k = 10)
+plot_bar(divorcios_cat, "edu_muj_cat", "Divorcios: Escolaridad de la mujer", top_k = 10)
+```
+
+```{r asociacion de violencia}
+drop_na2 <- function(df, a, b){
+  df %>% filter(!is.na(.data[[a]]), !is.na(.data[[b]]))
+}
+
+# 1) Sexo vs Estado civil
+df1 <- drop_na2(violencia_cat, "sexo_cat", "est_civ_cat")
+res1 <- cramers_v(df1$sexo_cat, df1$est_civ_cat)
+res1
+
+# 2) Sexo vs Relación
+df2 <- drop_na2(violencia_cat, "sexo_cat", "relacion_cat")
+res2 <- cramers_v(df2$sexo_cat, df2$relacion_cat)
+res2
+
+# 3) Mes vs Sexo (incluye Ignorado si quieres)
+df3 <- drop_na2(violencia_cat, "mes_nombre_es", "sexo_cat")
+res3 <- cramers_v(df3$mes_nombre_es, df3$sexo_cat)
+res3
+```
+```{r tablas cruzadas}
+# Tabla cruzada: Sexo vs Relación (top 12 relaciones)
+top_rel <- violencia_cat %>%
+  count(relacion_cat, sort = TRUE) %>%
+  slice_head(n = 12) %>%
+  pull(relacion_cat)
+
+cruz <- violencia_cat %>%
+  filter(relacion_cat %in% top_rel) %>%
+  count(sexo_cat, relacion_cat)
+
+ggplot(cruz, aes(x = relacion_cat, y = sexo_cat, fill = n)) +
+  geom_tile() +
+  labs(title = "Violencia: Sexo vs relación víctima–agresor (top 12)",
+       x = "Relación", y = "Sexo") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+```{r top de departamentos}
+# Violencia: top deptos (excluye Ignorado)
+violencia_cat %>%
+  filter(cod_depto_cat != "Ignorado") %>%
+  count(cod_depto_cat, sort = TRUE) %>%
+  slice_head(n = 10)
+
+# Divorcios: top deptos (excluye Ignorado)
+divorcios_cat %>%
+  filter(cod_depto_cat != "Ignorado") %>%
+  count(cod_depto_cat, sort = TRUE) %>%
+  slice_head(n = 10)
+```
+En las variables categóricas de violencia intrafamiliar se observa un patrón muy marcado: la mayoría de víctimas son mujeres, y en estado civil predominan casado(a) y unido(a), con una proporción no despreciable de “Ignorado” (dato faltante codificado). En la relación víctima–agresor, los casos se concentran principalmente en esposo/conviviente y ex-esposo/ex-pareja, seguidos por “otro/no especificado” y “padre/madre”, mientras que “hijo(a)” y “hermano(a)” aparecen con frecuencias mucho menores. Por mes, la distribución es relativamente pareja a lo largo del año (con leves picos como mayo/julio/agosto) y un grupo pequeño en “Ignorado”, lo que sugiere estacionalidad débil. En divorcios, la escolaridad del hombre y de la mujer muestra un comportamiento similar: “Ignorado” es la categoría más frecuente, seguida por Primaria, luego Ninguno, y finalmente Media/Diversificado. Al evaluar asociación entre categóricas, las pruebas salen “significativas” por el tamaño muestral, pero los tamaños de efecto indican que Sexo vs Estado civil es muy débil (Cramér’s V ≈ 0.063), Sexo vs Relación es la más relevante (V ≈ 0.181, asociación pequeña–moderada) y Mes vs Sexo es prácticamente nula (V ≈ 0.012). Finalmente, en el ranking por departamento, el código 1 lidera ampliamente tanto en violencia como en divorcios, lo cual sugiere que parte del patrón agregado está influido por el tamaño poblacional y el volumen de registros del departamento.
+
+
+## Preguntas de investigación basadas en hipótesis
+
+En esta sección se plantean hipótesis preliminares basadas en creencias o supuestos comunes sobre la violencia intrafamiliar y los procesos de divorcio. Cada hipótesis será evaluada mediante análisis de datos, con el objetivo de confirmar o refutar dichas creencias.
+
+### Hipótesis 1: La violencia intrafamiliar afecta principalmente a mujeres jóvenes
+
+**Pregunta de investigación:**  
+¿La violencia intrafamiliar afecta principalmente a mujeres jóvenes dentro del conjunto de datos analizado?
+
+
+Se plantea la hipótesis de que la mayoría de víctimas de violencia intrafamiliar son mujeres jóvenes. Esta creencia se basa en patrones sociales y reportes mediáticos que suelen asociar este fenómeno con mujeres en edad reproductiva.
+
+Para evaluar esta hipótesis se analizará la distribución de la edad de la víctima y su relación con el sexo.
+
+```{r}
+# Proporción por sexo
+table(violencia$vic_sexo)
+prop.table(table(violencia$vic_sexo)) * 100
+```
+
+```{r}
+# Edad promedio por sexo
+aggregate(vic_edad ~ vic_sexo, data = violencia, mean, na.rm = TRUE)
+```
+
+
+#### Resultado e interpretación
+
+El análisis muestra que el 88.5% de las víctimas registradas corresponden a mujeres, mientras que solo el 11.5% corresponde a hombres. Esta diferencia evidencia una marcada concentración del fenómeno en mujeres.
+
+Asimismo, la edad promedio de las mujeres víctimas es de aproximadamente 33 años, con una mediana de 31 años, lo cual indica que la mayoría de los casos se concentra en adultos jóvenes.
+
+En consecuencia, la hipótesis planteada se confirma: la violencia intrafamiliar afecta predominantemente a mujeres jóvenes dentro del conjunto de datos analizado.
+
+
+
+
+### Hipótesis 2: Los hombres son significativamente mayores que las mujeres en los divorcios
+
+**Pregunta de investigación:**  
+¿Existe una diferencia significativa en la edad entre hombres y mujeres en los procesos de divorcio, siendo los hombres mayores en promedio?
+
+
+Existe la creencia de que los hombres tienden a ser mayores que las mujeres al momento del divorcio. Para evaluar esta hipótesis se compararán las edades promedio y medianas de ambos grupos.
+
+```{r}
+mean(divorcios$EDADHOM, na.rm = TRUE) - 
+mean(divorcios$EDADMUJ, na.rm = TRUE)
+```
+
+```{r}
+diferencia <- divorcios$EDADHOM - divorcios$EDADMUJ
+summary(diferencia)
+```
+```{r}
+divorcios <- divorcios %>%
+  mutate(
+    EDADHOM = ifelse(EDADHOM == 999, NA, EDADHOM),
+    EDADMUJ = ifelse(EDADMUJ == 999, NA, EDADMUJ)
+  )
+
+```
+
+```{r}
+diferencia <- divorcios$EDADHOM - divorcios$EDADMUJ
+summary(diferencia[!is.na(diferencia)])
+```
+
+
+```{r}
+library(tidyr)
+
+edades_long <- divorcios %>%
+  select(EDADHOM, EDADMUJ) %>%
+  pivot_longer(cols = everything(),
+               names_to = "Sexo",
+               values_to = "Edad") %>%
+  filter(!is.na(Edad))
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(edades_long, aes(x = Sexo, y = Edad)) +
+  geom_boxplot() +
+  labs(title = "Comparación de edad en procesos de divorcio",
+       x = "Sexo",
+       y = "Edad")
+```
+
+#### Resultado e interpretación
+
+Se calculó la diferencia entre la edad del hombre y la edad de la mujer en cada proceso de divorcio. La mediana de la diferencia es de 2 años, lo que indica que, en la mayoría de los casos, el hombre es ligeramente mayor que la mujer.
+
+El tercer cuartil muestra que en el 75% de los casos el hombre es hasta 6 años mayor. Sin embargo, también se observan valores negativos, lo que indica que en un porcentaje significativo de casos la mujer es mayor que el hombre.
+
+En consecuencia, la hipótesis se confirma parcialmente: los hombres tienden a ser mayores que las mujeres en los divorcios, aunque la diferencia promedio es moderada y no absoluta.
+
+
+### Hipotesis 3: Los departamentos con mayor violencia tambien representan más divorcios
+
+**Pregunta de investigación:**  
+¿Existe una relación positiva y estadísticamente significativa entre el número de casos de violencia intrafamiliar y el número de divorcios a nivel departamental?
+
+
+Si un departamento tiene muchos casos de violencia intrafamiliar -> ¿también tiene muchos divorcios?
+
+
+```{r}
+violencia_dep <- violencia %>%
+  group_by(depto_mcpio) %>%
+  summarise(casos_violencia = n())
+```
+
+```{r}
+divorcios_dep <- divorcios %>%
+  group_by(DEPREG) %>%
+  summarise(casos_divorcio = n())
+```
+
+```{r}
+head(violencia_dep)
+head(divorcios_dep)
+```
+```{r}
+head(violencia_dep)
+```
+
+
+```{r}
+violencia_dep <- violencia %>%
+  mutate(departamento = floor(depto_mcpio / 100)) %>%
+  group_by(departamento) %>%
+  summarise(casos_violencia = n())
+```
+
+
+```{r}
+head(violencia_dep)
+```
+
+
+```{r}
+datos_dep <- violencia_dep %>%
+  inner_join(divorcios_dep, 
+             by = c("departamento" = "DEPREG"))
+```
+
+
+```{r}
+print(datos_dep, n = 30)
+```
+
+```{r}
+cor(datos_dep$casos_violencia,
+    datos_dep$casos_divorcio)
+```
+
+```{r}
+cor.test(datos_dep$casos_violencia,
+         datos_dep$casos_divorcio)
+```
+#### Resultado e interpretación
+
+Se calculó el coeficiente de correlación de Pearson entre el número de casos de violencia intrafamiliar y el número de divorcios por departamento. El resultado fue r = 0.82, lo que indica una correlación positiva fuerte.
+
+El valor p obtenido (p < 0.001) permite rechazar la hipótesis nula de ausencia de correlación, por lo que la asociación observada es estadísticamente significativa.
+
+En consecuencia, la hipótesis planteada se confirma: los departamentos con mayor número de casos de violencia tienden a presentar también un mayor número de divorcios. Sin embargo, es importante señalar que esta relación puede estar influenciada por el tamaño poblacional de cada departamento, por lo que no se puede establecer causalidad directa.
+
+```{r}
+library(ggplot2)
+
+ggplot(datos_dep, aes(x = casos_violencia,
+                      y = casos_divorcio)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Relación entre violencia intrafamiliar y divorcios por departamento",
+       x = "Casos de violencia",
+       y = "Casos de divorcio")
+```
+El gráfico de dispersión muestra una relación positiva clara entre el número de casos de violencia intrafamiliar y el número de divorcios por departamento. La línea de tendencia ascendente indica que, en general, los departamentos con mayor cantidad de violencia también presentan un mayor número de divorcios.
+
+Sin embargo, se observa que un departamento con valores particularmente altos influye considerablemente en la tendencia general. Esto sugiere que el tamaño poblacional puede estar afectando la relación observada. Por lo tanto, aunque la correlación es fuerte y estadísticamente significativa, no puede interpretarse como una relación causal directa.
+
+Cabe aclara que se pudo haber hecho el analísis por cada 100,000 habitantes pero por falta de información de hbaitantes por departamento.
+
+
+### Hipótesis 4: La mayoría de víctimas de violencia intrafamiliar tiene hijos
+
+**Pregunta de investigación:**  
+¿La mayoría de las víctimas de violencia intrafamiliar tiene al menos un hijo?
+
+
+```{r}
+violencia <- violencia %>%
+  mutate(tiene_hijos = ifelse(total_hijos_clean >= 1, "Sí", "No"))
+```
+
+
+```{r}
+tabla_hijos <- violencia %>%
+  filter(!is.na(total_hijos_clean)) %>%
+  count(tiene_hijos) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_hijos
+```
+#### Resultado e interpretación
+
+El análisis muestra que el 86.34% de las víctimas registradas tiene al menos un hijo, mientras que únicamente el 13.66% no tiene hijos.
+
+En consecuencia, la hipótesis se confirma claramente: la mayoría de los casos de violencia intrafamiliar ocurre en contextos donde existen hijos dentro del entorno familiar.
+
+Este hallazgo sugiere que el impacto del fenómeno no se limita a la víctima directa, sino que potencialmente afecta también a menores presentes en el hogar, lo cual refuerza la dimensión social y familiar del problema.
+
+```{r}
+library(ggplot2)
+
+ggplot(tabla_hijos, aes(x = tiene_hijos,
+                        y = porcentaje,
+                        fill = tiene_hijos)) +
+  geom_bar(stat = "identity", width = 0.6) +
+  geom_text(aes(label = paste0(round(porcentaje, 1), "%")),
+            vjust = -0.5,
+            size = 4) +
+  labs(title = "Proporción de víctimas con hijos",
+       x = "¿Tiene hijos?",
+       y = "Porcentaje") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+La gráfica refuerza visualmente que la mayoría de las víctimas de violencia intrafamiliar tiene hijos, lo cual confirma la hipótesis planteada y evidencia la dimensión familiar del fenómeno.
+
+
+
+### Hipótesis 5: La violencia intrafamiliar ocurre principalmente en áreas urbanas
+
+**Pregunta de investigación:**  
+¿Existe una mayor concentración de casos de violencia intrafamiliar en áreas urbanas en comparación con áreas rurales?
+
+
+```{r}
+table(violencia$hec_area)
+```
+
+```{r}
+violencia_area <- violencia %>%
+  filter(hec_area != 9) %>%
+  mutate(area = ifelse(hec_area == 1, "Urbana", "Rural"))
+```
+
+
+```{r}
+tabla_area <- violencia_area %>%
+  count(area) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_area
+```
+#### Resultado e interpretación
+
+El análisis muestra que el 57.04% de los casos de violencia intrafamiliar ocurrió en áreas urbanas, mientras que el 42.96% se registró en áreas rurales.
+
+En consecuencia, la hipótesis se confirma: la violencia intrafamiliar ocurre mayoritariamente en zonas urbanas. Sin embargo, la diferencia no es extrema, lo que indica que el fenómeno también presenta una presencia significativa en áreas rurales, evidenciando que se trata de un problema generalizado y no exclusivamente urbano.
+
+
+```{r}
+ggplot(tabla_area, aes(x = area,
+                       y = porcentaje,
+                       fill = area)) +
+  geom_bar(stat = "identity", width = 0.6) +
+  geom_text(aes(label = paste0(round(porcentaje,1), "%")),
+            vjust = -0.5,
+            size = 4) +
+  labs(title = "Distribución de violencia por área",
+       x = "Área",
+       y = "Porcentaje") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+Aunque la mayoría de los casos se registran en áreas urbanas, esta diferencia podría estar influenciada por la mayor concentración poblacional en dichas zonas. Dado que el análisis se basa en frecuencias absolutas y no en tasas ajustadas por población, no es posible concluir que el riesgo de violencia sea mayor en el área urbana, sino únicamente que el número total de casos es superior.
+
+
+### Determinación del número óptimo de clusters
+
+Para determinar el número adecuado de grupos se utilizaron dos métodos: el método del codo y el método de la silueta.
+
+El método del codo sugiere un punto de inflexión alrededor de tres clusters, ya que a partir de ese valor la reducción en la variabilidad interna se vuelve menos significativa.
+
+Por otro lado, el método de la silueta muestra su valor máximo en k = 2, con una anchura promedio cercana a 0.85, lo cual indica una separación muy clara entre los grupos.
+
+Dado que la silueta evalúa directamente la cohesión y separación de los clusters, se selecciona k = 2 como el número óptimo de grupos para este análisis.
+
+```{r}
+cluster_data <- datos_dep %>%
+  select(casos_violencia, casos_divorcio)
+
+cluster_scaled <- scale(cluster_data)
+```
+
+```{r}
+wss <- numeric(10)
+
+for (k in 1:10) {
+  kmeans_model <- kmeans(cluster_scaled, centers = k, nstart = 25)
+  wss[k] <- kmeans_model$tot.withinss
+}
+
+plot(1:10, wss,
+     type = "b",
+     pch = 19,
+     frame = FALSE,
+     xlab = "Número de clusters",
+     ylab = "Within-cluster sum of squares",
+     main = "Método del Codo")
+```
+### Método del Codo
+
+El método del codo permite identificar el número adecuado de clusters analizando la variación interna (within-cluster sum of squares) a medida que aumenta el número de grupos. En la gráfica se observa una disminución pronunciada de la variabilidad interna entre uno y tres clusters. A partir de este punto, la reducción se vuelve progresivamente menor, indicando que agregar más grupos no aporta una mejora sustancial en la cohesión interna.
+
+Este comportamiento sugiere la presencia de una estructura natural en los datos alrededor de tres clusters, donde se produce el cambio más notable en la pendiente de la curva.
+
+
+
+```{r}
+library(cluster)
+
+sil_width <- numeric(10)
+
+for (k in 2:10) {
+  kmeans_model <- kmeans(cluster_scaled, centers = k, nstart = 25)
+  ss <- silhouette(kmeans_model$cluster, dist(cluster_scaled))
+  sil_width[k] <- mean(ss[, 3])
+}
+
+plot(2:10, sil_width[2:10],
+     type = "b",
+     pch = 19,
+     frame = FALSE,
+     xlab = "Número de clusters",
+     ylab = "Silhouette width",
+     main = "Método de la Silueta")
+```
+### Método de la Silueta
+
+El método de la silueta evalúa la calidad del agrupamiento midiendo qué tan bien se separan los elementos de distintos clusters y qué tan cohesionados están dentro de su propio grupo. En la gráfica se observa que el valor máximo de la anchura promedio de la silueta se alcanza cuando k = 2, con un valor cercano a 0.85.
+
+Un valor de silueta superior a 0.5 indica una separación clara entre grupos, mientras que valores cercanos a 1 representan una estructura muy bien definida. Por lo tanto, el resultado sugiere que la partición en dos clusters proporciona la mejor separación y cohesión para los datos analizados.
+
+
+
+
+```{r}
+set.seed(123)  # Para reproducibilidad
+
+kmeans_model <- kmeans(cluster_scaled, centers = 2, nstart = 25)
+
+datos_dep$cluster <- factor(kmeans_model$cluster)
+
+datos_dep
+```
+
+
+
+```{r}
+datos_dep %>%
+  group_by(cluster) %>%
+  summarise(
+    promedio_violencia = mean(casos_violencia),
+    promedio_divorcio = mean(casos_divorcio),
+    n_departamentos = n()
+  )
+```
+
+
+### Aplicación del algoritmo K-means
+
+Se aplicó el algoritmo K-means con k = 2, determinado previamente mediante el método de la silueta. El resultado muestra que uno de los clusters contiene únicamente un departamento, caracterizado por niveles significativamente más altos de violencia y divorcios en comparación con el resto.
+
+Este departamento corresponde al departamento de Guatemala, el cual presenta valores extremos que lo diferencian claramente del resto del país. El segundo cluster agrupa los otros 21 departamentos, que presentan niveles considerablemente menores en ambas variables.
+
+El resultado indica que la estructura natural de los datos está fuertemente influenciada por la magnitud de los valores del departamento de Guatemala, lo cual genera una separación clara entre este y el resto.
+
+
+
+
+# Hallazgos del Análisis Exploratorio
+
+
+1.  **Perfil de la Víctima:** La violencia intrafamiliar posee un sesgo de género y edad muy marcado. El **88.5% de las víctimas son mujeres**, con una mediana de edad de **31 años**, confirmando que el fenómeno afecta desproporcionadamente a mujeres adultas jóvenes en etapa reproductiva y de crianza (el 86.3% tiene hijos).
+
+2.  **La Trampa de la Correlación:** Existe una correlación lineal fuerte ($r=0.82$) entre la cantidad de denuncias de violencia y la cantidad de divorcios por departamento. Sin embargo, este dato es engañoso: está impulsado casi exclusivamente por el **Departamento de Guatemala**, cuyo volumen poblacional infla las cifras, actuando como un *outlier* que distorsiona la tendencia nacional.
+
+3.  **Homogamia en Rupturas:** En los divorcios, se rompe el mito de las grandes diferencias de edad. La mayoría de las parejas que disuelven su vínculo tienen edades similares (diferencia mediana de 2 años), lo que sugiere que las tensiones que llevan al divorcio y/o violencia ocurren entre pares generacionales.
+
+# Caracterización de los Grupos (Nombres Propuestos)
+
+El algoritmo *K-Means* ($k=2$) identificó una estructura polarizada en el país. Basado en sus características, se proponen los siguientes nombres para los grupos:
+
+### Grupo 1: "El Núcleo Metropolitano (Outlier)"
+* **Integrantes:** Únicamente el **Departamento de Guatemala**.
+* **Características:** Representa un escenario de "alta intensidad" que no es comparable con el resto del país. Sus cifras de violencia (aprox. 68k casos) y divorcios (27k) rompen la escala, siendo entre 6 y 20 veces superiores al promedio de los demás departamentos. Estadísticamente, es un caso atípico extremo.
+
+### Grupo 2: "El Interior Estándar"
+* **Integrantes:** Los **21 departamentos restantes** (Huehuetenango, San Marcos, Petén, Zacapa, etc.).
+* **Características:** A pesar de sus diferencias culturales y geográficas, estos departamentos se agrupan por tener volúmenes de casos "bajos" o "medios" en comparación con la capital. Para el algoritmo, todos son similares simplemente porque "no son la capital".
+
+# Plan de Siguientes Pasos
+
+Para corregir el sesgo identificado y profundizar en el análisis, se propone la siguiente hoja de ruta:
+
+1.  **Zoom-In (Sub-segmentación):** Ejecutar una segunda iteración de *clustering* **excluyendo al Departamento de Guatemala**. Al retirar este *outlier*, se podrán revelar los matices y diferencias reales entre los departamentos del interior (ej. diferenciar zonas de alta violencia en oriente vs. occidente).
+2.  **Normalización Demográfica:** Sustituir el análisis de frecuencias absolutas por **Tasas por cada 100,000 habitantes**. Esto es crucial para determinar si departamentos pequeños (como El Progreso o Zacapa) tienen en realidad una *intensidad* de violencia mayor que la capital, aunque tengan menos casos totales.
+3.  **Variable de Ratio:** Crear y analizar la métrica `Divorcios / Denuncias de Violencia`. Esto permitirá identificar departamentos donde existe una alta denuncia pero baja disolución legal, lo cual podría indicar barreras culturales, económicas o legales específicas de esa región.
+
