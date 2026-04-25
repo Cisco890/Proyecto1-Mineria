@@ -126,3 +126,89 @@ una regresión de Poisson simple: ese modelo asume que varianza y media son
 iguales, supuesto que aquí se viola de forma severa. Por eso usamos la 
 **Regresión Binomial Negativa**, que tiene un parámetro extra para absorber 
 esa variabilidad adicional.
+-------------------------------------------------------------------------------
+
+
+## 2. Conjuntos de Entrenamiento y Prueba — Análisis de Atípicos
+
+### Método de validación
+
+Como tenemos solo **22 observaciones** que es una por departamento, hacer un split 
+80/20 tradicional nos dejaría apenas 4 departamentos para probar el modelo, 
+lo cual no es confiable. En su lugar usamos **validación cruzada 
+Leave-One-Out (LOOCV)** donde cada iteración entrenamos con 21 departamentos 
+y predecimos el que quedó fuera, repitiendo esto 22 veces hasta que cada 
+departamento haya sido el "de prueba" una vez.
+
+Esto nos da una estimación más honesta del error porque todos los datos 
+participan tanto en entrenamiento como en prueba, sin desperdiciar 
+observaciones con un dataset tan pequeño.
+
+Como la variable respuesta es cuantitativa, **no aplica el concepto de 
+balance de clases**. Lo que sí analizamos es la presencia de 
+**observaciones atípicas con alta influencia** sobre el modelo.
+
+### Análisis de atípicos
+
+```{r analisis-atipicos, fig.height=3.5, fig.cap="Distancia de Cook por departamento. Valores sobre la línea roja indican puntos con influencia desproporcionada sobre los coeficientes del modelo."}
+# Ajustamos un modelo base solo para calcular la influencia de cada punto
+mod_diag <- MASS::glm.nb(
+  casos_divorcio ~ violencia_total + es_capital + edad_prom_victima,
+  data = datos_modelo
+)
+
+cook_d  <- cooks.distance(mod_diag)
+cook_d  <- ifelse(is.na(cook_d), 0, cook_d)  # por si alguno da NA
+umbral  <- 4 / nrow(datos_modelo)
+
+datos_modelo <- datos_modelo %>%
+  mutate(
+    cook_dist     = cook_d,
+    es_influyente = cook_d > umbral
+  )
+
+ggplot(datos_modelo,
+       aes(x = reorder(factor(cod_depto), cook_dist),
+           y = cook_dist,
+           fill = es_influyente)) +
+  geom_col(alpha = 0.85) +
+  geom_hline(yintercept = umbral, color = "red",
+             linetype = "dashed", linewidth = 0.8) +
+  scale_fill_manual(values = c("FALSE" = "#AED6F1", "TRUE" = "#E74C3C"),
+                    labels  = c("Normal", "Alta influencia"),
+                    name    = "") +
+  annotate("text", x = 4, y = umbral + 0.01,
+           label = paste0("Umbral 4/n = ", round(umbral, 3)),
+           color = "red", size = 3) +
+  labs(title = "Distancia de Cook por departamento",
+       x = "Departamento", y = "Distancia de Cook") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 7))
+```
+
+```{r tabla-atipicos}
+datos_modelo %>%
+  filter(es_influyente) %>%
+  dplyr::select(cod_depto, violencia_total, casos_divorcio, cook_dist) %>%
+  arrange(desc(cook_dist)) %>%
+  mutate(cook_dist = round(cook_dist, 3)) %>%
+  kable(caption = "Departamentos con distancia de Cook superior al umbral (4/n)")
+```
+
+La **distancia de Cook** mide cuánto cambiarían los coeficientes del modelo 
+si elimináramos esa observación. El umbral estándar es 4/n = 
+`r round(umbral, 3)`.
+
+El departamento con mayor influencia es **Alta Verapaz (código 16)**, con una 
+distancia de Cook de 1.616. Esto no es un error y tiene sentido porque Alta Verapaz 
+registra más de 42,000 casos de violencia pero apenas 1,600 divorcios. Esa 
+proporción tan inusual se explica por las barreras culturales, geográficas y 
+económicas que enfrenta la población para formalizar una separación legal ante 
+un juzgado, especialmente en comunidades rurales e indígenas. También aparecen 
+como influyentes Jutiapa (22), Quetzaltenango (9) y Escuintla (5), aunque con 
+valores mucho menores.
+
+El **departamento de Guatemala (código 01)** no aparece como el más influyente 
+porque la variable `es_capital` ya lo identifica explícitamente — el modelo 
+sabe que es estructuralmente diferente al resto, por lo que su efecto queda 
+absorbido por esa dummy en lugar de distorsionar los demás coeficientes.
