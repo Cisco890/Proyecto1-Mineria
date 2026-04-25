@@ -71,3 +71,58 @@ datos_modelo <- vio_dep %>%
   inner_join(div_dep, by = "cod_depto") %>%
   mutate(es_capital = as.integer(cod_depto == 1))
 ```
+
+## 1. Variable Respuesta
+
+La variable que buscamos predecir es **`casos_divorcio`**: el total de divorcios
+registrados en cada departamento de Guatemala durante el año 2022. Es una variable
+de conteo (números enteros, nunca negativos), por lo que el problema es de
+**regresión**, no de clasificación.
+
+```{r stats-target}
+stats_div <- datos_modelo %>%
+  summarise(
+    Mínimo   = min(casos_divorcio),
+    Q1       = quantile(casos_divorcio, 0.25),
+    Mediana  = median(casos_divorcio),
+    Media    = round(mean(casos_divorcio), 0),
+    Q3       = quantile(casos_divorcio, 0.75),
+    Máximo   = max(casos_divorcio),
+    Varianza = round(var(casos_divorcio), 0)
+  )
+
+kable(stats_div, caption = "Estadísticas descriptivas: casos_divorcio")
+```
+
+```{r grafico-target, fig.height=3.2, fig.cap="Divorcios registrados por departamento en 2022. El departamento de Guatemala concentra un volumen muy superior al resto del país."}
+ggplot(datos_modelo,
+       aes(x = reorder(factor(cod_depto), casos_divorcio),
+           y = casos_divorcio,
+           fill = factor(es_capital))) +
+  geom_col(alpha = 0.85) +
+  scale_fill_manual(values = c("0" = "#5DADE2", "1" = "#E74C3C"),
+                    labels  = c("Interior", "Capital"),
+                    name    = "") +
+  labs(title = "Divorcios por departamento (2022)",
+       x = "Departamento (ordenado por volumen)",
+       y = "Casos de divorcio") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 7))
+```
+
+Lo primero que llama la atención es la diferencia entre la **mediana** 
+(`r median(datos_modelo$casos_divorcio)` divorcios) y la **media** 
+(`r round(mean(datos_modelo$casos_divorcio), 0)` divorcios): la media está 
+casi el doble de la mediana, lo que indica que unos pocos departamentos con 
+valores muy altos están jalando ese promedio hacia arriba.
+
+El caso más claro es el **departamento de Guatemala**, con 
+`r max(datos_modelo$casos_divorcio)` divorcios, mientras que el resto del país 
+ronda los 800 a 5,000. Esto genera una **varianza de 
+`r format(round(var(datos_modelo$casos_divorcio)), big.mark=",")`**, que es 
+miles de veces mayor que la media. En estadística, esa condición se llama 
+**sobredispersión**, y es precisamente el motivo por el que no podemos usar 
+una regresión de Poisson simple: ese modelo asume que varianza y media son 
+iguales, supuesto que aquí se viola de forma severa. Por eso usamos la 
+**Regresión Binomial Negativa**, que tiene un parámetro extra para absorber 
+esa variabilidad adicional.
