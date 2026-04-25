@@ -212,3 +212,78 @@ El **departamento de Guatemala (código 01)** no aparece como el más influyente
 porque la variable `es_capital` ya lo identifica explícitamente — el modelo 
 sabe que es estructuralmente diferente al resto, por lo que su efecto queda 
 absorbido por esa dummy en lugar de distorsionar los demás coeficientes.
+
+
+## 3. Algoritmo y Preprocesamiento
+
+### Algoritmo: Regresión Binomial Negativa
+
+El algoritmo seleccionado es la **Regresión Binomial Negativa** (`glm.nb` 
+del paquete `MASS`), elegido en el Avance 2 por tres razones concretas:
+
+1. **Está diseñado para datos de conteo con sobredispersión.** Incorpora un 
+parámetro θ que absorbe la variabilidad extra que el modelo de Poisson no 
+puede manejar. En nuestro caso la varianza es miles de veces mayor que la 
+media, así que Poisson queda descartado desde el inicio.
+
+2. **Tiene respaldo directo en la literatura.** Miah et al. (2024) 
+demostraron que la Binomial Negativa supera a Poisson precisamente para 
+modelar conteos departamentales de divorcios, que es exactamente nuestro caso.
+
+3. **Es el más adecuado para n=22.** Al tener pocos parámetros, es menos 
+propenso al sobreajuste que los modelos de ensemble como XGBoost o 
+Random Forest, que necesitan más datos para funcionar bien.
+
+### Preprocesamiento
+
+```{r preprocesamiento}
+vars_pred <- c("violencia_total", "edad_prom_victima", "hijos_prom",
+               "pct_mujeres", "pct_urbano", "pct_casados")
+
+# Estandarización Z-score de las predictoras numéricas
+datos_std <- datos_modelo %>%
+  mutate(across(all_of(vars_pred),
+                ~ as.numeric(scale(.)),
+                .names = "{.col}_z"))
+```
+
+Se aplicaron los siguientes pasos antes de ajustar cualquier modelo:
+
+**a) Recodificación de valores especiales.** Los códigos 99 y 999 que usa el 
+INE para indicar "dato ignorado" fueron convertidos a `NA` durante el análisis 
+exploratorio. Sin esta corrección, esos valores habrían inflado artificialmente 
+los promedios y correlaciones.
+
+**b) Exclusión del código departamental 99.** Los registros sin departamento 
+asignado no pueden atribuirse a ninguna unidad geográfica, por lo que se 
+excluyeron del análisis agregado.
+
+**c) Variable dummy `es_capital`.** Se creó una variable binaria que vale 1 
+para el Departamento de Guatemala y 0 para los demás. Esto le permite al 
+modelo tratar a la capital como un caso estructuralmente diferente sin 
+necesidad de eliminarlo. Esta variable **no se estandariza** porque ya está 
+en escala 0/1.
+
+**d) Estandarización Z-score.** Las variables numéricas predictoras se 
+transformaron a media = 0 y desviación estándar = 1. Esto es necesario porque 
+operan en escalas muy distintas: `violencia_total` varía en decenas de miles 
+mientras que `pct_casados` varía entre 0 y 100. Sin estandarizar, el modelo 
+daría más peso artificialmente a las variables con números más grandes. Además, 
+con las variables estandarizadas podemos comparar directamente los coeficientes 
+para saber cuál predictor tiene más peso relativo.
+
+```{r tabla-preprocesamiento}
+# Verificación del resultado del preprocesamiento
+datos_std %>%
+  dplyr::select(cod_depto, violencia_total_z, edad_prom_victima_z,
+                hijos_prom_z, pct_urbano_z, es_capital) %>%
+  arrange(cod_depto) %>%
+  mutate(across(where(is.numeric), ~ round(., 2))) %>%
+  kable(caption = "Variables estandarizadas listas para el modelo (primeras columnas)")
+```
+
+Los valores negativos indican departamentos por debajo del promedio nacional 
+en esa variable, y los positivos indican departamentos por encima. El 
+departamento de Guatemala (cod=1) aparece con valores muy altos en 
+`violencia_total_z`, lo que confirma visualmente que está muy por encima 
+de la media nacional.
