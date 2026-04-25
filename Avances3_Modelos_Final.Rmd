@@ -1,5 +1,5 @@
 ---
-title: "Avance 3_Modelos_Final"
+title: "Avance 3 — Modelos Predictivos"
 author:
   - Luis Pedro Lira (23669)
   - Fernando Rocha (23501)
@@ -10,31 +10,64 @@ date: "2026-04-25"
 output:
   pdf_document:
     latex_engine: xelatex
-editor_options:
-  markdown:
-    wrap: sentence
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(MASS)
+library(broom)
+library(knitr)
+library(ggplot2)
+library(gridExtra)
+
+# Evitar conflicto entre MASS y dplyr
+select <- dplyr::select
+filter <- dplyr::filter
+mutate <- dplyr::mutate
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r carga-datos}
+divorcios <- read_csv("Datos/divorcios_total.csv")
+violencia <- read_csv("Datos/violencia_total.csv")
 ```
 
-## Including Plots
+```{r limpieza-datos}
+violencia <- violencia %>%
+  mutate(
+    cod_depto         = floor(hec_deptomcpio / 100),
+    vic_edad_clean    = ifelse(vic_edad > 110, NA, vic_edad),
+    total_hijos_clean = ifelse(total_hijos == 99, NA, total_hijos)
+  )
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+divorcios <- divorcios %>%
+  mutate(cod_depto = DEPOCU)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r construccion-dataset}
+# Agregamos violencia por departamento
+vio_dep <- violencia %>%
+  filter(!is.na(cod_depto), cod_depto != 99) %>%
+  group_by(cod_depto) %>%
+  summarise(
+    violencia_total   = n(),
+    edad_prom_victima = mean(vic_edad_clean,    na.rm = TRUE),
+    hijos_prom        = mean(total_hijos_clean, na.rm = TRUE),
+    pct_mujeres       = mean(vic_sexo == 2,      na.rm = TRUE) * 100,
+    pct_urbano        = mean(hec_area == 1,       na.rm = TRUE) * 100,
+    pct_casados       = mean(vic_est_civ == 2,    na.rm = TRUE) * 100,
+    .groups = "drop"
+  )
+
+# Agregamos divorcios por departamento
+div_dep <- divorcios %>%
+  filter(!is.na(cod_depto), cod_depto != 99) %>%
+  group_by(cod_depto) %>%
+  summarise(casos_divorcio = n(), .groups = "drop")
+
+# Unimos y creamos la dummy para Guatemala capital
+datos_modelo <- vio_dep %>%
+  inner_join(div_dep, by = "cod_depto") %>%
+  mutate(es_capital = as.integer(cod_depto == 1))
+```
