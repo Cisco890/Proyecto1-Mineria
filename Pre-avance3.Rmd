@@ -1,0 +1,357 @@
+---
+title: "Pre — Avance 3: Modelos con un Algoritmo"
+author:
+  - Luis Pedro Lira (23669)
+  - Fernando Rocha (23501)
+  - Juan Francisco Martínez (23617)
+  - Luis Gilberto González (23353)
+  - Joel Antonio Jaquez (23369)
+date: "2026-04-24"
+output:
+  pdf_document:
+    latex_engine: xelatex
+editor_options:
+  markdown:
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+# IMPORTANTE: tidyverse PRIMERO, luego MASS
+# Así tidyverse pisa a MASS y select() de dplyr queda activo
+library(tidyverse)
+library(MASS)        # glm.nb() — carga DESPUÉS de tidyverse
+library(broom)       # tidy() para tablas de coeficientes
+library(knitr)
+library(ggplot2)
+library(gridExtra)
+
+# Resolver el conflicto explícitamente:
+# Forzar que select, filter y mutate sean siempre los de dplyr
+select <- dplyr::select
+filter <- dplyr::filter
+mutate <- dplyr::mutate
+```
+
+```{r carga-datos}
+# ── Cargar los datasets originales ──────────────────────────────────────────
+# Ajusta las rutas si tus CSV están en otra carpeta
+divorcios <- read_csv("Datos/divorcios_total.csv")
+violencia <- read_csv("Datos/violencia_total.csv")
+```
+
+```{r limpieza-datos}
+# ── Limpieza de violencia (igual que en proyecto1.Rmd) ──────────────────────
+violencia <- violencia %>%
+  mutate(
+    cod_depto        = floor(hec_deptomcpio / 100),
+    sexo_label       = case_when(vic_sexo == 1 ~ "Hombre",
+                                 vic_sexo == 2 ~ "Mujer",
+                                 TRUE ~ "Ignorado"),
+    vic_edad_clean   = ifelse(vic_edad > 110, NA, vic_edad),
+    total_hijos_clean = ifelse(total_hijos == 99, NA, total_hijos),
+    est_civ_label    = case_when(vic_est_civ == 1 ~ "Soltero(a)",
+                                 vic_est_civ == 2 ~ "Casado(a)",
+                                 vic_est_civ == 3 ~ "Unido(a)",
+                                 TRUE ~ "Ignorado"),
+    relacion_label   = case_when(vic_rel_agr == 1 ~ "Esposo/Conviviente",
+                                 vic_rel_agr == 2 ~ "Ex-Esposo/Ex-Pareja",
+                                 vic_rel_agr == 3 ~ "Padre/Madre",
+                                 vic_rel_agr == 4 ~ "Hijo(a)",
+                                 vic_rel_agr == 5 ~ "Hermano(a)",
+                                 TRUE ~ "Otro/No especificado")
+  )
+
+# Limpieza de divorcios (igual que en proyecto1.Rmd) 
+divorcios <- divorcios %>%
+  mutate(
+    cod_depto       = DEPOCU,
+    edad_hom_clean  = ifelse(EDADHOM > 110, NA, EDADHOM),
+    edad_muj_clean  = ifelse(EDADMUJ > 110, NA, EDADMUJ),
+    diferencia_edad = edad_hom_clean - edad_muj_clean
+  )
+```
+
+```{r construccion-dataset}
+# ── Construir dataset departamental final 
+vio_dep <- violencia %>%
+  filter(!is.na(cod_depto), cod_depto != 99) %>%
+  group_by(cod_depto) %>%
+  summarise(
+    violencia_total   = n(),
+    edad_prom_victima = mean(vic_edad_clean,     na.rm = TRUE),
+    hijos_prom        = mean(total_hijos_clean,  na.rm = TRUE),
+    pct_mujeres       = mean(vic_sexo == 2,       na.rm = TRUE) * 100,
+    pct_urbano        = mean(hec_area == 1,        na.rm = TRUE) * 100,
+    pct_casados       = mean(vic_est_civ == 2,     na.rm = TRUE) * 100,
+    .groups = "drop"
+  )
+
+div_dep <- divorcios %>%
+  filter(!is.na(cod_depto), cod_depto != 99) %>%
+  group_by(cod_depto) %>%
+  summarise(casos_divorcio = n(), .groups = "drop")
+
+# Unir y crear dummy para el outlier metropolitano
+datos_modelo <- vio_dep %>%
+  inner_join(div_dep, by = "cod_depto") %>%
+  mutate(
+    es_capital = as.integer(cod_depto == 1)  # 1 = Depto Guatemala, 0 = resto
+  )
+
+kable(
+  datos_modelo %>%
+    dplyr::select(cod_depto, violencia_total, casos_divorcio,
+                  es_capital, edad_prom_victima, hijos_prom,
+                  pct_mujeres, pct_urbano, pct_casados) %>%
+    arrange(cod_depto),
+  digits  = 1,
+  caption = "Dataset final: 22 departamentos con indicadores (2022)"
+)
+```
+
+El dataset agregado tiene **22 observaciones** (una por departamento),
+la variable respuesta `casos_divorcio` y siete variables explicativas,
+incluyendo la dummy `es_capital` para controlar el outlier de la capital
+sin eliminar esa observación del análisis.
+
+---
+
+# Avance 3: Modelos con un Algoritmo
+
+---
+
+## 1. Variable Respuesta
+
+La variable objetivo es **`casos_divorcio`**: número total de divorcios
+registrados por departamento en Guatemala durante el año 2022.
+Desde el punto de vista estadístico es una **variable cuantitativa discreta
+de conteo** (enteros ≥ 0), por lo que el problema se aborda como
+**regresión**, no clasificación.
+
+```{r stats-target}
+stats_div <- datos_modelo %>%
+  summarise(
+    Mínimo   = min(casos_divorcio),
+    Q1       = quantile(casos_divorcio, 0.25),
+    Mediana  = median(casos_divorcio),
+    Media    = round(mean(casos_divorcio), 0),
+    Q3       = quantile(casos_divorcio, 0.75),
+    Máximo   = max(casos_divorcio),
+    Varianza = round(var(casos_divorcio), 0)
+  )
+kable(stats_div,
+      caption = "Estadísticas descriptivas de la variable respuesta")
+```
+
+La varianza (`r format(round(var(datos_modelo$casos_divorcio)), big.mark = ",")`
+divorcios²) supera ampliamente a la media
+(`r round(mean(datos_modelo$casos_divorcio), 0)` divorcios),
+confirmando **sobredispersión severa** que invalida el modelo de Poisson
+estándar y fundamenta la elección de la
+**Regresión Binomial Negativa** (Miah et al., 2024).
+
+---
+
+## 2. Conjuntos de Entrenamiento y Prueba — Análisis de Atípicos
+
+### Estrategia de Validación: Leave-One-Out Cross-Validation (LOOCV)
+
+Con solo **22 observaciones**, un esquema 80/20 convencional dejaría
+únicamente 4 departamentos como prueba, generando estimaciones inestables
+del error de generalización.
+Se adopta **LOOCV**: en cada iteración se entrena con 21 departamentos
+y se predice el restante; el proceso se repite 22 veces.
+Esta estrategia fue seleccionada en el Avance 2 por ser la más adecuada
+dado el tamaño muestral reducido.
+
+Al ser la variable respuesta cuantitativa, **no aplica balance de clases**.
+En su lugar se analiza la presencia de atípicos de alta influencia:
+
+```{r analisis-atipicos, fig.height=3.5, fig.cap="Distancia de Cook por departamento. El Departamento de Guatemala (cod=1) es el único punto de alta influencia estructural, controlado mediante la dummy es_capital."}
+# Modelo diagnóstico para calcular Cook's Distance
+mod_diag <- MASS::glm.nb(
+  casos_divorcio ~ violencia_total + es_capital + edad_prom_victima,
+  data = datos_modelo
+)
+
+cook_d  <- cooks.distance(mod_diag)
+umbral  <- 4 / nrow(datos_modelo)
+
+datos_modelo <- datos_modelo %>%
+  mutate(
+    cook_dist    = cook_d,
+    es_influyente = cook_d > umbral
+  )
+
+ggplot(datos_modelo,
+       aes(x = reorder(factor(cod_depto), cook_dist),
+           y = cook_dist,
+           fill = es_influyente)) +
+  geom_col(alpha = 0.85) +
+  geom_hline(yintercept = umbral, color = "red",
+             linetype = "dashed", linewidth = 0.8) +
+  scale_fill_manual(
+    values = c("FALSE" = "#AED6F1", "TRUE" = "#E74C3C"),
+    labels = c("Normal", "Alta influencia"),
+    name   = ""
+  ) +
+  annotate("text", x = 3, y = umbral + 0.004,
+           label = paste0("Umbral 4/n = ", round(umbral, 3)),
+           color = "red", size = 3) +
+  labs(
+    title = "Distancia de Cook por departamento",
+    x = "Código de departamento", y = "Distancia de Cook"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 7))
+```
+
+El **Departamento de Guatemala (cod_depto = 1)** supera el umbral 4/n =
+`r round(umbral, 3)` de manera significativa.
+Con divorcios (`r max(datos_modelo$casos_divorcio[datos_modelo$cod_depto==1])`
+para la capital) entre 6 y 20 veces superiores al resto del país,
+actúa como punto de alta influencia.
+La estrategia adoptada en el Avance 2 consiste en **incluirlo con una
+variable dummy `es_capital`**, permitiendo al modelo aprender de él sin
+que distorsione los coeficientes del resto de departamentos.
+
+---
+
+## 3. Algoritmo y Preprocesamiento
+
+### Algoritmo: Regresión Binomial Negativa
+
+Conforme a la selección del Avance 2, el algoritmo principal es la
+**Regresión Binomial Negativa** (función `glm.nb` del paquete `MASS`).
+Fue elegido sobre los demás candidatos por:
+
+1. **Diseño específico para sobredispersión:** Incorpora el parámetro θ
+   que absorbe la variabilidad adicional que el modelo de Poisson no puede
+   manejar, evitando inflar artificialmente la significancia de los predictores.
+2. **Validación directa en la literatura:** Miah et al. (2024) demostraron
+   su superioridad sobre Poisson para conteos departamentales de divorcios,
+   el escenario exacto de este proyecto.
+3. **Adecuación al tamaño muestral:** Al ser paramétrico con pocos
+   coeficientes, es el menos propenso al sobreajuste con n = 22, a
+   diferencia de los modelos de ensemble (XGBoost, Random Forest).
+
+### Preprocesamiento Aplicado
+
+```{r preprocesamiento}
+vars_pred <- c("violencia_total", "edad_prom_victima", "hijos_prom",
+               "pct_mujeres", "pct_urbano", "pct_casados")
+
+# Estandarización Z-score de las predictoras numéricas
+# es_capital NO se estandariza (ya es binaria 0/1)
+datos_std <- datos_modelo %>%
+  mutate(across(all_of(vars_pred),
+                ~ as.numeric(scale(.)),
+                .names = "{.col}_z"))
+```
+
+Se aplicaron los siguientes pasos de preprocesamiento:
+
+**a) Recodificación de valores especiales:** Los códigos 99 y 999 del INE
+fueron convertidos a `NA` durante el EDA, eliminando distorsiones en
+estadísticas y correlaciones.
+
+**b) Exclusión del código departamental 99:** Registros sin asignación
+geográfica válida fueron excluidos del análisis agregado.
+
+**c) Construcción de la variable `es_capital`:** Dummy binaria (0/1) que
+identifica al Departamento de Guatemala, permitiendo al modelo diferenciar
+estructuralmente la capital sin eliminarla.
+
+**d) Estandarización Z-score:** Las predictoras numéricas se transforman a
+media = 0 y desviación estándar = 1. Esto es necesario porque las variables
+operan en escalas incomparables: `violencia_total` varía en decenas de
+miles mientras `pct_casados` varía de 0 a 100. La estandarización además
+permite comparar los coeficientes como medidas de importancia relativa.
+
+---
+
+## 4. Construcción de Modelos
+
+Se ajustan **cuatro modelos Binomial Negativa** variando la especificación
+de predictores, incluyendo un modelo con término de interacción que permite
+que el efecto de la violencia sobre los divorcios sea diferente en la capital
+respecto al interior del país.
+
+```{r funcion-loocv}
+loocv_nb <- function(formula, data) {
+  n   <- nrow(data)
+  sq  <- numeric(n)
+  ab  <- numeric(n)
+  for (i in seq_len(n)) {
+    fit   <- MASS::glm.nb(formula, data = data[-i, ])
+    pred  <- predict(fit, newdata = data[i, ], type = "response")
+    err   <- data$casos_divorcio[i] - pred
+    sq[i] <- err^2
+    ab[i] <- abs(err)
+  }
+  list(RMSE = sqrt(mean(sq)), MAE = mean(ab))
+}
+```
+
+```{r modelos}
+m1 <- MASS::glm.nb(
+  casos_divorcio ~ violencia_total_z + es_capital,
+  data = datos_std)
+
+m2 <- MASS::glm.nb(
+  casos_divorcio ~ violencia_total_z + es_capital +
+    edad_prom_victima_z + pct_urbano_z,
+  data = datos_std)
+
+m3 <- MASS::glm.nb(
+  casos_divorcio ~ violencia_total_z * es_capital +
+    edad_prom_victima_z + pct_urbano_z,
+  data = datos_std)
+
+m_final <- MASS::glm.nb(
+  casos_divorcio ~ violencia_total_z * es_capital +
+    edad_prom_victima_z + pct_urbano_z + hijos_prom_z,
+  data = datos_std)
+```
+
+**Modelo 1** es la línea base: solo violencia y la dummy de capital.
+
+**Modelo 2** agrega `edad_prom_victima` y `pct_urbano`, variables con
+justificación teórica directa del Avance 2.
+
+**Modelo 3** introduce un **término de interacción** `violencia × es_capital`,
+permitiendo que el efecto de la violencia sobre los divorcios sea diferente
+en la capital que en el interior. Esto es teóricamente relevante: en la
+capital, más acceso a juzgados y abogados puede amplificar esa relación.
+
+**Modelo Final** agrega `hijos_prom` al modelo de interacción, capturando
+si la presencia de hijos actúa como barrera o acelerador de la separación legal.
+
+```{r comparacion-modelos}
+cv1 <- loocv_nb(casos_divorcio ~ violencia_total_z + es_capital, datos_std)
+cv2 <- loocv_nb(casos_divorcio ~ violencia_total_z + es_capital +
+                  edad_prom_victima_z + pct_urbano_z, datos_std)
+cv3 <- loocv_nb(casos_divorcio ~ violencia_total_z * es_capital +
+                  edad_prom_victima_z + pct_urbano_z, datos_std)
+cvf <- loocv_nb(casos_divorcio ~ violencia_total_z * es_capital +
+                  edad_prom_victima_z + pct_urbano_z + hijos_prom_z, datos_std)
+
+comparacion <- tibble(
+  Modelo       = c("M1: Línea base", "M2: Base teórico",
+                   "M3: Interacción", "M-Final: Completo"),
+  `# Param.`   = c(2, 4, 5, 6),
+  AIC          = round(c(AIC(m1), AIC(m2), AIC(m3), AIC(m_final)), 1),
+  `Theta (θ)`  = round(c(m1$theta, m2$theta, m3$theta, m_final$theta), 2),
+  `RMSE LOOCV` = round(c(cv1$RMSE, cv2$RMSE, cv3$RMSE, cvf$RMSE), 0),
+  `MAE LOOCV`  = round(c(cv1$MAE,  cv2$MAE,  cv3$MAE,  cvf$MAE),  0)
+)
+
+kable(comparacion,
+      caption = paste("Comparación de modelos. MAE-LOOCV es la métrica",
+                      "principal: más robusta que RMSE ante el outlier",
+                      "del Departamento de Guatemala."))
+```
+
+---
