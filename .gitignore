@@ -18,3 +18,6 @@ outputs/models/*.joblib
 
 # OS
 .DS_Store
+
+#md files 
+ProyectoAV.md
