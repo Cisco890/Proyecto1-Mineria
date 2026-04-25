@@ -535,3 +535,135 @@ este efecto no es estadísticamente significativo (p = 0.178).
 **6 veces más** divorcios esperados que un departamento del interior con 
 el mismo nivel de violencia. Este sí es significativo (p = 0.008), lo que 
 confirma que ser la capital es el factor más determinante del modelo.
+------------------------------------------------------------------------------
+
+
+
+## 5. Discusión de Resultados
+
+Como el problema es de regresión, no aplica matriz de confusión. La métrica 
+principal que usamos es el **MAE (Mean Absolute Error)** porque es la más 
+fácil de interpretar en contexto: nos dice directamente cuántos divorcios 
+se equivoca el modelo en promedio por departamento, y es más robusta que 
+el RMSE ante el outlier de Alta Verapaz y Guatemala.
+
+```{r metricas-modelo-final}
+# Calculamos predicciones LOOCV del modelo final para métricas completas
+n      <- nrow(datos_std)
+real_v <- numeric(n)
+pred_v <- numeric(n)
+
+for (i in seq_len(n)) {
+  fit       <- MASS::glm.nb(
+    casos_divorcio ~ violencia_total_z + es_capital,
+    data = datos_std[-i, ]
+  )
+  pred_v[i] <- predict(fit, newdata = datos_std[i, ], type = "response")
+  real_v[i] <- datos_std$casos_divorcio[i]
+}
+
+mae_final  <- mean(abs(real_v - pred_v))
+rmse_final <- sqrt(mean((real_v - pred_v)^2))
+mape_final <- mean(abs((real_v - pred_v) / real_v)) * 100
+
+metricas_tbl <- tibble(
+  Métrica     = c("MAE", "RMSE", "MAPE (%)"),
+  Valor       = round(c(mae_final, rmse_final, mape_final), 1),
+  Descripción = c(
+    "Error promedio en número de divorcios — métrica principal",
+    "Error cuadrático medio — penaliza más los errores grandes",
+    "Error porcentual promedio — independiente de la escala"
+  )
+)
+
+kable(metricas_tbl,
+      caption = "Métricas de error del Modelo Final (validación LOOCV).")
+```
+
+El modelo se equivoca en promedio **`r round(mae_final, 0)` divorcios** por 
+departamento. Para ponerlo en contexto: la mediana de divorcios por 
+departamento es 1,954, así que el error representa aproximadamente un 
+**`r round(mae_final/median(datos_modelo$casos_divorcio)*100, 0)`%** del 
+caso típico. El RMSE es bastante más alto que el MAE, lo que confirma que 
+hay algunos departamentos donde el modelo se equivoca mucho más que en 
+otros — principalmente Alta Verapaz y los departamentos con proporciones 
+inusuales de violencia vs. divorcios.
+
+### Residuales del Modelo Final
+
+```{r residuales, fig.height=4, fig.cap="Diagnóstico de residuales del modelo final. Izquierda: residuales vs. valores ajustados — idealmente los puntos deben estar dispersos alrededor del cero sin patrón. Derecha: Q-Q plot — los puntos deben seguir la línea roja."}
+datos_std <- datos_std %>%
+  mutate(
+    res_pearson = residuals(m1, type = "pearson"),
+    pred_m1_fit = fitted(m1)
+  )
+
+p_res <- ggplot(datos_std,
+                aes(x = pred_m1_fit, y = res_pearson,
+                    color = factor(es_capital))) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  geom_hline(yintercept = c(-2, 2), linetype = "dotted",
+             color = "orange", linewidth = 0.7) +
+  geom_point(size = 2.5, alpha = 0.85) +
+  scale_color_manual(values = c("0" = "#2E86C1", "1" = "#E74C3C"),
+                     labels  = c("Interior", "Capital"), name = "") +
+  labs(title = "Residuales de Pearson vs. ajustados",
+       x = "Valores ajustados", y = "Residual de Pearson") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+p_qq <- ggplot(datos_std, aes(sample = res_pearson)) +
+  stat_qq(color = "#2E86C1") +
+  stat_qq_line(color = "red", linetype = "dashed") +
+  labs(title = "Q-Q plot de residuales",
+       x = "Cuantiles teóricos", y = "Cuantiles observados") +
+  theme_minimal()
+
+grid.arrange(p_res, p_qq, ncol = 2)
+```
+
+```{r grafico-final-pred, fig.height=3.5, fig.cap="Valores reales vs. predichos del modelo final. La línea discontinua representa predicción perfecta."}
+ggplot(datos_std,
+       aes(x = pred_m1, y = casos_divorcio,
+           color = factor(es_capital))) +
+  geom_abline(slope = 1, intercept = 0,
+              linetype = "dashed", color = "gray50", linewidth = 0.8) +
+  geom_point(size = 3, alpha = 0.85) +
+  scale_color_manual(values = c("0" = "#2E86C1", "1" = "#E74C3C"),
+                     labels  = c("Interior", "Capital"), name = "") +
+  labs(title = "Real vs. Predicho — Modelo Final (M1)",
+       x = "Divorcios predichos", y = "Divorcios reales") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+### Interpretación general
+
+Los residuales de Pearson muestran que la mayoría de departamentos quedan 
+dentro del rango ±2, lo que indica un ajuste razonable dado el tamaño del 
+dataset. Los departamentos que se salen de ese rango son los que tienen 
+proporciones inusuales de violencia vs. divorcios — principalmente Alta 
+Verapaz, donde las barreras culturales e institucionales generan muchos más 
+casos de violencia de los que se traducen en divorcios formales.
+
+El Q-Q plot muestra que los residuales siguen aproximadamente una distribución 
+normal en el centro, con algunas desviaciones en los extremos. Esto es esperado 
+con n=22 y un outlier tan marcado como el que tenemos.
+
+En términos generales, el modelo captura bien la relación principal: los 
+departamentos con más violencia tienden a tener más divorcios, y la capital 
+tiene un nivel estructuralmente diferente al resto. Lo que el modelo no puede 
+capturar con solo 2 predictores y 22 observaciones son los factores 
+específicos de cada departamento — acceso a juzgados, barreras culturales, 
+nivel económico — que también influyen en cuántos divorcios se formalizan.
+
+### Limitaciones
+
+- **n=22** es un tamaño muestral muy pequeño para sacar conclusiones sólidas. 
+Con datos municipales o de varios años, el modelo sería mucho más robusto.
+- La variable respuesta no está normalizada por población, por lo que parte 
+del efecto capturado puede reflejar simplemente que algunos departamentos 
+tienen más habitantes que otros.
+- Los resultados muestran **asociación**, no causalidad. Que haya más violencia 
+y más divorcios en un departamento no significa que uno cause al otro 
+directamente.

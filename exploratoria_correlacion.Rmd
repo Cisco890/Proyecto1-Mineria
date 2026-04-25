@@ -1,0 +1,172 @@
+---
+title: "Exploratoria — Matriz de Correlación (borrador)"
+date: "2026-04-25"
+output:
+  pdf_document:
+    latex_engine: xelatex
+editor_options:
+  markdown:
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(MASS)
+library(knitr)
+library(ggplot2)
+library(reshape2)   # melt() para el heatmap
+
+select <- dplyr::select
+filter <- dplyr::filter
+mutate <- dplyr::mutate
+```
+
+```{r carga-y-construccion, include=FALSE}
+divorcios <- read_csv("Datos/divorcios_total.csv")
+violencia <- read_csv("Datos/violencia_total.csv")
+
+violencia <- violencia %>%
+  mutate(
+    cod_depto         = floor(hec_deptomcpio / 100),
+    vic_edad_clean    = ifelse(vic_edad > 110, NA, vic_edad),
+    total_hijos_clean = ifelse(total_hijos == 99, NA, total_hijos)
+  )
+
+divorcios <- divorcios %>%
+  mutate(cod_depto = DEPOCU)
+
+vio_dep <- violencia %>%
+  filter(!is.na(cod_depto), cod_depto != 99) %>%
+  group_by(cod_depto) %>%
+  summarise(
+    violencia_total   = n(),
+    edad_prom_victima = mean(vic_edad_clean,    na.rm = TRUE),
+    hijos_prom        = mean(total_hijos_clean, na.rm = TRUE),
+    pct_mujeres       = mean(vic_sexo == 2,      na.rm = TRUE) * 100,
+    pct_urbano        = mean(hec_area == 1,       na.rm = TRUE) * 100,
+    pct_casados       = mean(vic_est_civ == 2,    na.rm = TRUE) * 100,
+    .groups = "drop"
+  )
+
+div_dep <- divorcios %>%
+  filter(!is.na(cod_depto), cod_depto != 99) %>%
+  group_by(cod_depto) %>%
+  summarise(casos_divorcio = n(), .groups = "drop")
+
+datos_modelo <- vio_dep %>%
+  inner_join(div_dep, by = "cod_depto") %>%
+  mutate(es_capital = as.integer(cod_depto == 1))
+```
+
+# Matriz de Correlación — Variables del Modelo
+
+## Dataset completo (22 departamentos)
+
+```{r cor-completa, fig.height=5.5, fig.width=6.5, fig.cap="Correlaciones de Pearson entre todas las variables del modelo (n = 22 departamentos). La diagonal muestra el nombre de cada variable."}
+vars_cor <- c("casos_divorcio", "violencia_total", "edad_prom_victima",
+              "hijos_prom", "pct_mujeres", "pct_urbano", "pct_casados")
+
+mat_cor <- cor(datos_modelo[, vars_cor], use = "pairwise.complete.obs")
+
+# Tabla numérica
+kable(round(mat_cor, 2),
+      caption = "Matriz de correlación de Pearson (dataset completo, n = 22)")
+```
+
+```{r heatmap-completo, fig.height=5, fig.width=6, fig.cap="Heatmap de correlaciones — dataset completo. Azul intenso = correlación positiva fuerte; rojo intenso = correlación negativa fuerte."}
+mat_melt <- melt(mat_cor)
+
+ggplot(mat_melt, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile(color = "white", linewidth = 0.5) +
+  geom_text(aes(label = round(value, 2)), size = 3, color = "black") +
+  scale_fill_gradient2(
+    low      = "#C0392B",
+    mid      = "white",
+    high     = "#2980B9",
+    midpoint = 0,
+    limits   = c(-1, 1),
+    name     = "Pearson r"
+  ) +
+  labs(
+    title    = "Correlaciones de Pearson (n = 22 departamentos)",
+    x = NULL, y = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x  = element_text(angle = 35, hjust = 1, size = 8),
+    axis.text.y  = element_text(size = 8),
+    plot.title   = element_text(size = 11, face = "bold")
+  )
+```
+
+---
+
+## Sin el Departamento de Guatemala (21 departamentos)
+
+Para evaluar cuánto influye la capital en las correlaciones, repetimos el
+análisis excluyendo ese departamento.
+
+```{r cor-sin-capital, fig.height=5, fig.width=6, fig.cap="Heatmap de correlaciones sin el Departamento de Guatemala (n = 21). Permite ver las relaciones reales en el interior del país."}
+datos_sin_cap <- datos_modelo %>% filter(cod_depto != 1)
+
+mat_cor2 <- cor(datos_sin_cap[, vars_cor], use = "pairwise.complete.obs")
+
+kable(round(mat_cor2, 2),
+      caption = "Matriz de correlación de Pearson (sin Guatemala, n = 21)")
+```
+
+```{r heatmap-sin-capital, fig.height=5, fig.width=6, fig.cap="Heatmap sin la capital."}
+mat_melt2 <- melt(mat_cor2)
+
+ggplot(mat_melt2, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile(color = "white", linewidth = 0.5) +
+  geom_text(aes(label = round(value, 2)), size = 3, color = "black") +
+  scale_fill_gradient2(
+    low      = "#C0392B",
+    mid      = "white",
+    high     = "#2980B9",
+    midpoint = 0,
+    limits   = c(-1, 1),
+    name     = "Pearson r"
+  ) +
+  labs(
+    title = "Correlaciones de Pearson (sin Depto. Guatemala, n = 21)",
+    x = NULL, y = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x  = element_text(angle = 35, hjust = 1, size = 8),
+    axis.text.y  = element_text(size = 8),
+    plot.title   = element_text(size = 11, face = "bold")
+  )
+```
+
+---
+
+## Comparación directa de correlaciones con `casos_divorcio`
+
+```{r comparacion-cor, fig.height=3.5, fig.cap="Correlación de cada predictor con casos_divorcio: dataset completo (azul) vs. sin Guatemala (naranja). Muestra cuánto depende la correlación de ese único departamento."}
+comp_cor <- tibble(
+  Variable    = vars_cor[-1],
+  Completo    = mat_cor["casos_divorcio",  vars_cor[-1]],
+  Sin_capital = mat_cor2["casos_divorcio", vars_cor[-1]]
+) %>%
+  pivot_longer(-Variable, names_to = "Dataset", values_to = "r")
+
+ggplot(comp_cor, aes(x = reorder(Variable, abs(r)), y = r, fill = Dataset)) +
+  geom_col(position = "dodge", alpha = 0.85, width = 0.6) +
+  geom_hline(yintercept = 0, color = "black", linewidth = 0.4) +
+  scale_fill_manual(
+    values = c("Completo" = "#2980B9", "Sin_capital" = "#E67E22"),
+    labels = c("Con Guatemala (n=22)", "Sin Guatemala (n=21)")
+  ) +
+  coord_flip() +
+  labs(
+    title = "Correlación con casos_divorcio por predictor",
+    x = NULL, y = "Pearson r", fill = NULL
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 10, face = "bold"))
+```
