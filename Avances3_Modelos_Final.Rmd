@@ -212,7 +212,7 @@ El **departamento de Guatemala (código 01)** no aparece como el más influyente
 porque la variable `es_capital` ya lo identifica explícitamente — el modelo 
 sabe que es estructuralmente diferente al resto, por lo que su efecto queda 
 absorbido por esa dummy en lugar de distorsionar los demás coeficientes.
-
+-------------------------------------------------------------------------------
 
 ## 3. Algoritmo y Preprocesamiento
 
@@ -287,3 +287,251 @@ en esa variable, y los positivos indican departamentos por encima. El
 departamento de Guatemala (cod=1) aparece con valores muy altos en 
 `violencia_total_z`, lo que confirma visualmente que está muy por encima 
 de la media nacional.
+--------------------------------------------------------------------------------
+
+## 4. Construcción de Modelos
+
+```{r funcion-loocv}
+# LOOCV: entrena con n-1 departamentos y predice el restante, 22 veces
+# Devuelve RMSE y MAE — usamos MAE como métrica principal porque
+# es más robusta ante el outlier de Alta Verapaz y Guatemala
+loocv_nb <- function(formula, data) {
+  n   <- nrow(data)
+  sq  <- numeric(n)
+  ab  <- numeric(n)
+  for (i in seq_len(n)) {
+    fit   <- MASS::glm.nb(formula, data = data[-i, ])
+    pred  <- predict(fit, newdata = data[i, ], type = "response")
+    err   <- data$casos_divorcio[i] - pred
+    sq[i] <- err^2
+    ab[i] <- abs(err)
+  }
+  list(RMSE = sqrt(mean(sq)), MAE = mean(ab))
+}
+```
+
+```{r modelos}
+# Modelo 1: solo violencia + dummy capital (línea base)
+m1 <- MASS::glm.nb(
+  casos_divorcio ~ violencia_total_z + es_capital,
+  data = datos_std)
+
+# Modelo 2: agrega edad promedio de víctima y proporción urbana
+m2 <- MASS::glm.nb(
+  casos_divorcio ~ violencia_total_z + es_capital +
+    edad_prom_victima_z + pct_urbano_z,
+  data = datos_std)
+
+# Modelo 3: interacción violencia x capital
+# Permite que el efecto de la violencia sea distinto en la capital
+m3 <- MASS::glm.nb(
+  casos_divorcio ~ violencia_total_z * es_capital +
+    edad_prom_victima_z + pct_urbano_z,
+  data = datos_std)
+
+# Modelo Final: interacción + hijos promedio
+m_final <- MASS::glm.nb(
+  casos_divorcio ~ violencia_total_z * es_capital +
+    edad_prom_victima_z + pct_urbano_z + hijos_prom_z,
+  data = datos_std)
+```
+
+Se construyeron cuatro modelos variando los predictores incluidos:
+
+**Modelo 1 (línea base):** Solo usa `violencia_total` y `es_capital`. Es el 
+punto de partida aquí los modelos más complejos no lo superan, significa que 
+agregar variables no ayuda con estos datos.
+
+**Modelo 2:** Agrega `edad_prom_victima` y `pct_urbano`. La edad promedio 
+refleja en qué etapa de vida ocurren las rupturas, y el porcentaje urbano 
+captura el acceso a juzgados y servicios legales para formalizar el divorcio.
+
+**Modelo 3:** Introduce un **término de interacción** entre violencia y la 
+dummy de capital. La lógica es que en Guatemala ciudad, donde hay más juzgados 
+y abogados disponibles, un caso adicional de violencia puede traducirse más 
+fácilmente en un divorcio que en un departamento rural con poco acceso 
+institucional.
+
+**Modelo Final:** Agrega `hijos_prom` al modelo de interacción. El número 
+de hijos puede actuar como freno o acelerador de la decisión de divorciarse — 
+en algunos contextos los hijos retienen la separación legal, en otros la 
+aceleran por razones de custodia.
+
+```{r comparacion-modelos}
+cv1 <- loocv_nb(casos_divorcio ~ violencia_total_z + es_capital, datos_std)
+cv2 <- loocv_nb(casos_divorcio ~ violencia_total_z + es_capital +
+                  edad_prom_victima_z + pct_urbano_z, datos_std)
+cv3 <- loocv_nb(casos_divorcio ~ violencia_total_z * es_capital +
+                  edad_prom_victima_z + pct_urbano_z, datos_std)
+cvf <- loocv_nb(casos_divorcio ~ violencia_total_z * es_capital +
+                  edad_prom_victima_z + pct_urbano_z + hijos_prom_z, datos_std)
+
+comparacion <- tibble(
+  Modelo       = c("M1: Línea base", "M2: + edad y urbano",
+                   "M3: Interacción", "M-Final: Interacción + hijos"),
+  `Predictores` = c(2, 4, 5, 6),
+  AIC          = round(c(AIC(m1), AIC(m2), AIC(m3), AIC(m_final)), 1),
+  `Theta (θ)`  = round(c(m1$theta, m2$theta, m3$theta, m_final$theta), 2),
+  `RMSE LOOCV` = round(c(cv1$RMSE, cv2$RMSE, cv3$RMSE, cvf$RMSE), 0),
+  `MAE LOOCV`  = round(c(cv1$MAE,  cv2$MAE,  cv3$MAE,  cvf$MAE),  0)
+)
+
+kable(comparacion,
+      caption = paste("Comparación de los cuatro modelos.",
+                      "MAE-LOOCV es la métrica principal de selección.",
+                      "AIC penaliza la complejidad innecesaria."))
+```
+La tabla confirma que el **Modelo 1 (línea base)** gana en ambas métricas: 
+tiene el AIC más bajo (368.8) y el MAE-LOOCV más bajo (1,854 divorcios). 
+Los modelos M2, M3 y M-Final tienen AIC y MAE más altos a pesar de incluir 
+más predictores, lo que indica que esas variables adicionales no están 
+aportando información útil, al contrario solo están consumiendo grados de libertad que 
+con 22 observaciones son muy escasos. Vale la pena notar también que M2 y M3 
+obtienen exactamente los mismos valores (AIC=372.6, MAE=1,957), lo que 
+sugiere que el término de interacción `violencia × capital` no agrega nada 
+sobre simplemente incluir ambas variables por separado. El modelo más 
+complejo (M-Final) es el peor de los cuatro, confirmando el sobreajuste 
+que anticipamos en el Avance 2.
+
+```{r grafico-comparacion, fig.height=3.5, fig.cap="AIC y MAE-LOOCV por modelo. El modelo con menores valores en ambas métricas es el seleccionado."}
+comp_long <- comparacion %>%
+  dplyr::select(Modelo, AIC, `MAE LOOCV`) %>%
+  pivot_longer(-Modelo, names_to = "Métrica", values_to = "Valor") %>%
+  mutate(Modelo = factor(Modelo, levels = comparacion$Modelo))
+
+ggplot(comp_long, aes(x = Modelo, y = Valor, fill = Modelo)) +
+  geom_col(alpha = 0.85) +
+  facet_wrap(~ Métrica, scales = "free_y") +
+  scale_fill_manual(values = c("#AED6F1","#5DADE2","#1A5276","#2ECC71")) +
+  labs(title = "Comparación de modelos: AIC y MAE-LOOCV",
+       x = NULL, y = "Valor") +
+  theme_minimal() +
+  theme(axis.text.x  = element_text(angle = 35, hjust = 1, size = 7),
+        legend.position = "none")
+```
+La gráfica hace visible lo que los números de la tabla ya decían de que las 
+diferencias entre modelos son pequeñas pero consistentes. En el panel de 
+AIC, la barra verde (M-Final) es la más alta y el peor ajuste penalizado 
+por complejidad. En el panel de MAE-LOOCV, la barra azul clara (M1) es 
+claramente la más baja, confirmando que predice mejor cuando se prueba 
+fuera de muestra. El hecho de que las barras sean tan similares en altura 
+también nos dice algo importante y es que con n=22, los modelos no tienen suficiente 
+información para diferenciarse mucho entre sí. En ese escenario, siempre 
+es mejor quedarse con el más simple que tiene menos riesgo de sobreajuste y más 
+fácil de interpretar.
+
+### Predicciones vs. valores reales por modelo
+
+```{r pred-modelos, fig.height=5, fig.cap="Valores reales contra predichos para cada modelo. La línea discontinua representa predicción perfecta. Puntos más cercanos a ella indican mejor ajuste."}
+# Generamos predicciones de cada modelo sobre los datos de entrenamiento
+datos_std <- datos_std %>%
+  mutate(
+    pred_m1    = predict(m1,     type = "response"),
+    pred_m2    = predict(m2,     type = "response"),
+    pred_m3    = predict(m3,     type = "response"),
+    pred_final = predict(m_final, type = "response")
+  )
+
+# Apilamos para graficar en facetas
+preds_long <- datos_std %>%
+  dplyr::select(cod_depto, casos_divorcio, es_capital,
+                pred_m1, pred_m2, pred_m3, pred_final) %>%
+  pivot_longer(cols = starts_with("pred_"),
+               names_to = "modelo", values_to = "predicho") %>%
+  mutate(modelo = recode(modelo,
+    "pred_m1"    = "M1: Línea base",
+    "pred_m2"    = "M2: + edad y urbano",
+    "pred_m3"    = "M3: Interacción",
+    "pred_final" = "M-Final: Interacción + hijos"
+  ))
+
+ggplot(preds_long,
+       aes(x = predicho, y = casos_divorcio,
+           color = factor(es_capital))) +
+  geom_abline(slope = 1, intercept = 0,
+              linetype = "dashed", color = "gray50") +
+  geom_point(size = 2.5, alpha = 0.85) +
+  scale_color_manual(values = c("0" = "#2E86C1", "1" = "#E74C3C"),
+                     labels  = c("Interior", "Capital"),
+                     name    = "") +
+  facet_wrap(~ modelo, scales = "free") +
+  labs(title = "Real vs. Predicho — los cuatro modelos",
+       x = "Divorcios predichos", y = "Divorcios reales") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        strip.text = element_text(size = 7))
+```
+En los cuatro paneles se ve el mismo patrón: los puntos azules (departamentos 
+del interior) se agrupan cerca del origen y están relativamente cerca de la 
+línea de predicción perfecta, mientras que el punto rojo (Guatemala capital) 
+aparece arriba a la derecha, alejado del grupo. Que el punto rojo esté tan 
+cerca de la línea discontinua en todos los modelos confirma que la dummy 
+`es_capital` está funcionando bien y el modelo logra predecir a Guatemala 
+con bastante precisión precisamente porque tiene esa variable que la 
+identifica como un caso aparte. El reto real está en los departamentos del 
+interior es que aunque visualmente parecen agrupados y cercanos a la línea, hay 
+varios que se alejan, especialmente Alta Verapaz (el punto más influyente 
+según Cook's distance), cuya combinación de alta violencia y pocos divorcios 
+sigue siendo difícil de predecir para cualquiera de los cuatro modelos.
+
+### Selección del Modelo Final
+
+```{r seleccion-final}
+kable(
+  comparacion %>%
+    mutate(
+      `Mejor AIC` = ifelse(AIC == min(AIC), "✓", ""),
+      `Mejor MAE` = ifelse(`MAE LOOCV` == min(`MAE LOOCV`), "✓", "")
+    ),
+  caption = "El modelo ganador es el que tiene ✓ en ambas columnas."
+)
+```
+
+El modelo ganador es el **M1: Línea base**, con el menor AIC y el menor 
+MAE-LOOCV. Esto puede parecer sorprendente, pero tiene una explicación 
+clara: con solo 22 observaciones, cada predictor adicional consume grados 
+de libertad valiosos. Los modelos M2, M3 y M-Final agregan complejidad 
+que los datos no tienen suficiente información para sostener, resultando 
+en peor generalización según el LOOCV. Este fenómeno es exactamente el 
+**sobreajuste** que advertimos en el Avance 2 como riesgo principal de 
+trabajar con n=22.
+
+El modelo final queda definido como:
+
+$$\log(\hat{\mu}) = \beta_0 + \beta_1 \cdot \text{violencia\_total\_z} + \beta_2 \cdot \text{es\_capital}$$
+
+Con θ = `r round(m1$theta, 2)` como parámetro de dispersión estimado.
+
+Los parámetros estimados del modelo final son:
+
+```{r coef-final}
+broom::tidy(m1, exponentiate = TRUE, conf.int = TRUE) %>%
+  mutate(
+    term = recode(term,
+      "(Intercept)"       = "Intercepto",
+      "violencia_total_z" = "Violencia total (estand.)",
+      "es_capital"        = "Es capital (dummy)"
+    )
+  ) %>%
+  dplyr::select(
+    Variable = term,
+    IRR      = estimate,
+    `IC 95% Inf` = conf.low,
+    `IC 95% Sup` = conf.high,
+    `p-valor`    = p.value
+  ) %>%
+  mutate(across(where(is.numeric), ~ round(., 3))) %>%
+  kable(caption = "Coeficientes del Modelo Final (M1) expresados como IRR.")
+```
+
+Un IRR mayor a 1 significa que esa variable aumenta el número esperado de 
+divorcios, y menor a 1 que lo reduce. Con los resultados del modelo:
+
+- **Violencia total (IRR = 1.214):** un departamento con una desviación 
+estándar más de violencia tiene un 21.4% más de divorcios esperados, aunque 
+este efecto no es estadísticamente significativo (p = 0.178).
+
+- **Es capital (IRR = 5.944):** el Departamento de Guatemala tiene casi 
+**6 veces más** divorcios esperados que un departamento del interior con 
+el mismo nivel de violencia. Este sí es significativo (p = 0.008), lo que 
+confirma que ser la capital es el factor más determinante del modelo.
