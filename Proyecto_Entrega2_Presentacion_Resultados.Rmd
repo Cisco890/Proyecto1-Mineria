@@ -590,3 +590,194 @@ stopifnot(exists("diagnostico_nb"))
 stopifnot(nrow(metricas_nb) >= 3)
 cat("Binomial Negativa OK — modelo final:", mejor_nb_nombre, "\n")
 ```
+
+## Modelo de referencia: Regresión Poisson
+
+La Regresión Poisson se incluye como modelo de referencia por ser el punto de partida estadístico natural para variables de conteo. Sin embargo, la razón de dispersión obtenida confirma la presencia de sobredispersión severa, lo que viola el supuesto central de Poisson (igualdad entre media y varianza). Sus resultados se interpretan únicamente como línea base frente al modelo principal de Regresión Binomial Negativa, que parametriza explícitamente esta sobredispersión.
+
+Esta sección no representa un cuarto algoritmo seleccionado en el proceso de modelado, sino una referencia estadística que fundamenta empíricamente la elección de la Binomial Negativa como modelo principal.
+
+```{r pois-verificacion-inicial}
+objetos_requeridos_pois <- c(
+  "datos_modelo", "calcular_metricas", "metricas_nb", "modelo_nb_final"
+)
+
+for (obj in objetos_requeridos_pois) {
+  if (!exists(obj)) {
+    stop(paste("Debe ejecutarse primero el paso 01. Falta:", obj))
+  }
+}
+```
+
+```{r pois-formulas}
+formula_pois_1 <- casos_divorcio ~ casos_violencia_z + es_capital
+
+formula_pois_2 <- casos_divorcio ~ casos_violencia_z + es_capital + porc_urbano_z
+
+formula_pois_3 <- casos_divorcio ~ casos_violencia_z * es_capital
+
+formula_pois_4 <- casos_divorcio ~ casos_violencia_z + es_capital +
+                  porc_urbano_z + edad_victima_prom_z
+```
+
+Se definen exactamente las mismas cuatro fórmulas utilizadas en la Binomial Negativa. Esto garantiza que cualquier diferencia en las métricas se atribuye exclusivamente a la familia distribucional y no a cambios en la especificación del modelo.
+
+```{r pois-ajuste-modelos}
+modelo_pois_1 <- glm(formula_pois_1, data = datos_modelo, family = poisson(link = "log"))
+modelo_pois_2 <- glm(formula_pois_2, data = datos_modelo, family = poisson(link = "log"))
+modelo_pois_3 <- glm(formula_pois_3, data = datos_modelo, family = poisson(link = "log"))
+modelo_pois_4 <- glm(formula_pois_4, data = datos_modelo, family = poisson(link = "log"))
+```
+
+Se ajustan los cuatro modelos Poisson sobre el dataset completo. Estos objetos se usan para calcular AIC, BIC y la razón de dispersión de Pearson.
+
+```{r pois-dispersion}
+calcular_dispersion_poisson <- function(modelo) {
+  sum(residuals(modelo, type = "pearson")^2) / modelo$df.residual
+}
+
+dispersion_poisson <- tibble(
+  modelo     = c("POIS_1", "POIS_2", "POIS_3", "POIS_4"),
+  dispersion = c(
+    calcular_dispersion_poisson(modelo_pois_1),
+    calcular_dispersion_poisson(modelo_pois_2),
+    calcular_dispersion_poisson(modelo_pois_3),
+    calcular_dispersion_poisson(modelo_pois_4)
+  )
+)
+
+dispersion_poisson %>%
+  kable(digits = 3, caption = "Razón de dispersión en modelos Poisson")
+```
+
+La razón de dispersión de Pearson mide cuántas veces más variable son los datos respecto a lo que Poisson predice. Un valor igual a 1 indica ajuste perfecto; valores sustancialmente mayores a 1 evidencian sobredispersión. Cuando existe sobredispersión, Poisson subestima los errores estándar y produce intervalos de confianza demasiado estrechos, lo que infla artificialmente la significancia estadística de los coeficientes. Esto refuerza la elección de la Regresión Binomial Negativa como modelo principal, ya que esta familia parametriza explícitamente la sobredispersión mediante el parámetro θ.
+
+```{r pois-loocv-funcion}
+loo_poisson <- function(formula_modelo, datos) {
+  n <- nrow(datos)
+  predicciones <- numeric(n)
+
+  for (i in seq_len(n)) {
+    entrenamiento   <- datos[-i, , drop = FALSE]
+    prueba          <- datos[i, , drop = FALSE]
+    modelo          <- glm(formula_modelo, data = entrenamiento, family = poisson(link = "log"))
+    predicciones[i] <- predict(modelo, newdata = prueba, type = "response")
+  }
+
+  list(
+    metricas     = calcular_metricas(datos$casos_divorcio, predicciones),
+    predicciones = predicciones
+  )
+}
+```
+
+Se define la función `loo_poisson` con la misma estructura que `loo_nb`. En cada iteración entrena con 21 departamentos y predice el restante, devolviendo las métricas MAE, RMSE y MAPE junto con el vector de predicciones.
+
+```{r pois-loocv-ejecucion}
+loo_pois_1 <- loo_poisson(formula_pois_1, datos_modelo)
+loo_pois_2 <- loo_poisson(formula_pois_2, datos_modelo)
+loo_pois_3 <- loo_poisson(formula_pois_3, datos_modelo)
+loo_pois_4 <- loo_poisson(formula_pois_4, datos_modelo)
+
+pred_loo_pois <- list(
+  POIS_1 = loo_pois_1$predicciones,
+  POIS_2 = loo_pois_2$predicciones,
+  POIS_3 = loo_pois_3$predicciones,
+  POIS_4 = loo_pois_4$predicciones
+)
+```
+
+Se corre LOOCV para cada variante Poisson. Las predicciones se almacenan en la lista `pred_loo_pois` para uso en la comparación final entre algoritmos.
+
+```{r pois-metricas}
+metricas_poisson <- bind_rows(
+  loo_pois_1$metricas %>% mutate(modelo = "POIS_1", formula = deparse(formula_pois_1)),
+  loo_pois_2$metricas %>% mutate(modelo = "POIS_2", formula = deparse(formula_pois_2)),
+  loo_pois_3$metricas %>% mutate(modelo = "POIS_3", formula = deparse(formula_pois_3)),
+  loo_pois_4$metricas %>% mutate(modelo = "POIS_4", formula = deparse(formula_pois_4))
+) %>%
+  mutate(
+    AIC        = c(AIC(modelo_pois_1), AIC(modelo_pois_2), AIC(modelo_pois_3), AIC(modelo_pois_4)),
+    BIC        = c(BIC(modelo_pois_1), BIC(modelo_pois_2), BIC(modelo_pois_3), BIC(modelo_pois_4)),
+    dispersion = dispersion_poisson$dispersion,
+    algoritmo  = "Regresión Poisson",
+    rol        = "Referencia"
+  ) %>%
+  select(algoritmo, rol, modelo, formula, AIC, BIC, dispersion, MAE, RMSE, MAPE)
+
+metricas_poisson %>%
+  arrange(MAE, RMSE, AIC) %>%
+  kable(digits = 3, caption = "Comparación de modelos Poisson")
+```
+
+La tabla compara las cuatro variantes del modelo Poisson ordenadas de menor a mayor MAE bajo LOOCV. La columna `dispersion` confirma sobredispersión severa en todos los modelos. Los valores de AIC y BIC de Poisson son considerablemente más altos que los de la Binomial Negativa, lo que cuantifica el costo de ignorar la sobredispersión en términos de ajuste del modelo. El modelo con mejor desempeño predictivo según el LOOCV se selecciona como referencia final.
+
+```{r pois-modelo-final}
+mejor_pois_nombre <- metricas_poisson %>%
+  arrange(MAE, RMSE, AIC) %>%
+  slice(1) %>%
+  pull(modelo)
+
+modelo_poisson_final <- switch(
+  mejor_pois_nombre,
+  "POIS_1" = modelo_pois_1,
+  "POIS_2" = modelo_pois_2,
+  "POIS_3" = modelo_pois_3,
+  "POIS_4" = modelo_pois_4
+)
+
+pred_poisson_final     <- predict(modelo_poisson_final, newdata = datos_modelo, type = "response")
+metricas_poisson_final <- calcular_metricas(datos_modelo$casos_divorcio, pred_poisson_final)
+```
+
+```{r pois-diagnostico}
+diagnostico_poisson <- datos_modelo %>%
+  select(cod_depto, casos_divorcio) %>%
+  mutate(
+    pred_poisson            = pred_poisson_final,
+    residuo_pearson_poisson = residuals(modelo_poisson_final, type = "pearson")
+  )
+
+diagnostico_poisson %>%
+  kable(digits = 3, caption = "Diagnóstico del modelo Poisson de referencia")
+```
+
+La tabla de diagnóstico presenta las predicciones del modelo Poisson de referencia y sus residuales de Pearson por departamento. Valores fuera del rango ±2 indican observaciones que el modelo no puede ajustar correctamente. Comparar estos residuales con los de la Binomial Negativa permite visualizar directamente el efecto de la sobredispersión: bajo Poisson, los residuales tienden a ser más extremos y con mayor dispersión, reflejando que el modelo subestima la varianza real de los datos.
+
+```{r pois-grafica-obs-pred, fig.height=4}
+ggplot(diagnostico_poisson, aes(x = pred_poisson, y = casos_divorcio)) +
+  geom_point(size = 2.5) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
+  labs(
+    title = "Valores observados vs predichos — Poisson",
+    x     = "Casos predichos",
+    y     = "Casos observados"
+  ) +
+  theme_minimal()
+```
+
+El gráfico compara los valores observados de divorcios contra los predichos por el modelo Poisson de referencia. Al igual que en la Binomial Negativa, se observan dos grupos: la nube de departamentos del interior en la esquina inferior izquierda y el Departamento de Guatemala como punto aislado a la derecha. La diferencia clave respecto a la Binomial Negativa se manifestará en los residuales: Poisson, al no parametrizar la sobredispersión, genera predicciones que pueden ser similares en valor esperado pero con mayor incertidumbre subestimada.
+
+```{r pois-grafica-residuales, fig.height=4}
+ggplot(diagnostico_poisson, aes(x = pred_poisson, y = residuo_pearson_poisson)) +
+  geom_point(size = 2.5) +
+  geom_hline(yintercept = 0,        linetype = "dashed") +
+  geom_hline(yintercept = c(-2, 2), linetype = "dotted", color = "orange") +
+  labs(
+    title = "Residuales de Pearson — Poisson",
+    x     = "Casos predichos",
+    y     = "Residual de Pearson"
+  ) +
+  theme_minimal()
+```
+
+El gráfico de residuales de Pearson del modelo Poisson es la evidencia más directa de la sobredispersión. A diferencia del modelo Binomial Negativo, se espera que más departamentos presenten residuales fuera del rango ±2 y que la magnitud de los valores extremos sea mayor. Esto ocurre porque Poisson asume que la varianza es igual a la media: cuando la varianza real es mucho mayor, el modelo produce residuales estandarizados inflados. La comparación visual entre este gráfico y el equivalente de la Binomial Negativa constituye la evidencia gráfica más clara de por qué la Binomial Negativa es el modelo adecuado para estos datos.
+
+```{r pois-verificacion-final}
+stopifnot(exists("metricas_nb"))
+stopifnot(exists("metricas_poisson"))
+stopifnot(exists("modelo_poisson_final"))
+stopifnot(exists("pred_poisson_final"))
+stopifnot(nrow(metricas_poisson) >= 3)
+cat("Poisson (referencia) OK — modelo final:", mejor_pois_nombre, "\n")
+```
