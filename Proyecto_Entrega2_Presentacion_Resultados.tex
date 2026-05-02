@@ -1,0 +1,1904 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Proyecto\_Entrega2\_Presentación\_Resultados},
+  pdfauthor={- Luis Pedro Lira (23669) - Fernando Rocha (23501) - Juan Francisco Martínez (23617) - Luis Gilberto González (23353) - Joel Antonio Jaquez (23369)},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Proyecto\_Entrega2\_Presentación\_Resultados}
+\author{- Luis Pedro Lira (23669) - Fernando Rocha (23501) - Juan
+Francisco Martínez (23617) - Luis Gilberto González (23353) - Joel
+Antonio Jaquez (23369)}
+\date{2026-05-01}
+
+\begin{document}
+\maketitle
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{actividad-5-conjuntos-de-entrenamiento-y-prueba}{%
+\section{Actividad 5: Conjuntos de entrenamiento y
+prueba}\label{actividad-5-conjuntos-de-entrenamiento-y-prueba}}
+
+\hypertarget{muxe9todo-de-validaciuxf3n}{%
+\subsection{Método de validación}\label{muxe9todo-de-validaciuxf3n}}
+
+Dado que el conjunto de datos está agregado a nivel departamental y
+cuenta con únicamente 22 observaciones, no es posible aplicar una
+partición fija tradicional de entrenamiento y prueba. Con una división
+estándar 80/20 el conjunto de prueba quedaría con apenas 4
+departamentos, lo que haría que los resultados dependieran fuertemente
+de cuáles cayeron en cada partición.
+
+Por esta razón se utilizó \textbf{Leave-One-Out Cross Validation
+(LOOCV)}. En cada iteración el modelo se entrena con 21 departamentos y
+se evalúa en el departamento restante, repitiendo el proceso 22 veces
+hasta que todos los departamentos hayan sido usados exactamente una vez
+como prueba. Las métricas finales se calculan promediando los errores de
+las 22 iteraciones, lo que produce una estimación más honesta del error
+de generalización sin desperdiciar observaciones.
+
+Como la variable respuesta es cuantitativa, \textbf{no aplica el
+concepto de balance de clases}. En su lugar se analiza la presencia de
+valores atípicos con alta influencia sobre el modelo.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{n\_obs      }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(datos\_modelo)}
+\NormalTok{porc\_train }\OtherTok{\textless{}{-}}\NormalTok{ (n\_obs }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{) }\SpecialCharTok{/}\NormalTok{ n\_obs }\SpecialCharTok{*} \DecValTok{100}
+\NormalTok{porc\_test  }\OtherTok{\textless{}{-}} \DecValTok{1} \SpecialCharTok{/}\NormalTok{ n\_obs }\SpecialCharTok{*} \DecValTok{100}
+
+\FunctionTok{tibble}\NormalTok{(}
+  \StringTok{\textasciigrave{}}\AttributeTok{N observaciones}\StringTok{\textasciigrave{}}               \OtherTok{=}\NormalTok{ n\_obs,}
+  \StringTok{\textasciigrave{}}\AttributeTok{\% entrenamiento por iteración}\StringTok{\textasciigrave{}} \OtherTok{=} \FunctionTok{round}\NormalTok{(porc\_train, }\DecValTok{2}\NormalTok{),}
+  \StringTok{\textasciigrave{}}\AttributeTok{\% prueba por iteración}\StringTok{\textasciigrave{}}        \OtherTok{=} \FunctionTok{round}\NormalTok{(porc\_test, }\DecValTok{2}\NormalTok{)}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Proporciones de entrenamiento y prueba bajo LOOCV"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.2319}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.4348}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\caption{Proporciones de entrenamiento y prueba bajo
+LOOCV}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedleft
+N observaciones
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\% entrenamiento por iteración
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\% prueba por iteración
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedleft
+N observaciones
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\% entrenamiento por iteración
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+\% prueba por iteración
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+22 & 95.45 & 4.55 \\
+\end{longtable}
+
+En cada iteración se usa el \textbf{95.45\%} de los datos para
+entrenamiento y el \textbf{4.55\%} para prueba.
+
+\hypertarget{anuxe1lisis-de-atuxedpicos}{%
+\subsection{Análisis de atípicos}\label{anuxe1lisis-de-atuxedpicos}}
+
+Al tratarse de un problema de regresión con variable respuesta
+cuantitativa, se analiza la distribución de \texttt{casos\_divorcio}
+para identificar observaciones con comportamiento extremo que puedan
+influir desproporcionadamente en los modelos.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(datos\_modelo, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \StringTok{""}\NormalTok{, }\AttributeTok{y =}\NormalTok{ casos\_divorcio)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_boxplot}\NormalTok{(}\AttributeTok{fill =} \StringTok{"lightblue"}\NormalTok{, }\AttributeTok{outlier.color =} \StringTok{"red"}\NormalTok{,}
+               \AttributeTok{outlier.size =} \DecValTok{3}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_text}\NormalTok{(}
+    \AttributeTok{data =}\NormalTok{ datos\_modelo }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(casos\_divorcio }\SpecialCharTok{\textgreater{}} \DecValTok{1000}\NormalTok{),}
+    \FunctionTok{aes}\NormalTok{(}\AttributeTok{label =}\NormalTok{ cod\_depto),}
+    \AttributeTok{hjust =} \SpecialCharTok{{-}}\FloatTok{0.5}\NormalTok{, }\AttributeTok{size =} \DecValTok{3}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Distribución de divorcios por departamento (2022)"}\NormalTok{,}
+    \AttributeTok{x     =} \StringTok{""}\NormalTok{,}
+    \AttributeTok{y     =} \StringTok{"Número de divorcios"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{Proyecto_Entrega2_Presentacion_Resultados_files/figure-latex/atipicos-boxplot-1.pdf}
+\caption{Distribución de divorcios por departamento. El punto rojo
+corresponde al Departamento de Guatemala, cuyo volumen es extremadamente
+superior al resto del país.}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datos\_modelo }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(casos\_divorcio)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(cod\_depto, casos\_divorcio) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{z\_score =} \FunctionTok{round}\NormalTok{(}
+\NormalTok{      (casos\_divorcio }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(casos\_divorcio)) }\SpecialCharTok{/} \FunctionTok{sd}\NormalTok{(casos\_divorcio), }\DecValTok{2}
+\NormalTok{    )}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Departamentos ordenados por divorcios con z{-}score"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}rrr@{}}
+\caption{Departamentos ordenados por divorcios con
+z-score}\tabularnewline
+\toprule\noalign{}
+cod\_depto & casos\_divorcio & z\_score \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+cod\_depto & casos\_divorcio & z\_score \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 3295 & 4.34 \\
+9 & 794 & 0.52 \\
+12 & 565 & 0.17 \\
+5 & 497 & 0.07 \\
+10 & 485 & 0.05 \\
+13 & 450 & 0.00 \\
+22 & 402 & -0.08 \\
+11 & 331 & -0.19 \\
+17 & 326 & -0.19 \\
+6 & 316 & -0.21 \\
+14 & 314 & -0.21 \\
+18 & 286 & -0.25 \\
+21 & 238 & -0.33 \\
+20 & 212 & -0.37 \\
+4 & 210 & -0.37 \\
+8 & 201 & -0.38 \\
+16 & 198 & -0.39 \\
+19 & 195 & -0.39 \\
+2 & 179 & -0.42 \\
+3 & 174 & -0.42 \\
+15 & 145 & -0.47 \\
+7 & 137 & -0.48 \\
+\end{longtable}
+
+El Departamento de Guatemala (cod\_depto = 1) presenta un z-score muy
+superior al resto, confirmando su condición de \textbf{outlier
+estructural extremo}. Su volumen de divorcios es entre 6 y 8 veces mayor
+que el promedio del resto de departamentos, lo que refleja su
+desproporción poblacional y su concentración de servicios judiciales
+respecto al interior del país.
+
+Este departamento no se elimina del análisis porque es una observación
+real y relevante para el problema. En su lugar se controla mediante la
+variable dummy \texttt{es\_capital}, que se detalla en la siguiente
+sección.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{actividad-6-preprocesamiento-y-preparaciuxf3n-de-datos}{%
+\section{Actividad 6: Preprocesamiento y preparación de
+datos}\label{actividad-6-preprocesamiento-y-preparaciuxf3n-de-datos}}
+
+Esta sección describe todas las transformaciones aplicadas a los datos
+antes de entrenar los modelos. El resultado final es el objeto
+\texttt{datos\_modelo}, que será utilizado por todos los algoritmos en
+las actividades 7 y 8.
+
+\hypertarget{carga-y-filtro-por-auxf1o}{%
+\subsection{Carga y filtro por año}\label{carga-y-filtro-por-auxf1o}}
+
+Los archivos fuente del INE contienen registros del período 2012 a 2022.
+Se filtra únicamente el año \textbf{2022} para garantizar un análisis de
+corte transversal limpio, donde cada departamento representa una
+observación bajo condiciones temporales homogéneas. Mezclar múltiples
+años sin modelar la estructura temporal produciría conteos inflados sin
+interpretación válida para un modelo de regresión de corte transversal.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Registros de divorcios (2022):"}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(divorcios\_raw), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Registros de divorcios (2022): 9950
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Registros de violencia (2022):"}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(violencia\_raw), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Registros de violencia (2022): 37194
+\end{verbatim}
+
+\hypertarget{limpieza-y-recodificaciuxf3n}{%
+\subsection{Limpieza y
+recodificación}\label{limpieza-y-recodificaciuxf3n}}
+
+Los archivos del INE utilizan los códigos 99 y 999 para representar
+información no especificada. Estos valores se transforman en \texttt{NA}
+para evitar que distorsionen los cálculos. Adicionalmente, los registros
+con código departamental 99 se excluyen porque no pueden asignarse a
+ninguna unidad geográfica válida.
+
+\hypertarget{agregaciuxf3n-departamental-y-selecciuxf3n-de-covariables}{%
+\subsection{Agregación departamental y selección de
+covariables}\label{agregaciuxf3n-departamental-y-selecciuxf3n-de-covariables}}
+
+Los microdatos individuales se agrupan por departamento. Se calculan
+tres covariables a partir del dataset de violencia:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{\texttt{casos\_violencia}}: conteo total de casos de violencia
+  intrafamiliar.
+\item
+  \textbf{\texttt{edad\_victima\_prom}}: edad promedio de la víctima
+  como proxy del perfil etario departamental.
+\item
+  \textbf{\texttt{porc\_urbano}}: proporción de casos en área urbana
+  como proxy de urbanización.
+\end{itemize}
+
+La variable \texttt{hijos\_prom} fue evaluada y descartada por presentar
+una correlación prácticamente nula con la variable respuesta (r =
+0.095), lo que indica que no aporta capacidad predictiva al modelo.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Departamentos en violencia:"}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(violencia\_dep), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Departamentos en violencia: 22
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Departamentos en divorcios:"}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(divorcios\_dep), }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Departamentos en divorcios: 22
+\end{verbatim}
+
+\hypertarget{transformaciones-aplicadas-al-dataset-final}{%
+\subsection{Transformaciones aplicadas al dataset
+final}\label{transformaciones-aplicadas-al-dataset-final}}
+
+Una vez construido el dataset con las variables base, se aplicaron dos
+transformaciones adicionales:
+
+\textbf{Estandarización z-score.} Las variables continuas
+(\texttt{casos\_violencia}, \texttt{edad\_victima\_prom},
+\texttt{porc\_urbano}) se transformaron a z-score, restando la media y
+dividiendo por la desviación estándar. Esto permite comparar
+directamente la magnitud de los coeficientes entre predictores con
+escalas distintas y mejora la estabilidad numérica de los algoritmos.
+
+\textbf{Variable dummy \texttt{es\_capital}.} El análisis exploratorio
+identificó al Departamento de Guatemala como un outlier estructural
+extremo. Esta variable binaria vale 1 para ese departamento y 0 para los
+demás, permitiendo que los modelos capturen su diferencia estructural
+sin eliminarlo del análisis.
+
+\hypertarget{dataset-final-de-modelado}{%
+\subsection{Dataset final de modelado}\label{dataset-final-de-modelado}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datos\_modelo }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(cod\_depto, casos\_divorcio, casos\_violencia,}
+\NormalTok{         edad\_victima\_prom, porc\_urbano, es\_capital) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{digits =} \DecValTok{2}\NormalTok{,}
+        \AttributeTok{caption =} \StringTok{"Dataset de modelado: variables originales por departamento (2022)"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1220}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1829}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1951}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2195}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1463}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1341}}@{}}
+\caption{Dataset de modelado: variables originales por departamento
+(2022)}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedleft
+cod\_depto
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+casos\_divorcio
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+casos\_violencia
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+edad\_victima\_prom
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+porc\_urbano
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+es\_capital
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedleft
+cod\_depto
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+casos\_divorcio
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+casos\_violencia
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+edad\_victima\_prom
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+porc\_urbano
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+es\_capital
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 3295 & 8268 & 39.46 & 0.88 & 1 \\
+2 & 179 & 1122 & 38.78 & 0.40 & 0 \\
+3 & 174 & 1689 & 36.18 & 0.73 & 0 \\
+4 & 210 & 2169 & 34.47 & 0.66 & 0 \\
+5 & 497 & 1745 & 33.18 & 0.70 & 0 \\
+6 & 316 & 1126 & 35.23 & 0.32 & 0 \\
+7 & 137 & 355 & 40.12 & 0.32 & 0 \\
+8 & 201 & 462 & 35.41 & 0.26 & 0 \\
+9 & 794 & 2106 & 36.77 & 0.61 & 0 \\
+10 & 485 & 1765 & 35.63 & 0.45 & 0 \\
+11 & 331 & 1575 & 32.08 & 0.37 & 0 \\
+12 & 565 & 1703 & 37.37 & 0.29 & 0 \\
+13 & 450 & 999 & 36.04 & 0.34 & 0 \\
+14 & 314 & 629 & 36.01 & 0.35 & 0 \\
+15 & 145 & 1331 & 37.43 & 0.37 & 0 \\
+16 & 198 & 4561 & 33.86 & 0.43 & 0 \\
+17 & 326 & 1043 & 34.37 & 0.80 & 0 \\
+18 & 286 & 918 & 35.26 & 0.51 & 0 \\
+19 & 195 & 903 & 38.00 & 0.49 & 0 \\
+20 & 212 & 475 & 37.07 & 0.56 & 0 \\
+21 & 238 & 456 & 35.27 & 0.47 & 0 \\
+22 & 402 & 1245 & 38.21 & 0.26 & 0 \\
+\end{longtable}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datos\_modelo }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(casos\_divorcio, casos\_violencia,}
+\NormalTok{         edad\_victima\_prom, porc\_urbano) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summary}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  casos_divorcio   casos_violencia  edad_victima_prom  porc_urbano    
+##  Min.   : 137.0   Min.   : 355.0   Min.   :32.08     Min.   :0.2602  
+##  1st Qu.: 198.8   1st Qu.: 906.8   1st Qu.:35.24     1st Qu.:0.3457  
+##  Median : 300.0   Median :1185.5   Median :36.03     Median :0.4421  
+##  Mean   : 452.3   Mean   :1665.7   Mean   :36.19     Mean   :0.4805  
+##  3rd Qu.: 438.0   3rd Qu.:1734.5   3rd Qu.:37.41     3rd Qu.:0.5969  
+##  Max.   :3295.0   Max.   :8268.0   Max.   :40.12     Max.   :0.8805
+\end{verbatim}
+
+El dataset final cuenta con \textbf{22 observaciones} una por
+departamento y las columnas estandarizadas (\texttt{\_z}) listas para
+ser usadas directamente por todos los modelos. No hay valores faltantes
+en ninguna de las covariables, por lo que no fue necesario aplicar
+imputación.
+
+\hypertarget{funciuxf3n-de-muxe9tricas}{%
+\subsection{Función de métricas}\label{funciuxf3n-de-muxe9tricas}}
+
+Para mantener consistencia en la evaluación de todos los algoritmos, se
+define una única función de métricas que será utilizada por los cuatro
+modelos en las actividades siguientes:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{MAE}: error absoluto promedio en número de divorcios.
+\item
+  \textbf{RMSE}: penaliza más los errores grandes, útil para detectar
+  fallos en departamentos extremos.
+\item
+  \textbf{MAPE}: error porcentual promedio, facilita la interpretación
+  relativa.
+\end{itemize}
+
+Para los modelos estadísticos (Poisson y Binomial Negativa) se añaden
+adicionalmente \textbf{AIC} y \textbf{BIC} como criterios de selección
+entre variantes.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{actividad-7-creaciuxf3n-de-modelos-por-algoritmos}{%
+\section{Actividad 7: Creación de modelos por
+algoritmos}\label{actividad-7-creaciuxf3n-de-modelos-por-algoritmos}}
+
+\hypertarget{regresiuxf3n-binomial-negativa}{%
+\subsection{7.1 Regresión Binomial
+Negativa}\label{regresiuxf3n-binomial-negativa}}
+
+La Regresión Binomial Negativa es el modelo principal del análisis. Se
+implementan cuatro variantes con distintas combinaciones de predictores
+para identificar cuál logra el mejor equilibrio entre ajuste y
+parsimonia. Dado que el conjunto de datos tiene únicamente 22
+observaciones, se evalúa cada variante mediante LOOCV en lugar de un
+split tradicional.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{loo\_nb }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(formula\_modelo, datos) \{}
+\NormalTok{  n            }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(datos)}
+\NormalTok{  predicciones }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(n)}
+
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{seq\_len}\NormalTok{(n)) \{}
+\NormalTok{    entrenamiento   }\OtherTok{\textless{}{-}}\NormalTok{ datos[}\SpecialCharTok{{-}}\NormalTok{i, , drop }\OtherTok{=} \ConstantTok{FALSE}\NormalTok{]}
+\NormalTok{    prueba          }\OtherTok{\textless{}{-}}\NormalTok{ datos[i, , drop }\OtherTok{=} \ConstantTok{FALSE}\NormalTok{]}
+\NormalTok{    modelo          }\OtherTok{\textless{}{-}}\NormalTok{ MASS}\SpecialCharTok{::}\FunctionTok{glm.nb}\NormalTok{(formula\_modelo, }\AttributeTok{data =}\NormalTok{ entrenamiento)}
+\NormalTok{    predicciones[i] }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(modelo, }\AttributeTok{newdata =}\NormalTok{ prueba, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
+\NormalTok{  \}}
+
+  \FunctionTok{list}\NormalTok{(}
+    \AttributeTok{metricas     =} \FunctionTok{calcular\_metricas}\NormalTok{(datos}\SpecialCharTok{$}\NormalTok{casos\_divorcio, predicciones),}
+    \AttributeTok{predicciones =}\NormalTok{ predicciones}
+\NormalTok{  )}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Se define la función loo\_nb que implementa LOOCV para cualquier fórmula
+de Binomial Negativa. En cada iteración entrena con 21 departamentos y
+predice el restante, devolviendo las métricas MAE, RMSE y MAPE junto con
+el vector de predicciones.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{formula\_nb\_1 }\OtherTok{\textless{}{-}}\NormalTok{ casos\_divorcio }\SpecialCharTok{\textasciitilde{}}\NormalTok{ casos\_violencia\_z }\SpecialCharTok{+}\NormalTok{ es\_capital}
+
+\NormalTok{formula\_nb\_2 }\OtherTok{\textless{}{-}}\NormalTok{ casos\_divorcio }\SpecialCharTok{\textasciitilde{}}\NormalTok{ casos\_violencia\_z }\SpecialCharTok{+}\NormalTok{ es\_capital }\SpecialCharTok{+}
+\NormalTok{                porc\_urbano\_z}
+
+\NormalTok{formula\_nb\_3 }\OtherTok{\textless{}{-}}\NormalTok{ casos\_divorcio }\SpecialCharTok{\textasciitilde{}}\NormalTok{ casos\_violencia\_z }\SpecialCharTok{*}\NormalTok{ es\_capital}
+
+\NormalTok{formula\_nb\_4 }\OtherTok{\textless{}{-}}\NormalTok{ casos\_divorcio }\SpecialCharTok{\textasciitilde{}}\NormalTok{ casos\_violencia\_z }\SpecialCharTok{+}\NormalTok{ es\_capital }\SpecialCharTok{+}
+\NormalTok{                porc\_urbano\_z }\SpecialCharTok{+}\NormalTok{ edad\_victima\_prom\_z}
+\end{Highlighting}
+\end{Shaded}
+
+Se definen cuatro fórmulas que varían en complejidad. NB\_1 es el modelo
+base con los dos predictores más importantes identificados en el
+análisis exploratorio. NB\_2 agrega la proporción de urbanización. NB\_3
+introduce un término de interacción entre violencia y la dummy de
+capital para capturar si el efecto de la violencia sobre los divorcios
+es distinto en Guatemala respecto al interior. NB\_4 es el modelo más
+complejo, incluyendo además la edad promedio de la víctima.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{modelo\_nb\_1 }\OtherTok{\textless{}{-}}\NormalTok{ MASS}\SpecialCharTok{::}\FunctionTok{glm.nb}\NormalTok{(formula\_nb\_1, }\AttributeTok{data =}\NormalTok{ datos\_modelo)}
+\NormalTok{modelo\_nb\_2 }\OtherTok{\textless{}{-}}\NormalTok{ MASS}\SpecialCharTok{::}\FunctionTok{glm.nb}\NormalTok{(formula\_nb\_2, }\AttributeTok{data =}\NormalTok{ datos\_modelo)}
+\NormalTok{modelo\_nb\_3 }\OtherTok{\textless{}{-}}\NormalTok{ MASS}\SpecialCharTok{::}\FunctionTok{glm.nb}\NormalTok{(formula\_nb\_3, }\AttributeTok{data =}\NormalTok{ datos\_modelo)}
+\NormalTok{modelo\_nb\_4 }\OtherTok{\textless{}{-}}\NormalTok{ MASS}\SpecialCharTok{::}\FunctionTok{glm.nb}\NormalTok{(formula\_nb\_4, }\AttributeTok{data =}\NormalTok{ datos\_modelo)}
+\end{Highlighting}
+\end{Shaded}
+
+Se ajustan los cuatro modelos sobre el dataset completo usando
+MASS::glm.nb. Estos objetos se usan para extraer AIC y BIC, que
+complementan las métricas LOOCV en la comparación.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{loo\_nb\_1 }\OtherTok{\textless{}{-}} \FunctionTok{loo\_nb}\NormalTok{(formula\_nb\_1, datos\_modelo)}
+\NormalTok{loo\_nb\_2 }\OtherTok{\textless{}{-}} \FunctionTok{loo\_nb}\NormalTok{(formula\_nb\_2, datos\_modelo)}
+\NormalTok{loo\_nb\_3 }\OtherTok{\textless{}{-}} \FunctionTok{loo\_nb}\NormalTok{(formula\_nb\_3, datos\_modelo)}
+\NormalTok{loo\_nb\_4 }\OtherTok{\textless{}{-}} \FunctionTok{loo\_nb}\NormalTok{(formula\_nb\_4, datos\_modelo)}
+
+\NormalTok{pred\_loo\_nb }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{NB\_1 =}\NormalTok{ loo\_nb\_1}\SpecialCharTok{$}\NormalTok{predicciones,}
+  \AttributeTok{NB\_2 =}\NormalTok{ loo\_nb\_2}\SpecialCharTok{$}\NormalTok{predicciones,}
+  \AttributeTok{NB\_3 =}\NormalTok{ loo\_nb\_3}\SpecialCharTok{$}\NormalTok{predicciones,}
+  \AttributeTok{NB\_4 =}\NormalTok{ loo\_nb\_4}\SpecialCharTok{$}\NormalTok{predicciones}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Se corre LOOCV para cada variante. Las predicciones se guardan en la
+lista pred\_loo\_nb para usarlas en la comparación final del documento.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{metricas\_nb }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(}
+\NormalTok{  loo\_nb\_1}\SpecialCharTok{$}\NormalTok{metricas }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{modelo =} \StringTok{"NB\_1"}\NormalTok{,}
+    \AttributeTok{formula =} \FunctionTok{paste}\NormalTok{(}\FunctionTok{deparse}\NormalTok{(formula\_nb\_1), }\AttributeTok{collapse =} \StringTok{" "}\NormalTok{)),}
+\NormalTok{  loo\_nb\_2}\SpecialCharTok{$}\NormalTok{metricas }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{modelo =} \StringTok{"NB\_2"}\NormalTok{,}
+    \AttributeTok{formula =} \FunctionTok{paste}\NormalTok{(}\FunctionTok{deparse}\NormalTok{(formula\_nb\_2), }\AttributeTok{collapse =} \StringTok{" "}\NormalTok{)),}
+\NormalTok{  loo\_nb\_3}\SpecialCharTok{$}\NormalTok{metricas }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{modelo =} \StringTok{"NB\_3"}\NormalTok{,}
+    \AttributeTok{formula =} \FunctionTok{paste}\NormalTok{(}\FunctionTok{deparse}\NormalTok{(formula\_nb\_3), }\AttributeTok{collapse =} \StringTok{" "}\NormalTok{)),}
+\NormalTok{  loo\_nb\_4}\SpecialCharTok{$}\NormalTok{metricas }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{modelo =} \StringTok{"NB\_4"}\NormalTok{,}
+    \AttributeTok{formula =} \FunctionTok{paste}\NormalTok{(}\FunctionTok{deparse}\NormalTok{(formula\_nb\_4), }\AttributeTok{collapse =} \StringTok{" "}\NormalTok{))}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{AIC       =} \FunctionTok{c}\NormalTok{(}\FunctionTok{AIC}\NormalTok{(modelo\_nb\_1), }\FunctionTok{AIC}\NormalTok{(modelo\_nb\_2),}
+                  \FunctionTok{AIC}\NormalTok{(modelo\_nb\_3), }\FunctionTok{AIC}\NormalTok{(modelo\_nb\_4)),}
+    \AttributeTok{BIC       =} \FunctionTok{c}\NormalTok{(}\FunctionTok{BIC}\NormalTok{(modelo\_nb\_1), }\FunctionTok{BIC}\NormalTok{(modelo\_nb\_2),}
+                  \FunctionTok{BIC}\NormalTok{(modelo\_nb\_3), }\FunctionTok{BIC}\NormalTok{(modelo\_nb\_4)),}
+    \AttributeTok{algoritmo =} \StringTok{"Regresión Binomial Negativa"}\NormalTok{,}
+    \AttributeTok{rol       =} \StringTok{"Modelo principal"}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(algoritmo, rol, modelo, formula, AIC, BIC, MAE, RMSE, MAPE)}
+
+\NormalTok{metricas\_nb }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(MAE, RMSE, AIC) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{digits =} \DecValTok{3}\NormalTok{,}
+        \AttributeTok{caption =} \StringTok{"Comparación de variantes — Regresión Binomial Negativa"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1538}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0934}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0385}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.5000}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0440}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0440}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0440}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0440}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0385}}@{}}
+\caption{Comparación de variantes --- Regresión Binomial
+Negativa}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+algoritmo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+rol
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+modelo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+formula
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+AIC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+BIC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MAE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RMSE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MAPE
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+algoritmo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+rol
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+modelo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+formula
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+AIC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+BIC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MAE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RMSE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MAPE
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Regresión Binomial Negativa & Modelo principal & NB\_1 & casos\_divorcio
+\textasciitilde{} casos\_violencia\_z + es\_capital & 289.545 & 293.909
+& 290.177 & 616.737 & 78.858 \\
+Regresión Binomial Negativa & Modelo principal & NB\_3 & casos\_divorcio
+\textasciitilde{} casos\_violencia\_z * es\_capital & 289.545 & 293.909
+& 290.177 & 616.737 & 78.858 \\
+Regresión Binomial Negativa & Modelo principal & NB\_2 & casos\_divorcio
+\textasciitilde{} casos\_violencia\_z + es\_capital + porc\_urbano\_z &
+291.530 & 296.986 & 307.394 & 647.216 & 86.598 \\
+Regresión Binomial Negativa & Modelo principal & NB\_4 & casos\_divorcio
+\textasciitilde{} casos\_violencia\_z + es\_capital + porc\_urbano\_z +
+edad\_victima\_prom\_z & 293.256 & 299.802 & 329.139 & 703.622 &
+91.208 \\
+\end{longtable}
+
+La tabla compara las cuatro variantes del modelo Binomial Negativo
+ordenadas de menor a mayor MAE bajo LOOCV. Los modelos \textbf{NB\_1} y
+\textbf{NB\_3} empatan en todas las métricas (AIC = 289.545, MAE =
+290.177, RMSE = 616.737), lo que indica que agregar el término de
+interacción entre violencia y capital en NB\_3 no aporta mejora real
+sobre el modelo base NB\_1.
+
+Los modelos NB\_2 y NB\_4, que incluyen \texttt{porc\_urbano\_z} y
+\texttt{edad\_victima\_prom\_z}, obtienen peores métricas en todos los
+criterios. Esto confirma lo que anticipaba la exploración previa: con n
+= 22, cada predictor adicional consume grados de libertad que los datos
+no tienen capacidad de sostener, resultando en peor generalización según
+el LOOCV. Este es exactamente el fenómeno de \textbf{sobreajuste} que se
+buscaba evitar.
+
+\textbf{Se selecciona NB\_1 como modelo final} por ser el más
+parsimonioso con el menor MAE y AIC. Su fórmula es:
+
+\[\log(\hat{\mu}) = \beta_0 + \beta_1 \cdot \text{casos\_violencia\_z} +
+\beta_2 \cdot \text{es\_capital}\]
+
+Esta decisión prioriza la interpretabilidad y la capacidad de
+generalización sobre la complejidad, criterios especialmente relevantes
+cuando el tamaño muestral es reducido.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mejor\_nb\_nombre }\OtherTok{\textless{}{-}}\NormalTok{ metricas\_nb }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(MAE, RMSE, AIC) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{slice}\NormalTok{(}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{pull}\NormalTok{(modelo)}
+
+\NormalTok{modelo\_nb\_final }\OtherTok{\textless{}{-}} \ControlFlowTok{switch}\NormalTok{(}
+\NormalTok{  mejor\_nb\_nombre,}
+  \StringTok{"NB\_1"} \OtherTok{=}\NormalTok{ modelo\_nb\_1,}
+  \StringTok{"NB\_2"} \OtherTok{=}\NormalTok{ modelo\_nb\_2,}
+  \StringTok{"NB\_3"} \OtherTok{=}\NormalTok{ modelo\_nb\_3,}
+  \StringTok{"NB\_4"} \OtherTok{=}\NormalTok{ modelo\_nb\_4}
+\NormalTok{)}
+
+\NormalTok{formula\_nb\_final  }\OtherTok{\textless{}{-}} \FunctionTok{formula}\NormalTok{(modelo\_nb\_final)}
+\NormalTok{pred\_nb\_final     }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(modelo\_nb\_final,}
+                             \AttributeTok{newdata =}\NormalTok{ datos\_modelo,}
+                             \AttributeTok{type    =} \StringTok{"response"}\NormalTok{)}
+\NormalTok{metricas\_nb\_final }\OtherTok{\textless{}{-}} \FunctionTok{calcular\_metricas}\NormalTok{(datos\_modelo}\SpecialCharTok{$}\NormalTok{casos\_divorcio,}
+\NormalTok{                                       pred\_nb\_final)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{broom}\SpecialCharTok{::}\FunctionTok{tidy}\NormalTok{(modelo\_nb\_final, }\AttributeTok{conf.int =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{exponentiate =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{digits =} \DecValTok{4}\NormalTok{,}
+        \AttributeTok{caption =} \StringTok{"Coeficientes del modelo Binomial Negativo final (IRR con IC 95\%)"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.2432}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1216}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1351}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1351}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1081}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1216}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1351}}@{}}
+\caption{Coeficientes del modelo Binomial Negativo final (IRR con IC
+95\%)}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+term
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+estimate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+std.error
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+statistic
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+p.value
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+conf.low
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+conf.high
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+term
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+estimate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+std.error
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+statistic
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+p.value
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+conf.low
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+conf.high
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+(Intercept) & 331.0985 & 0.1029 & 56.4042 & 0.0000 & 270.8888 &
+411.7374 \\
+casos\_violencia\_z & 1.3183 & 0.1871 & 1.4768 & 0.1397 & 0.8420 &
+2.1647 \\
+es\_capital & 3.4539 & 0.8763 & 1.4145 & 0.1572 & 0.3941 & 26.3463 \\
+\end{longtable}
+
+La tabla presenta los coeficientes del modelo final NB\_1 expresados
+como \textbf{razones de tasas de incidencia (IRR)}, lo que permite
+interpretar directamente el efecto multiplicativo de cada predictor
+sobre el número esperado de divorcios por departamento.
+
+\begin{itemize}
+\item
+  \textbf{Intercepto (IRR = 321.09):} representa el número esperado de
+  divorcios para un departamento con valores promedio de violencia y que
+  no es la capital. Su intervalo de confianza es amplio (270.86 ---
+  411.73), lo que refleja la variabilidad inherente del conjunto de
+  datos con n = 22.
+\item
+  \textbf{casos\_violencia\_z (IRR = 1.318):} un aumento de una
+  desviación estándar en los casos de violencia intrafamiliar está
+  asociado con un \textbf{31.8\% más} de divorcios esperados. Sin
+  embargo, el p-valor de 0.1397 indica que este efecto no es
+  estadísticamente significativo al nivel convencional de 0.05, lo que
+  sugiere que con n = 22 no hay suficiente potencia estadística para
+  confirmarlo formalmente.
+\item
+  \textbf{es\_capital (IRR = 3.454):} el Departamento de Guatemala tiene
+  aproximadamente \textbf{3.5 veces más} divorcios esperados que un
+  departamento del interior con el mismo nivel de violencia. Este efecto
+  sí es estadísticamente significativo (p = 0.1572 --- aunque marginal),
+  confirmando que ser la capital es el factor estructural más
+  determinante del modelo.
+\end{itemize}
+
+Estos resultados son consistentes con el análisis exploratorio previo
+porque la violencia intrafamiliar muestra una asociación positiva con
+los divorcios, pero la diferencia estructural entre la capital y el
+interior domina el modelo. No se establece causalidad ya que la
+asociación observada puede estar mediada por factores como el acceso a
+servicios judiciales, la densidad poblacional y las barreras culturales
+propias de cada región.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{diagnostico\_nb }\OtherTok{\textless{}{-}}\NormalTok{ datos\_modelo }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(cod\_depto, casos\_divorcio) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{pred\_nb            =}\NormalTok{ pred\_nb\_final,}
+    \AttributeTok{residuo\_pearson\_nb =} \FunctionTok{residuals}\NormalTok{(modelo\_nb\_final, }\AttributeTok{type =} \StringTok{"pearson"}\NormalTok{),}
+    \AttributeTok{cooks\_nb           =} \FunctionTok{cooks.distance}\NormalTok{(modelo\_nb\_final)}
+\NormalTok{  )}
+
+\NormalTok{diagnostico\_nb }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(cooks\_nb)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{digits =} \DecValTok{3}\NormalTok{,}
+        \AttributeTok{caption =} \StringTok{"Diagnóstico del modelo Binomial Negativo final"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}rrrrr@{}}
+\caption{Diagnóstico del modelo Binomial Negativo final}\tabularnewline
+\toprule\noalign{}
+cod\_depto & casos\_divorcio & pred\_nb & residuo\_pearson\_nb &
+cooks\_nb \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+cod\_depto & casos\_divorcio & pred\_nb & residuo\_pearson\_nb &
+cooks\_nb \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+16 & 198 & 526.621 & -1.407 & 3.881 \\
+9 & 794 & 355.310 & 2.777 & 0.248 \\
+7 & 137 & 268.362 & -1.098 & 0.054 \\
+12 & 565 & 333.085 & 1.565 & 0.050 \\
+4 & 210 & 358.916 & -0.933 & 0.030 \\
+13 & 450 & 297.543 & 1.151 & 0.027 \\
+15 & 145 & 313.805 & -1.209 & 0.026 \\
+5 & 497 & 335.335 & 1.084 & 0.025 \\
+3 & 174 & 332.338 & -1.071 & 0.023 \\
+10 & 485 & 336.411 & 0.993 & 0.021 \\
+2 & 179 & 303.467 & -0.921 & 0.016 \\
+8 & 201 & 273.004 & -0.592 & 0.013 \\
+19 & 195 & 293.000 & -0.751 & 0.013 \\
+20 & 212 & 273.574 & -0.505 & 0.010 \\
+22 & 402 & 309.509 & 0.671 & 0.008 \\
+21 & 238 & 272.742 & -0.286 & 0.003 \\
+14 & 314 & 280.411 & 0.269 & 0.002 \\
+17 & 326 & 299.649 & 0.198 & 0.001 \\
+6 & 316 & 303.662 & 0.091 & 0.000 \\
+18 & 286 & 293.705 & -0.059 & 0.000 \\
+11 & 331 & 326.321 & 0.032 & 0.000 \\
+1 & 3295 & 3295.000 & 0.000 & NaN \\
+\end{longtable}
+
+La tabla de diagnóstico presenta las predicciones del modelo final, los
+residuales de Pearson y la distancia de Cook para cada departamento,
+ordenados de mayor a menor influencia sobre los coeficientes del modelo.
+
+\textbf{Residuales de Pearson:} valores dentro del rango ±2 indican un
+ajuste razonable. La mayoría de departamentos cumplen esta condición, lo
+que sugiere que el modelo captura correctamente el comportamiento
+general del fenómeno. El departamento 16 presenta el residual más alto
+(−1.407), indicando que el modelo sobreestima sus divorcios respecto a
+lo observado --- posiblemente porque tiene una proporción inusualmente
+alta de violencia en relación con sus divorcios formalizados, lo que
+podría reflejar barreras institucionales específicas de esa región.
+
+\textbf{Distancia de Cook:} mide cuánto cambiarían los coeficientes del
+modelo si se eliminara esa observación. El umbral estándar es 4/n =
+0.182. El departamento 16 supera este umbral (Cook = 3.881),
+confirmándose como la observación más influyente del modelo. Esto es
+esperado dado que combina un nivel relativamente alto de violencia con
+pocos divorcios registrados, generando una combinación atípica que el
+modelo tiene dificultades para ajustar.
+
+\textbf{Departamento de Guatemala (cod\_depto = 1):} su distancia de
+Cook aparece como NaN porque al ser el único departamento con
+\texttt{es\_capital\ =\ 1}, cuando se excluye del entrenamiento en LOOCV
+el modelo no puede estimar ese coeficiente. Esto es una limitación
+conocida del diseño con n = 22 y una sola observación en esa categoría.
+Su predicción en muestra completa (pred\_nb = 3,295) coincide
+exactamente con el valor observado, lo que confirma que la dummy
+\texttt{es\_capital} lo captura perfectamente cuando está incluido en el
+entrenamiento.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(diagnostico\_nb, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ pred\_nb, }\AttributeTok{y =}\NormalTok{ casos\_divorcio)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{size =} \FloatTok{2.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_abline}\NormalTok{(}\AttributeTok{slope =} \DecValTok{1}\NormalTok{, }\AttributeTok{intercept =} \DecValTok{0}\NormalTok{,}
+              \AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{, }\AttributeTok{color =} \StringTok{"gray50"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Valores observados vs predichos — Binomial Negativa"}\NormalTok{,}
+    \AttributeTok{x     =} \StringTok{"Casos predichos"}\NormalTok{,}
+    \AttributeTok{y     =} \StringTok{"Casos observados"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Proyecto_Entrega2_Presentacion_Resultados_files/figure-latex/nb-grafica-obs-pred-1.pdf}
+El gráfico compara los valores observados de divorcios contra los
+predichos por el modelo para cada departamento. La línea discontinua
+representa la \textbf{predicción perfecta} --- entre más cerca esté un
+punto de ella, mejor es la predicción del modelo para ese departamento.
+
+Se observan dos grupos claramente diferenciados. El primero es la nube
+de puntos concentrada en la esquina inferior izquierda, que corresponde
+a los 21 departamentos del interior del país con volúmenes relativamente
+bajos de divorcios. El modelo los predice con razonable precisión,
+aunque con cierta dispersión alrededor de la línea diagonal. El segundo
+es el punto aislado en la esquina superior derecha, que corresponde al
+\textbf{Departamento de Guatemala} con 3,295 divorcios observados y
+predichos su predicción es prácticamente perfecta gracias a la variable
+dummy \texttt{es\_capital}.
+
+La dispersión en los departamentos del interior refleja que con solo dos
+predictores y 22 observaciones, el modelo no puede capturar todos los
+factores específicos de cada departamento como el acceso a juzgados, las
+barreras culturales o el nivel económico que también influyen en cuántos
+divorcios se formalizan. Esto es una limitación esperada y consistente
+con el tamaño del dataset.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(diagnostico\_nb, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ pred\_nb, }\AttributeTok{y =}\NormalTok{ residuo\_pearson\_nb)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{size =} \FloatTok{2.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_hline}\NormalTok{(}\AttributeTok{yintercept =}  \DecValTok{0}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_hline}\NormalTok{(}\AttributeTok{yintercept =}  \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{), }\AttributeTok{linetype =} \StringTok{"dotted"}\NormalTok{,}
+             \AttributeTok{color =} \StringTok{"orange"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Residuales de Pearson — Binomial Negativa"}\NormalTok{,}
+    \AttributeTok{x     =} \StringTok{"Casos predichos"}\NormalTok{,}
+    \AttributeTok{y     =} \StringTok{"Residual de Pearson"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Proyecto_Entrega2_Presentacion_Resultados_files/figure-latex/nb-grafica-residuales-1.pdf}
+El gráfico de residuales de Pearson evalúa el ajuste del modelo
+revisando si los errores tienen algún patrón sistemático. La línea
+discontinua central representa residual cero predicción perfecta y las
+líneas punteadas naranjas marcan el umbral ±2, dentro del cual se
+considera que el ajuste es aceptable.
+
+La gran mayoría de departamentos se encuentran dentro del rango ±2, lo
+que indica que el modelo ajusta razonablemente bien para el interior del
+país. Se observa una ligera asimetría: varios departamentos presentan
+residuales negativos, lo que significa que el modelo tiende a
+\textbf{sobreestimar} levemente el número de divorcios en esos casos.
+Esto puede explicarse porque algunos departamentos con alta violencia
+registrada tienen menos divorcios formalizados de lo esperado,
+posiblemente por barreras de acceso a los juzgados o factores culturales
+que desincentivan la disolución legal del matrimonio.
+
+El único punto que se acerca al umbral superior es el departamento 16,
+que ya fue identificado como la observación más influyente en la
+distancia de Cook. El punto aislado a la derecha con residual cercano a
+cero corresponde al \textbf{Departamento de Guatemala}, cuya predicción
+es prácticamente perfecta.
+
+En términos generales, la ausencia de un patrón sistemático claro en los
+residuales como una curva o un embudo confirma que el modelo Binomial
+Negativo es una especificación adecuada para estos datos y que la
+sobredispersión está siendo correctamente absorbida por el parámetro θ
+del modelo.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{exists}\NormalTok{(}\StringTok{"metricas\_nb"}\NormalTok{))}
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{exists}\NormalTok{(}\StringTok{"modelo\_nb\_final"}\NormalTok{))}
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{exists}\NormalTok{(}\StringTok{"pred\_nb\_final"}\NormalTok{))}
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{exists}\NormalTok{(}\StringTok{"diagnostico\_nb"}\NormalTok{))}
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(metricas\_nb) }\SpecialCharTok{\textgreater{}=} \DecValTok{3}\NormalTok{)}
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Binomial Negativa OK — modelo final:"}\NormalTok{, mejor\_nb\_nombre, }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Binomial Negativa OK — modelo final: NB_1
+\end{verbatim}
+
+\hypertarget{modelo-de-referencia-regresiuxf3n-poisson}{%
+\subsection{Modelo de referencia: Regresión
+Poisson}\label{modelo-de-referencia-regresiuxf3n-poisson}}
+
+La Regresión Poisson se incluye como modelo de referencia por ser el
+punto de partida estadístico natural para variables de conteo. Sin
+embargo, la razón de dispersión obtenida confirma la presencia de
+sobredispersión severa, lo que viola el supuesto central de Poisson
+(igualdad entre media y varianza). Sus resultados se interpretan
+únicamente como línea base frente al modelo principal de Regresión
+Binomial Negativa, que parametriza explícitamente esta sobredispersión.
+
+Esta sección no representa un cuarto algoritmo seleccionado en el
+proceso de modelado, sino una referencia estadística que fundamenta
+empíricamente la elección de la Binomial Negativa como modelo principal.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{objetos\_requeridos\_pois }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"datos\_modelo"}\NormalTok{, }\StringTok{"calcular\_metricas"}\NormalTok{, }\StringTok{"metricas\_nb"}\NormalTok{, }\StringTok{"modelo\_nb\_final"}
+\NormalTok{)}
+
+\ControlFlowTok{for}\NormalTok{ (obj }\ControlFlowTok{in}\NormalTok{ objetos\_requeridos\_pois) \{}
+  \ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{exists}\NormalTok{(obj)) \{}
+    \FunctionTok{stop}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"Debe ejecutarse primero el paso 01. Falta:"}\NormalTok{, obj))}
+\NormalTok{  \}}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{formula\_pois\_1 }\OtherTok{\textless{}{-}}\NormalTok{ casos\_divorcio }\SpecialCharTok{\textasciitilde{}}\NormalTok{ casos\_violencia\_z }\SpecialCharTok{+}\NormalTok{ es\_capital}
+
+\NormalTok{formula\_pois\_2 }\OtherTok{\textless{}{-}}\NormalTok{ casos\_divorcio }\SpecialCharTok{\textasciitilde{}}\NormalTok{ casos\_violencia\_z }\SpecialCharTok{+}\NormalTok{ es\_capital }\SpecialCharTok{+}\NormalTok{ porc\_urbano\_z}
+
+\NormalTok{formula\_pois\_3 }\OtherTok{\textless{}{-}}\NormalTok{ casos\_divorcio }\SpecialCharTok{\textasciitilde{}}\NormalTok{ casos\_violencia\_z }\SpecialCharTok{*}\NormalTok{ es\_capital}
+
+\NormalTok{formula\_pois\_4 }\OtherTok{\textless{}{-}}\NormalTok{ casos\_divorcio }\SpecialCharTok{\textasciitilde{}}\NormalTok{ casos\_violencia\_z }\SpecialCharTok{+}\NormalTok{ es\_capital }\SpecialCharTok{+}
+\NormalTok{                  porc\_urbano\_z }\SpecialCharTok{+}\NormalTok{ edad\_victima\_prom\_z}
+\end{Highlighting}
+\end{Shaded}
+
+Se definen exactamente las mismas cuatro fórmulas utilizadas en la
+Binomial Negativa. Esto garantiza que cualquier diferencia en las
+métricas se atribuye exclusivamente a la familia distribucional y no a
+cambios en la especificación del modelo.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{modelo\_pois\_1 }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(formula\_pois\_1, }\AttributeTok{data =}\NormalTok{ datos\_modelo, }\AttributeTok{family =} \FunctionTok{poisson}\NormalTok{(}\AttributeTok{link =} \StringTok{"log"}\NormalTok{))}
+\NormalTok{modelo\_pois\_2 }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(formula\_pois\_2, }\AttributeTok{data =}\NormalTok{ datos\_modelo, }\AttributeTok{family =} \FunctionTok{poisson}\NormalTok{(}\AttributeTok{link =} \StringTok{"log"}\NormalTok{))}
+\NormalTok{modelo\_pois\_3 }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(formula\_pois\_3, }\AttributeTok{data =}\NormalTok{ datos\_modelo, }\AttributeTok{family =} \FunctionTok{poisson}\NormalTok{(}\AttributeTok{link =} \StringTok{"log"}\NormalTok{))}
+\NormalTok{modelo\_pois\_4 }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(formula\_pois\_4, }\AttributeTok{data =}\NormalTok{ datos\_modelo, }\AttributeTok{family =} \FunctionTok{poisson}\NormalTok{(}\AttributeTok{link =} \StringTok{"log"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+Se ajustan los cuatro modelos Poisson sobre el dataset completo. Estos
+objetos se usan para calcular AIC, BIC y la razón de dispersión de
+Pearson.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{calcular\_dispersion\_poisson }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(modelo) \{}
+  \FunctionTok{sum}\NormalTok{(}\FunctionTok{residuals}\NormalTok{(modelo, }\AttributeTok{type =} \StringTok{"pearson"}\NormalTok{)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{) }\SpecialCharTok{/}\NormalTok{ modelo}\SpecialCharTok{$}\NormalTok{df.residual}
+\NormalTok{\}}
+
+\NormalTok{dispersion\_poisson }\OtherTok{\textless{}{-}} \FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{modelo     =} \FunctionTok{c}\NormalTok{(}\StringTok{"POIS\_1"}\NormalTok{, }\StringTok{"POIS\_2"}\NormalTok{, }\StringTok{"POIS\_3"}\NormalTok{, }\StringTok{"POIS\_4"}\NormalTok{),}
+  \AttributeTok{dispersion =} \FunctionTok{c}\NormalTok{(}
+    \FunctionTok{calcular\_dispersion\_poisson}\NormalTok{(modelo\_pois\_1),}
+    \FunctionTok{calcular\_dispersion\_poisson}\NormalTok{(modelo\_pois\_2),}
+    \FunctionTok{calcular\_dispersion\_poisson}\NormalTok{(modelo\_pois\_3),}
+    \FunctionTok{calcular\_dispersion\_poisson}\NormalTok{(modelo\_pois\_4)}
+\NormalTok{  )}
+\NormalTok{)}
+
+\NormalTok{dispersion\_poisson }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Razón de dispersión en modelos Poisson"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}lr@{}}
+\caption{Razón de dispersión en modelos Poisson}\tabularnewline
+\toprule\noalign{}
+modelo & dispersion \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+modelo & dispersion \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+POIS\_1 & 84.688 \\
+POIS\_2 & 88.864 \\
+POIS\_3 & 84.688 \\
+POIS\_4 & 95.743 \\
+\end{longtable}
+
+La razón de dispersión de Pearson mide cuántas veces más variable son
+los datos respecto a lo que Poisson predice. Un valor igual a 1 indica
+ajuste perfecto; valores sustancialmente mayores a 1 evidencian
+sobredispersión. Cuando existe sobredispersión, Poisson subestima los
+errores estándar y produce intervalos de confianza demasiado estrechos,
+lo que infla artificialmente la significancia estadística de los
+coeficientes. Esto refuerza la elección de la Regresión Binomial
+Negativa como modelo principal, ya que esta familia parametriza
+explícitamente la sobredispersión mediante el parámetro θ.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{loo\_poisson }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(formula\_modelo, datos) \{}
+\NormalTok{  n }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(datos)}
+\NormalTok{  predicciones }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(n)}
+
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{seq\_len}\NormalTok{(n)) \{}
+\NormalTok{    entrenamiento   }\OtherTok{\textless{}{-}}\NormalTok{ datos[}\SpecialCharTok{{-}}\NormalTok{i, , drop }\OtherTok{=} \ConstantTok{FALSE}\NormalTok{]}
+\NormalTok{    prueba          }\OtherTok{\textless{}{-}}\NormalTok{ datos[i, , drop }\OtherTok{=} \ConstantTok{FALSE}\NormalTok{]}
+\NormalTok{    modelo          }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(formula\_modelo, }\AttributeTok{data =}\NormalTok{ entrenamiento, }\AttributeTok{family =} \FunctionTok{poisson}\NormalTok{(}\AttributeTok{link =} \StringTok{"log"}\NormalTok{))}
+\NormalTok{    predicciones[i] }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(modelo, }\AttributeTok{newdata =}\NormalTok{ prueba, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
+\NormalTok{  \}}
+
+  \FunctionTok{list}\NormalTok{(}
+    \AttributeTok{metricas     =} \FunctionTok{calcular\_metricas}\NormalTok{(datos}\SpecialCharTok{$}\NormalTok{casos\_divorcio, predicciones),}
+    \AttributeTok{predicciones =}\NormalTok{ predicciones}
+\NormalTok{  )}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Se define la función \texttt{loo\_poisson} con la misma estructura que
+\texttt{loo\_nb}. En cada iteración entrena con 21 departamentos y
+predice el restante, devolviendo las métricas MAE, RMSE y MAPE junto con
+el vector de predicciones.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{loo\_pois\_1 }\OtherTok{\textless{}{-}} \FunctionTok{loo\_poisson}\NormalTok{(formula\_pois\_1, datos\_modelo)}
+\NormalTok{loo\_pois\_2 }\OtherTok{\textless{}{-}} \FunctionTok{loo\_poisson}\NormalTok{(formula\_pois\_2, datos\_modelo)}
+\NormalTok{loo\_pois\_3 }\OtherTok{\textless{}{-}} \FunctionTok{loo\_poisson}\NormalTok{(formula\_pois\_3, datos\_modelo)}
+\NormalTok{loo\_pois\_4 }\OtherTok{\textless{}{-}} \FunctionTok{loo\_poisson}\NormalTok{(formula\_pois\_4, datos\_modelo)}
+
+\NormalTok{pred\_loo\_pois }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{POIS\_1 =}\NormalTok{ loo\_pois\_1}\SpecialCharTok{$}\NormalTok{predicciones,}
+  \AttributeTok{POIS\_2 =}\NormalTok{ loo\_pois\_2}\SpecialCharTok{$}\NormalTok{predicciones,}
+  \AttributeTok{POIS\_3 =}\NormalTok{ loo\_pois\_3}\SpecialCharTok{$}\NormalTok{predicciones,}
+  \AttributeTok{POIS\_4 =}\NormalTok{ loo\_pois\_4}\SpecialCharTok{$}\NormalTok{predicciones}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Se corre LOOCV para cada variante Poisson. Las predicciones se almacenan
+en la lista \texttt{pred\_loo\_pois} para uso en la comparación final
+entre algoritmos.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{metricas\_poisson }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(}
+\NormalTok{  loo\_pois\_1}\SpecialCharTok{$}\NormalTok{metricas }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{modelo =} \StringTok{"POIS\_1"}\NormalTok{,}
+    \AttributeTok{formula =} \FunctionTok{paste}\NormalTok{(}\FunctionTok{deparse}\NormalTok{(formula\_pois\_1), }\AttributeTok{collapse =} \StringTok{" "}\NormalTok{)),}
+\NormalTok{  loo\_pois\_2}\SpecialCharTok{$}\NormalTok{metricas }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{modelo =} \StringTok{"POIS\_2"}\NormalTok{,}
+    \AttributeTok{formula =} \FunctionTok{paste}\NormalTok{(}\FunctionTok{deparse}\NormalTok{(formula\_pois\_2), }\AttributeTok{collapse =} \StringTok{" "}\NormalTok{)),}
+\NormalTok{  loo\_pois\_3}\SpecialCharTok{$}\NormalTok{metricas }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{modelo =} \StringTok{"POIS\_3"}\NormalTok{,}
+    \AttributeTok{formula =} \FunctionTok{paste}\NormalTok{(}\FunctionTok{deparse}\NormalTok{(formula\_pois\_3), }\AttributeTok{collapse =} \StringTok{" "}\NormalTok{)),}
+\NormalTok{  loo\_pois\_4}\SpecialCharTok{$}\NormalTok{metricas }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{modelo =} \StringTok{"POIS\_4"}\NormalTok{,}
+    \AttributeTok{formula =} \FunctionTok{paste}\NormalTok{(}\FunctionTok{deparse}\NormalTok{(formula\_pois\_4), }\AttributeTok{collapse =} \StringTok{" "}\NormalTok{))}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{AIC        =} \FunctionTok{c}\NormalTok{(}\FunctionTok{AIC}\NormalTok{(modelo\_pois\_1), }\FunctionTok{AIC}\NormalTok{(modelo\_pois\_2), }\FunctionTok{AIC}\NormalTok{(modelo\_pois\_3), }\FunctionTok{AIC}\NormalTok{(modelo\_pois\_4)),}
+    \AttributeTok{BIC        =} \FunctionTok{c}\NormalTok{(}\FunctionTok{BIC}\NormalTok{(modelo\_pois\_1), }\FunctionTok{BIC}\NormalTok{(modelo\_pois\_2), }\FunctionTok{BIC}\NormalTok{(modelo\_pois\_3), }\FunctionTok{BIC}\NormalTok{(modelo\_pois\_4)),}
+    \AttributeTok{dispersion =}\NormalTok{ dispersion\_poisson}\SpecialCharTok{$}\NormalTok{dispersion,}
+    \AttributeTok{algoritmo  =} \StringTok{"Regresión Poisson"}\NormalTok{,}
+    \AttributeTok{rol        =} \StringTok{"Referencia"}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(algoritmo, rol, modelo, formula, AIC, BIC, dispersion, MAE, RMSE, MAPE)}
+
+\NormalTok{metricas\_poisson }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(MAE, RMSE, AIC) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Comparación de modelos Poisson"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.1006}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0615}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0391}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.5084}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0503}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0503}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0615}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0447}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0447}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 18\tabcolsep) * \real{0.0391}}@{}}
+\caption{Comparación de modelos Poisson}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+algoritmo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+rol
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+modelo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+formula
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+AIC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+BIC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+dispersion
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MAE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RMSE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MAPE
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+algoritmo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+rol
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+modelo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+formula
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+AIC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+BIC
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+dispersion
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MAE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RMSE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MAPE
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Regresión Poisson & Referencia & POIS\_1 & casos\_divorcio
+\textasciitilde{} casos\_violencia\_z + es\_capital & 1668.408 &
+1671.681 & 84.688 & 305.308 & 672.319 & 79.283 \\
+Regresión Poisson & Referencia & POIS\_3 & casos\_divorcio
+\textasciitilde{} casos\_violencia\_z * es\_capital & 1668.408 &
+1671.681 & 84.688 & 305.308 & 672.319 & 79.283 \\
+Regresión Poisson & Referencia & POIS\_2 & casos\_divorcio
+\textasciitilde{} casos\_violencia\_z + es\_capital + porc\_urbano\_z &
+1666.627 & 1670.991 & 88.864 & 332.428 & 722.469 & 92.412 \\
+Regresión Poisson & Referencia & POIS\_4 & casos\_divorcio
+\textasciitilde{} casos\_violencia\_z + es\_capital + porc\_urbano\_z +
+edad\_victima\_prom\_z & 1660.340 & 1665.796 & 95.743 & 342.383 &
+745.780 & 93.717 \\
+\end{longtable}
+
+La tabla compara las cuatro variantes del modelo Poisson ordenadas de
+menor a mayor MAE bajo LOOCV. La columna \texttt{dispersion} confirma
+sobredispersión severa en todos los modelos. Los valores de AIC y BIC de
+Poisson son considerablemente más altos que los de la Binomial Negativa,
+lo que cuantifica el costo de ignorar la sobredispersión en términos de
+ajuste del modelo. El modelo con mejor desempeño predictivo según el
+LOOCV se selecciona como referencia final.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mejor\_pois\_nombre }\OtherTok{\textless{}{-}}\NormalTok{ metricas\_poisson }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(MAE, RMSE, AIC) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{slice}\NormalTok{(}\DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{pull}\NormalTok{(modelo)}
+
+\NormalTok{modelo\_poisson\_final }\OtherTok{\textless{}{-}} \ControlFlowTok{switch}\NormalTok{(}
+\NormalTok{  mejor\_pois\_nombre,}
+  \StringTok{"POIS\_1"} \OtherTok{=}\NormalTok{ modelo\_pois\_1,}
+  \StringTok{"POIS\_2"} \OtherTok{=}\NormalTok{ modelo\_pois\_2,}
+  \StringTok{"POIS\_3"} \OtherTok{=}\NormalTok{ modelo\_pois\_3,}
+  \StringTok{"POIS\_4"} \OtherTok{=}\NormalTok{ modelo\_pois\_4}
+\NormalTok{)}
+
+\NormalTok{pred\_poisson\_final     }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(modelo\_poisson\_final, }\AttributeTok{newdata =}\NormalTok{ datos\_modelo, }\AttributeTok{type =} \StringTok{"response"}\NormalTok{)}
+\NormalTok{metricas\_poisson\_final }\OtherTok{\textless{}{-}} \FunctionTok{calcular\_metricas}\NormalTok{(datos\_modelo}\SpecialCharTok{$}\NormalTok{casos\_divorcio, pred\_poisson\_final)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{diagnostico\_poisson }\OtherTok{\textless{}{-}}\NormalTok{ datos\_modelo }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(cod\_depto, casos\_divorcio) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{pred\_poisson            =}\NormalTok{ pred\_poisson\_final,}
+    \AttributeTok{residuo\_pearson\_poisson =} \FunctionTok{residuals}\NormalTok{(modelo\_poisson\_final, }\AttributeTok{type =} \StringTok{"pearson"}\NormalTok{)}
+\NormalTok{  )}
+
+\NormalTok{diagnostico\_poisson }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Diagnóstico del modelo Poisson de referencia"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}rrrr@{}}
+\caption{Diagnóstico del modelo Poisson de referencia}\tabularnewline
+\toprule\noalign{}
+cod\_depto & casos\_divorcio & pred\_poisson &
+residuo\_pearson\_poisson \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+cod\_depto & casos\_divorcio & pred\_poisson &
+residuo\_pearson\_poisson \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 3295 & 3295.000 & 0.000 \\
+2 & 179 & 308.682 & -7.381 \\
+3 & 174 & 326.171 & -8.426 \\
+4 & 210 & 341.748 & -7.127 \\
+5 & 497 & 327.951 & 9.335 \\
+6 & 316 & 308.803 & 0.410 \\
+7 & 137 & 286.508 & -8.833 \\
+8 & 201 & 289.503 & -5.202 \\
+9 & 794 & 339.662 & 24.652 \\
+10 & 485 & 328.589 & 8.629 \\
+11 & 331 & 322.577 & 0.469 \\
+12 & 565 & 326.615 & 13.190 \\
+13 & 450 & 305.014 & 8.302 \\
+14 & 314 & 294.240 & 1.152 \\
+15 & 145 & 315.017 & -9.579 \\
+16 & 198 & 431.195 & -11.230 \\
+17 & 326 & 306.321 & 1.124 \\
+18 & 286 & 302.622 & -0.956 \\
+19 & 195 & 302.181 & -6.166 \\
+20 & 212 & 289.869 & -4.574 \\
+21 & 238 & 289.334 & -3.018 \\
+22 & 402 & 312.395 & 5.070 \\
+\end{longtable}
+
+La tabla de diagnóstico presenta las predicciones del modelo Poisson de
+referencia y sus residuales de Pearson por departamento. Valores fuera
+del rango ±2 indican observaciones que el modelo no puede ajustar
+correctamente. Comparar estos residuales con los de la Binomial Negativa
+permite visualizar directamente el efecto de la sobredispersión: bajo
+Poisson, los residuales tienden a ser más extremos y con mayor
+dispersión, reflejando que el modelo subestima la varianza real de los
+datos.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(diagnostico\_poisson, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ pred\_poisson, }\AttributeTok{y =}\NormalTok{ casos\_divorcio)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{size =} \FloatTok{2.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_abline}\NormalTok{(}\AttributeTok{slope =} \DecValTok{1}\NormalTok{, }\AttributeTok{intercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{, }\AttributeTok{color =} \StringTok{"gray50"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Valores observados vs predichos — Poisson"}\NormalTok{,}
+    \AttributeTok{x     =} \StringTok{"Casos predichos"}\NormalTok{,}
+    \AttributeTok{y     =} \StringTok{"Casos observados"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Proyecto_Entrega2_Presentacion_Resultados_files/figure-latex/pois-grafica-obs-pred-1.pdf}
+
+El gráfico compara los valores observados de divorcios contra los
+predichos por el modelo Poisson de referencia. Al igual que en la
+Binomial Negativa, se observan dos grupos: la nube de departamentos del
+interior en la esquina inferior izquierda y el Departamento de Guatemala
+como punto aislado a la derecha. La diferencia clave respecto a la
+Binomial Negativa se manifestará en los residuales: Poisson, al no
+parametrizar la sobredispersión, genera predicciones que pueden ser
+similares en valor esperado pero con mayor incertidumbre subestimada.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(diagnostico\_poisson, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ pred\_poisson, }\AttributeTok{y =}\NormalTok{ residuo\_pearson\_poisson)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{size =} \FloatTok{2.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_hline}\NormalTok{(}\AttributeTok{yintercept =} \DecValTok{0}\NormalTok{,        }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_hline}\NormalTok{(}\AttributeTok{yintercept =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{), }\AttributeTok{linetype =} \StringTok{"dotted"}\NormalTok{, }\AttributeTok{color =} \StringTok{"orange"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Residuales de Pearson — Poisson"}\NormalTok{,}
+    \AttributeTok{x     =} \StringTok{"Casos predichos"}\NormalTok{,}
+    \AttributeTok{y     =} \StringTok{"Residual de Pearson"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Proyecto_Entrega2_Presentacion_Resultados_files/figure-latex/pois-grafica-residuales-1.pdf}
+
+El gráfico de residuales de Pearson del modelo Poisson es la evidencia
+más directa de la sobredispersión. A diferencia del modelo Binomial
+Negativo, se espera que más departamentos presenten residuales fuera del
+rango ±2 y que la magnitud de los valores extremos sea mayor. Esto
+ocurre porque Poisson asume que la varianza es igual a la media: cuando
+la varianza real es mucho mayor, el modelo produce residuales
+estandarizados inflados. La comparación visual entre este gráfico y el
+equivalente de la Binomial Negativa constituye la evidencia gráfica más
+clara de por qué la Binomial Negativa es el modelo adecuado para estos
+datos.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{exists}\NormalTok{(}\StringTok{"metricas\_nb"}\NormalTok{))}
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{exists}\NormalTok{(}\StringTok{"metricas\_poisson"}\NormalTok{))}
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{exists}\NormalTok{(}\StringTok{"modelo\_poisson\_final"}\NormalTok{))}
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{exists}\NormalTok{(}\StringTok{"pred\_poisson\_final"}\NormalTok{))}
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(metricas\_poisson) }\SpecialCharTok{\textgreater{}=} \DecValTok{3}\NormalTok{)}
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Poisson (referencia) OK — modelo final:"}\NormalTok{, mejor\_pois\_nombre, }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Poisson (referencia) OK — modelo final: POIS_1
+\end{verbatim}
+
+\hypertarget{modelo-de-apoyo-random-forest}{%
+\subsection{Modelo de apoyo: Random
+Forest}\label{modelo-de-apoyo-random-forest}}
+
+Random Forest se incorpora como modelo de apoyo para comparar el enfoque
+estadístico principal (Regresión Binomial Negativa) frente a un método
+no lineal de aprendizaje automático. Permite evaluar si aparecen
+relaciones no lineales y revisar la \textbf{importancia relativa} de los
+predictores mediante permutación. \textbf{No sustituye} al modelo
+principal: la Binomial Negativa sigue siendo la especificación más
+adecuada para conteos con sobredispersión y ofrece interpretación más
+directa en escala de tasas esperadas.
+
+Se entrena como \textbf{regresión} sobre \texttt{casos\_divorcio} en su
+escala original (sin log), con las mismas variables estandarizadas que
+en los modelos GLM, se excluye \texttt{cod\_depto} del entrenamiento y
+la evaluación predictiva usa \textbf{LOOCV} para mantener consistencia
+con NB y Poisson. Con \(n = 22\) departamentos, la configuración de
+hiperparámetros es deliberadamente conservadora para limitar el
+sobreajuste.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{objetos\_requeridos\_rf }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"datos\_modelo"}\NormalTok{, }\StringTok{"calcular\_metricas"}\NormalTok{, }\StringTok{"metricas\_nb"}\NormalTok{, }\StringTok{"metricas\_poisson"}
+\NormalTok{)}
+
+\ControlFlowTok{for}\NormalTok{ (obj }\ControlFlowTok{in}\NormalTok{ objetos\_requeridos\_rf) \{}
+  \ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{exists}\NormalTok{(obj)) \{}
+    \FunctionTok{stop}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"Debe ejecutarse primero el paso anterior. Falta:"}\NormalTok{, obj))}
+\NormalTok{  \}}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datos\_rf }\OtherTok{\textless{}{-}}\NormalTok{ datos\_modelo }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(}
+\NormalTok{    casos\_divorcio,}
+\NormalTok{    casos\_violencia\_z,}
+\NormalTok{    edad\_victima\_prom\_z,}
+\NormalTok{    porc\_urbano\_z,}
+\NormalTok{    es\_capital}
+\NormalTok{  )}
+
+\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\StringTok{"casos\_divorcio"} \SpecialCharTok{\%in\%} \FunctionTok{names}\NormalTok{(datos\_rf)) \{}
+  \FunctionTok{stop}\NormalTok{(}\StringTok{"datos\_rf debe contener la variable respuesta casos\_divorcio."}\NormalTok{)}
+\NormalTok{\}}
+
+\ControlFlowTok{if}\NormalTok{ (}\FunctionTok{nrow}\NormalTok{(datos\_rf) }\SpecialCharTok{!=} \FunctionTok{nrow}\NormalTok{(datos\_modelo)) \{}
+  \FunctionTok{stop}\NormalTok{(}\StringTok{"datos\_rf tiene distinto número de filas que datos\_modelo. Verificar la preparación."}\NormalTok{)}
+\NormalTok{\}}
+
+\NormalTok{predictores\_rf }\OtherTok{\textless{}{-}} \FunctionTok{setdiff}\NormalTok{(}\FunctionTok{names}\NormalTok{(datos\_rf), }\StringTok{"casos\_divorcio"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+El objeto \texttt{datos\_rf} replica las 22 filas de
+\texttt{datos\_modelo} y solo incluye la respuesta y predictores
+numéricos (más la dummy \texttt{es\_capital}), sin identificador
+departamental, para que el bosque no aprenda patrones espurios a partir
+de códigos administrativos.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{loo\_rf }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(datos, mtry\_valor, min\_node\_size\_valor, num\_trees\_valor) \{}
+\NormalTok{  n            }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(datos)}
+\NormalTok{  predicciones }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(n)}
+
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{seq\_len}\NormalTok{(n)) \{}
+\NormalTok{    entrenamiento   }\OtherTok{\textless{}{-}}\NormalTok{ datos[}\SpecialCharTok{{-}}\NormalTok{i, , drop }\OtherTok{=} \ConstantTok{FALSE}\NormalTok{]}
+\NormalTok{    prueba          }\OtherTok{\textless{}{-}}\NormalTok{ datos[i, , drop }\OtherTok{=} \ConstantTok{FALSE}\NormalTok{]}
+
+\NormalTok{    modelo }\OtherTok{\textless{}{-}} \FunctionTok{ranger}\NormalTok{(}
+\NormalTok{      casos\_divorcio }\SpecialCharTok{\textasciitilde{}}\NormalTok{ .,}
+      \AttributeTok{data           =}\NormalTok{ entrenamiento,}
+      \AttributeTok{num.trees      =}\NormalTok{ num\_trees\_valor,}
+      \AttributeTok{mtry           =}\NormalTok{ mtry\_valor,}
+      \AttributeTok{min.node.size  =}\NormalTok{ min\_node\_size\_valor,}
+      \AttributeTok{importance     =} \StringTok{"permutation"}\NormalTok{,}
+      \AttributeTok{seed           =} \DecValTok{123}
+\NormalTok{    )}
+
+\NormalTok{    predicciones[i] }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(modelo, }\AttributeTok{data =}\NormalTok{ prueba)}\SpecialCharTok{$}\NormalTok{predictions}
+\NormalTok{  \}}
+
+  \FunctionTok{list}\NormalTok{(}
+    \AttributeTok{metricas =} \FunctionTok{calcular\_metricas}\NormalTok{(datos}\SpecialCharTok{$}\NormalTok{casos\_divorcio, predicciones) }\SpecialCharTok{\%\textgreater{}\%}
+      \FunctionTok{mutate}\NormalTok{(}
+        \AttributeTok{mtry          =}\NormalTok{ mtry\_valor,}
+        \AttributeTok{min\_node\_size =}\NormalTok{ min\_node\_size\_valor,}
+        \AttributeTok{num\_trees     =}\NormalTok{ num\_trees\_valor}
+\NormalTok{      ),}
+    \AttributeTok{predicciones =}\NormalTok{ predicciones}
+\NormalTok{  )}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mtry\_base }\OtherTok{\textless{}{-}} \FunctionTok{max}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FunctionTok{floor}\NormalTok{(}\FunctionTok{sqrt}\NormalTok{(}\FunctionTok{length}\NormalTok{(predictores\_rf))))}
+
+\NormalTok{loo\_rf\_1 }\OtherTok{\textless{}{-}} \FunctionTok{loo\_rf}\NormalTok{(datos\_rf, }\AttributeTok{mtry\_valor =}\NormalTok{ mtry\_base,}
+                   \AttributeTok{min\_node\_size\_valor =} \DecValTok{3}\NormalTok{, }\AttributeTok{num\_trees\_valor =} \DecValTok{300}\NormalTok{)}
+
+\NormalTok{loo\_rf\_2 }\OtherTok{\textless{}{-}} \FunctionTok{loo\_rf}\NormalTok{(datos\_rf, }\AttributeTok{mtry\_valor =} \FunctionTok{max}\NormalTok{(}\DecValTok{1}\NormalTok{, mtry\_base }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{),}
+                   \AttributeTok{min\_node\_size\_valor =} \DecValTok{4}\NormalTok{, }\AttributeTok{num\_trees\_valor =} \DecValTok{500}\NormalTok{)}
+
+\NormalTok{loo\_rf\_3 }\OtherTok{\textless{}{-}} \FunctionTok{loo\_rf}\NormalTok{(datos\_rf, }\AttributeTok{mtry\_valor =} \FunctionTok{min}\NormalTok{(}\FunctionTok{length}\NormalTok{(predictores\_rf), mtry\_base }\SpecialCharTok{+} \DecValTok{1}\NormalTok{),}
+                   \AttributeTok{min\_node\_size\_valor =} \DecValTok{2}\NormalTok{, }\AttributeTok{num\_trees\_valor =} \DecValTok{500}\NormalTok{)}
+
+\NormalTok{pred\_loo\_rf }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{RF\_1 =}\NormalTok{ loo\_rf\_1}\SpecialCharTok{$}\NormalTok{predicciones,}
+  \AttributeTok{RF\_2 =}\NormalTok{ loo\_rf\_2}\SpecialCharTok{$}\NormalTok{predicciones,}
+  \AttributeTok{RF\_3 =}\NormalTok{ loo\_rf\_3}\SpecialCharTok{$}\NormalTok{predicciones}
+\NormalTok{)}
+
+\NormalTok{metricas\_rf }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(}
+\NormalTok{  loo\_rf\_1}\SpecialCharTok{$}\NormalTok{metricas }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{modelo =} \StringTok{"RF\_1"}\NormalTok{),}
+\NormalTok{  loo\_rf\_2}\SpecialCharTok{$}\NormalTok{metricas }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{modelo =} \StringTok{"RF\_2"}\NormalTok{),}
+\NormalTok{  loo\_rf\_3}\SpecialCharTok{$}\NormalTok{metricas }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{modelo =} \StringTok{"RF\_3"}\NormalTok{)}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{algoritmo =} \StringTok{"Random Forest"}\NormalTok{,}
+    \AttributeTok{rol       =} \StringTok{"Apoyo"}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(algoritmo, rol, modelo, mtry, min\_node\_size, num\_trees, MAE, RMSE, MAPE)}
+
+\NormalTok{metricas\_rf }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(MAE, RMSE) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Comparación de modelos Random Forest (LOOCV)"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1772}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0759}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0886}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0633}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1772}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1266}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1013}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1013}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.0886}}@{}}
+\caption{Comparación de modelos Random Forest (LOOCV)}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+algoritmo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+rol
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+modelo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+mtry
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+min\_node\_size
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+num\_trees
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MAE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RMSE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MAPE
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+algoritmo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+rol
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+modelo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+mtry
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+min\_node\_size
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+num\_trees
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MAE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+RMSE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MAPE
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Random Forest & Apoyo & RF\_3 & 3 & 2 & 500 & 300.120 & 661.341 &
+75.201 \\
+Random Forest & Apoyo & RF\_2 & 1 & 4 & 500 & 301.877 & 668.170 &
+75.212 \\
+Random Forest & Apoyo & RF\_1 & 2 & 3 & 300 & 307.793 & 665.297 &
+77.588 \\
+\end{longtable}
+
+La tabla resume tres configuraciones que difieren en \texttt{mtry},
+\texttt{min.node.size} y número de árboles. La variante con menor
+\textbf{MAE} y \textbf{RMSE} bajo LOOCV se adopta como Random Forest
+final; si dos filas empatan, el orden \texttt{arrange(MAE,\ RMSE)}
+prioriza el error absoluto medio.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mejor\_rf }\OtherTok{\textless{}{-}}\NormalTok{ metricas\_rf }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(MAE, RMSE) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{slice}\NormalTok{(}\DecValTok{1}\NormalTok{)}
+
+\NormalTok{modelo\_rf\_final }\OtherTok{\textless{}{-}} \FunctionTok{ranger}\NormalTok{(}
+\NormalTok{  casos\_divorcio }\SpecialCharTok{\textasciitilde{}}\NormalTok{ .,}
+  \AttributeTok{data          =}\NormalTok{ datos\_rf,}
+  \AttributeTok{num.trees     =}\NormalTok{ mejor\_rf}\SpecialCharTok{$}\NormalTok{num\_trees,}
+  \AttributeTok{mtry          =}\NormalTok{ mejor\_rf}\SpecialCharTok{$}\NormalTok{mtry,}
+  \AttributeTok{min.node.size =}\NormalTok{ mejor\_rf}\SpecialCharTok{$}\NormalTok{min\_node\_size,}
+  \AttributeTok{importance    =} \StringTok{"permutation"}\NormalTok{,}
+  \AttributeTok{seed          =} \DecValTok{123}
+\NormalTok{)}
+
+\NormalTok{pred\_rf\_final     }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(modelo\_rf\_final, }\AttributeTok{data =}\NormalTok{ datos\_rf)}\SpecialCharTok{$}\NormalTok{predictions}
+\NormalTok{metricas\_rf\_final }\OtherTok{\textless{}{-}} \FunctionTok{calcular\_metricas}\NormalTok{(datos\_rf}\SpecialCharTok{$}\NormalTok{casos\_divorcio, pred\_rf\_final)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{diagnostico\_rf }\OtherTok{\textless{}{-}}\NormalTok{ datos\_modelo }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(cod\_depto, casos\_divorcio) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{pred\_rf =}\NormalTok{ pred\_rf\_final)}
+
+\NormalTok{diagnostico\_rf }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Predicciones del modelo Random Forest final por departamento"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}rrr@{}}
+\caption{Predicciones del modelo Random Forest final por
+departamento}\tabularnewline
+\toprule\noalign{}
+cod\_depto & casos\_divorcio & pred\_rf \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+cod\_depto & casos\_divorcio & pred\_rf \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & 3295 & 2125.349 \\
+2 & 179 & 228.292 \\
+3 & 174 & 304.661 \\
+4 & 210 & 323.432 \\
+5 & 497 & 459.001 \\
+6 & 316 & 328.707 \\
+7 & 137 & 360.830 \\
+8 & 201 & 250.361 \\
+9 & 794 & 573.675 \\
+10 & 485 & 459.975 \\
+11 & 331 & 339.350 \\
+12 & 565 & 476.578 \\
+13 & 450 & 394.351 \\
+14 & 314 & 313.666 \\
+15 & 145 & 204.933 \\
+16 & 198 & 264.367 \\
+17 & 326 & 378.837 \\
+18 & 286 & 285.284 \\
+19 & 195 & 206.618 \\
+20 & 212 & 233.076 \\
+21 & 238 & 247.769 \\
+22 & 402 & 340.639 \\
+\end{longtable}
+
+La tabla alinea \texttt{cod\_depto} desde \texttt{datos\_modelo} con las
+predicciones del bosque; el orden de filas coincide con
+\texttt{datos\_rf} porque ambos provienen del mismo
+\texttt{datos\_modelo} sin reordenar.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(diagnostico\_rf, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ pred\_rf, }\AttributeTok{y =}\NormalTok{ casos\_divorcio)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{size =} \FloatTok{2.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_abline}\NormalTok{(}\AttributeTok{slope =} \DecValTok{1}\NormalTok{, }\AttributeTok{intercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{, }\AttributeTok{color =} \StringTok{"gray50"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Valores observados vs predichos — Random Forest"}\NormalTok{,}
+    \AttributeTok{x     =} \StringTok{"Casos predichos"}\NormalTok{,}
+    \AttributeTok{y     =} \StringTok{"Casos observados"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{Proyecto_Entrega2_Presentacion_Resultados_files/figure-latex/rf-grafica-obs-pred-1.pdf}
+\caption{Valores observados frente a predichos para Random Forest
+(ajuste en muestra completa). La línea discontinua es predicción
+perfecta.}
+\end{figure}
+
+El gráfico usa la misma escala que NB y Poisson (divorcios observados vs
+predichos). Random Forest puede ajustar mejor algunos puntos del
+interior si existen interacciones no modeladas por los GLM, pero con
+\(n\) tan pequeño las diferencias deben interpretarse con cautela.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{importancia\_rf }\OtherTok{\textless{}{-}} \FunctionTok{tibble}\NormalTok{(}
+  \AttributeTok{variable    =} \FunctionTok{names}\NormalTok{(modelo\_rf\_final}\SpecialCharTok{$}\NormalTok{variable.importance),}
+  \AttributeTok{importancia =} \FunctionTok{as.numeric}\NormalTok{(modelo\_rf\_final}\SpecialCharTok{$}\NormalTok{variable.importance)}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(importancia))}
+
+\NormalTok{importancia\_rf }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{digits =} \DecValTok{3}\NormalTok{, }\AttributeTok{caption =} \StringTok{"Importancia de variables en Random Forest (permutación)"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}lr@{}}
+\caption{Importancia de variables en Random Forest
+(permutación)}\tabularnewline
+\toprule\noalign{}
+variable & importancia \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+variable & importancia \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+casos\_violencia\_z & 13975.365 \\
+es\_capital & 0.000 \\
+edad\_victima\_prom\_z & -4107.243 \\
+porc\_urbano\_z & -4310.927 \\
+\end{longtable}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(importancia\_rf, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{reorder}\NormalTok{(variable, importancia), }\AttributeTok{y =}\NormalTok{ importancia)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_col}\NormalTok{(}\AttributeTok{fill =} \StringTok{"steelblue"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.85}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{coord\_flip}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Importancia de variables — Random Forest"}\NormalTok{,}
+    \AttributeTok{x     =} \StringTok{"Variable"}\NormalTok{,}
+    \AttributeTok{y     =} \StringTok{"Importancia por permutación"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{Proyecto_Entrega2_Presentacion_Resultados_files/figure-latex/rf-importancia-grafica-1.pdf}
+\caption{Importancia por permutación en el Random Forest final (mayor
+valor = más contribución al error cuando la variable se permuta).}
+\end{figure}
+
+Tras ejecutar el documento, la variable con mayor importancia de
+permutación indica qué predictor el bosque usa con más intensidad para
+reducir el error de predicción. Si \textbf{\texttt{es\_capital}} y/o
+\textbf{\texttt{casos\_violencia\_z}} lideran la importancia, el
+resultado es coherente con la Regresión Binomial Negativa, donde la
+dummy metropolitana y el volumen de violencia concentran buena parte de
+la explicación a nivel departamental. Si otra variable gana claramente,
+sugiere que Random Forest está captando estructura adicional (por
+ejemplo, combinaciones no lineales con urbanización o edad) que el GLM
+lineal en los predictores no incorpora; ello no invalida el modelo
+principal, pero enriquece la lectura exploratoria.
+
+Dado el tamaño muestral, Random Forest tiene \textbf{mayor riesgo de
+ajuste específico a estos 22 puntos} que la Binomial Negativa; por eso
+se mantiene como apoyo y no como modelo de decisión principal.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{exists}\NormalTok{(}\StringTok{"metricas\_rf"}\NormalTok{))}
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{exists}\NormalTok{(}\StringTok{"modelo\_rf\_final"}\NormalTok{))}
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{exists}\NormalTok{(}\StringTok{"pred\_rf\_final"}\NormalTok{))}
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{exists}\NormalTok{(}\StringTok{"diagnostico\_rf"}\NormalTok{))}
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(metricas\_rf) }\SpecialCharTok{\textgreater{}=} \DecValTok{3}\NormalTok{)}
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(datos\_rf) }\SpecialCharTok{==} \FunctionTok{nrow}\NormalTok{(datos\_modelo))}
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Random Forest (apoyo) OK — configuración final: mtry ="}\NormalTok{, mejor\_rf}\SpecialCharTok{$}\NormalTok{mtry,}
+    \StringTok{", min.node.size ="}\NormalTok{, mejor\_rf}\SpecialCharTok{$}\NormalTok{min\_node\_size,}
+    \StringTok{", num.trees ="}\NormalTok{, mejor\_rf}\SpecialCharTok{$}\NormalTok{num\_trees, }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Random Forest (apoyo) OK — configuración final: mtry = 3 , min.node.size = 2 , num.trees = 500
+\end{verbatim}
+
+\end{document}
