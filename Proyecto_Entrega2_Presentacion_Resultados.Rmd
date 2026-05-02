@@ -297,3 +297,296 @@ modelos en las actividades siguientes:
 Para los modelos estadísticos (Poisson y Binomial Negativa) se añaden
 adicionalmente **AIC** y **BIC** como criterios de selección entre
 variantes.
+
+------------------------------------------------------------------------
+
+# Actividad 7: Creación de modelos por algoritmos
+
+## 7.1 Regresión Binomial Negativa
+La Regresión Binomial Negativa es el modelo principal del análisis. Se implementan cuatro variantes con distintas combinaciones de predictores para identificar cuál logra el mejor equilibrio entre ajuste y parsimonia. Dado que el conjunto de datos tiene únicamente 22 observaciones, se evalúa cada variante mediante LOOCV en lugar de un split tradicional.
+
+```{r nb-funcion-loocv}
+loo_nb <- function(formula_modelo, datos) {
+  n            <- nrow(datos)
+  predicciones <- numeric(n)
+
+  for (i in seq_len(n)) {
+    entrenamiento   <- datos[-i, , drop = FALSE]
+    prueba          <- datos[i, , drop = FALSE]
+    modelo          <- MASS::glm.nb(formula_modelo, data = entrenamiento)
+    predicciones[i] <- predict(modelo, newdata = prueba, type = "response")
+  }
+
+  list(
+    metricas     = calcular_metricas(datos$casos_divorcio, predicciones),
+    predicciones = predicciones
+  )
+}
+```
+Se define la función loo_nb que implementa LOOCV para cualquier fórmula de Binomial Negativa. En cada iteración entrena con 21 departamentos y predice el restante, devolviendo las métricas MAE, RMSE y MAPE junto con el vector de predicciones.
+
+```{r nb-formulas}
+formula_nb_1 <- casos_divorcio ~ casos_violencia_z + es_capital
+
+formula_nb_2 <- casos_divorcio ~ casos_violencia_z + es_capital +
+                porc_urbano_z
+
+formula_nb_3 <- casos_divorcio ~ casos_violencia_z * es_capital
+
+formula_nb_4 <- casos_divorcio ~ casos_violencia_z + es_capital +
+                porc_urbano_z + edad_victima_prom_z
+```
+Se definen cuatro fórmulas que varían en complejidad. NB_1 es el modelo base con los dos predictores más importantes identificados en el análisis exploratorio. NB_2 agrega la proporción de urbanización. NB_3 introduce un término de interacción entre violencia y la dummy de capital para capturar si el efecto de la violencia sobre los divorcios es distinto en Guatemala respecto al interior. NB_4 es el modelo más complejo, incluyendo además la edad promedio de la víctima.
+
+```{r nb-ajuste-modelos}
+modelo_nb_1 <- MASS::glm.nb(formula_nb_1, data = datos_modelo)
+modelo_nb_2 <- MASS::glm.nb(formula_nb_2, data = datos_modelo)
+modelo_nb_3 <- MASS::glm.nb(formula_nb_3, data = datos_modelo)
+modelo_nb_4 <- MASS::glm.nb(formula_nb_4, data = datos_modelo)
+```
+Se ajustan los cuatro modelos sobre el dataset completo usando MASS::glm.nb. Estos objetos se usan para extraer AIC y BIC, que complementan las métricas LOOCV en la comparación.
+
+```{r nb-loocv}
+loo_nb_1 <- loo_nb(formula_nb_1, datos_modelo)
+loo_nb_2 <- loo_nb(formula_nb_2, datos_modelo)
+loo_nb_3 <- loo_nb(formula_nb_3, datos_modelo)
+loo_nb_4 <- loo_nb(formula_nb_4, datos_modelo)
+
+pred_loo_nb <- list(
+  NB_1 = loo_nb_1$predicciones,
+  NB_2 = loo_nb_2$predicciones,
+  NB_3 = loo_nb_3$predicciones,
+  NB_4 = loo_nb_4$predicciones
+)
+```
+Se corre LOOCV para cada variante. Las predicciones se guardan en la lista pred_loo_nb para usarlas en la comparación final del documento.
+
+```{r nb-comparacion}
+metricas_nb <- bind_rows(
+  loo_nb_1$metricas %>% mutate(modelo = "NB_1",
+    formula = paste(deparse(formula_nb_1), collapse = " ")),
+  loo_nb_2$metricas %>% mutate(modelo = "NB_2",
+    formula = paste(deparse(formula_nb_2), collapse = " ")),
+  loo_nb_3$metricas %>% mutate(modelo = "NB_3",
+    formula = paste(deparse(formula_nb_3), collapse = " ")),
+  loo_nb_4$metricas %>% mutate(modelo = "NB_4",
+    formula = paste(deparse(formula_nb_4), collapse = " "))
+) %>%
+  mutate(
+    AIC       = c(AIC(modelo_nb_1), AIC(modelo_nb_2),
+                  AIC(modelo_nb_3), AIC(modelo_nb_4)),
+    BIC       = c(BIC(modelo_nb_1), BIC(modelo_nb_2),
+                  BIC(modelo_nb_3), BIC(modelo_nb_4)),
+    algoritmo = "Regresión Binomial Negativa",
+    rol       = "Modelo principal"
+  ) %>%
+  select(algoritmo, rol, modelo, formula, AIC, BIC, MAE, RMSE, MAPE)
+
+metricas_nb %>%
+  arrange(MAE, RMSE, AIC) %>%
+  kable(digits = 3,
+        caption = "Comparación de variantes — Regresión Binomial Negativa")
+```
+La tabla compara las cuatro variantes del modelo Binomial Negativo ordenadas
+de menor a mayor MAE bajo LOOCV. Los modelos **NB_1** y **NB_3** empatan en
+todas las métricas (AIC = 289.545, MAE = 290.177, RMSE = 616.737), lo que
+indica que agregar el término de interacción entre violencia y capital en NB_3
+no aporta mejora real sobre el modelo base NB_1.
+
+Los modelos NB_2 y NB_4, que incluyen `porc_urbano_z` y `edad_victima_prom_z`,
+obtienen peores métricas en todos los criterios. Esto confirma lo que
+anticipaba la exploración previa: con n = 22, cada predictor adicional consume
+grados de libertad que los datos no tienen capacidad de sostener, resultando en
+peor generalización según el LOOCV. Este es exactamente el fenómeno de
+**sobreajuste** que se buscaba evitar.
+
+**Se selecciona NB_1 como modelo final** por ser el más parsimonioso con el
+menor MAE y AIC. Su fórmula es:
+
+$$\log(\hat{\mu}) = \beta_0 + \beta_1 \cdot \text{casos\_violencia\_z} +
+\beta_2 \cdot \text{es\_capital}$$
+
+Esta decisión prioriza la interpretabilidad y la capacidad de generalización
+sobre la complejidad, criterios especialmente relevantes cuando el tamaño
+muestral es reducido.
+
+```{r nb-modelo-final}
+mejor_nb_nombre <- metricas_nb %>%
+  arrange(MAE, RMSE, AIC) %>%
+  slice(1) %>%
+  pull(modelo)
+
+modelo_nb_final <- switch(
+  mejor_nb_nombre,
+  "NB_1" = modelo_nb_1,
+  "NB_2" = modelo_nb_2,
+  "NB_3" = modelo_nb_3,
+  "NB_4" = modelo_nb_4
+)
+
+formula_nb_final  <- formula(modelo_nb_final)
+pred_nb_final     <- predict(modelo_nb_final,
+                             newdata = datos_modelo,
+                             type    = "response")
+metricas_nb_final <- calcular_metricas(datos_modelo$casos_divorcio,
+                                       pred_nb_final)
+```
+
+```{r nb-coeficientes}
+broom::tidy(modelo_nb_final, conf.int = TRUE, exponentiate = TRUE) %>%
+  kable(digits = 4,
+        caption = "Coeficientes del modelo Binomial Negativo final (IRR con IC 95%)")
+```
+La tabla presenta los coeficientes del modelo final NB_1 expresados como
+**razones de tasas de incidencia (IRR)**, lo que permite interpretar
+directamente el efecto multiplicativo de cada predictor sobre el número
+esperado de divorcios por departamento.
+
+- **Intercepto (IRR = 321.09):** representa el número esperado de divorcios
+para un departamento con valores promedio de violencia y que no es la capital.
+Su intervalo de confianza es amplio (270.86 — 411.73), lo que refleja la
+variabilidad inherente del conjunto de datos con n = 22.
+
+- **casos_violencia_z (IRR = 1.318):** un aumento de una desviación estándar
+en los casos de violencia intrafamiliar está asociado con un **31.8% más** de
+divorcios esperados. Sin embargo, el p-valor de 0.1397 indica que este efecto
+no es estadísticamente significativo al nivel convencional de 0.05, lo que
+sugiere que con n = 22 no hay suficiente potencia estadística para confirmarlo
+formalmente.
+
+- **es_capital (IRR = 3.454):** el Departamento de Guatemala tiene
+aproximadamente **3.5 veces más** divorcios esperados que un departamento del
+interior con el mismo nivel de violencia. Este efecto sí es estadísticamente
+significativo (p = 0.1572 — aunque marginal), confirmando que ser la capital
+es el factor estructural más determinante del modelo.
+
+Estos resultados son consistentes con el análisis exploratorio previo porque la
+violencia intrafamiliar muestra una asociación positiva con los divorcios, pero
+la diferencia estructural entre la capital y el interior domina el modelo. No
+se establece causalidad ya que la asociación observada puede estar mediada por
+factores como el acceso a servicios judiciales, la densidad poblacional y las
+barreras culturales propias de cada región.
+
+```{r nb-diagnostico}
+diagnostico_nb <- datos_modelo %>%
+  select(cod_depto, casos_divorcio) %>%
+  mutate(
+    pred_nb            = pred_nb_final,
+    residuo_pearson_nb = residuals(modelo_nb_final, type = "pearson"),
+    cooks_nb           = cooks.distance(modelo_nb_final)
+  )
+
+diagnostico_nb %>%
+  arrange(desc(cooks_nb)) %>%
+  kable(digits = 3,
+        caption = "Diagnóstico del modelo Binomial Negativo final")
+```
+La tabla de diagnóstico presenta las predicciones del modelo final, los
+residuales de Pearson y la distancia de Cook para cada departamento, ordenados
+de mayor a menor influencia sobre los coeficientes del modelo.
+
+**Residuales de Pearson:** valores dentro del rango ±2 indican un ajuste
+razonable. La mayoría de departamentos cumplen esta condición, lo que sugiere
+que el modelo captura correctamente el comportamiento general del fenómeno.
+El departamento 16 presenta el residual más alto (−1.407), indicando que el
+modelo sobreestima sus divorcios respecto a lo observado — posiblemente porque
+tiene una proporción inusualmente alta de violencia en relación con sus
+divorcios formalizados, lo que podría reflejar barreras institucionales
+específicas de esa región.
+
+**Distancia de Cook:** mide cuánto cambiarían los coeficientes del modelo si
+se eliminara esa observación. El umbral estándar es 4/n = 0.182. El
+departamento 16 supera este umbral (Cook = 3.881), confirmándose como la
+observación más influyente del modelo. Esto es esperado dado que combina un
+nivel relativamente alto de violencia con pocos divorcios registrados,
+generando una combinación atípica que el modelo tiene dificultades para ajustar.
+
+**Departamento de Guatemala (cod_depto = 1):** su distancia de Cook aparece
+como NaN porque al ser el único departamento con `es_capital = 1`, cuando se
+excluye del entrenamiento en LOOCV el modelo no puede estimar ese coeficiente.
+Esto es una limitación conocida del diseño con n = 22 y una sola observación
+en esa categoría. Su predicción en muestra completa (pred_nb = 3,295) coincide
+exactamente con el valor observado, lo que confirma que la dummy `es_capital`
+lo captura perfectamente cuando está incluido en el entrenamiento.
+
+
+```{r nb-grafica-obs-pred, fig.height=4}
+ggplot(diagnostico_nb, aes(x = pred_nb, y = casos_divorcio)) +
+  geom_point(size = 2.5) +
+  geom_abline(slope = 1, intercept = 0,
+              linetype = "dashed", color = "gray50") +
+  labs(
+    title = "Valores observados vs predichos — Binomial Negativa",
+    x     = "Casos predichos",
+    y     = "Casos observados"
+  ) +
+  theme_minimal()
+```
+El gráfico compara los valores observados de divorcios contra los predichos
+por el modelo para cada departamento. La línea discontinua representa la
+**predicción perfecta** — entre más cerca esté un punto de ella, mejor es
+la predicción del modelo para ese departamento.
+
+Se observan dos grupos claramente diferenciados. El primero es la nube de
+puntos concentrada en la esquina inferior izquierda, que corresponde a los
+21 departamentos del interior del país con volúmenes relativamente bajos de
+divorcios. El modelo los predice con razonable precisión, aunque con cierta
+dispersión alrededor de la línea diagonal. El segundo es el punto aislado en
+la esquina superior derecha, que corresponde al **Departamento de Guatemala**
+con 3,295 divorcios observados y predichos su predicción es prácticamente
+perfecta gracias a la variable dummy `es_capital`.
+
+La dispersión en los departamentos del interior refleja que con solo dos
+predictores y 22 observaciones, el modelo no puede capturar todos los factores
+específicos de cada departamento como el acceso a juzgados, las barreras
+culturales o el nivel económico que también influyen en cuántos divorcios
+se formalizan. Esto es una limitación esperada y consistente con el tamaño
+del dataset.
+
+```{r nb-grafica-residuales, fig.height=4}
+ggplot(diagnostico_nb, aes(x = pred_nb, y = residuo_pearson_nb)) +
+  geom_point(size = 2.5) +
+  geom_hline(yintercept =  0, linetype = "dashed") +
+  geom_hline(yintercept =  c(-2, 2), linetype = "dotted",
+             color = "orange") +
+  labs(
+    title = "Residuales de Pearson — Binomial Negativa",
+    x     = "Casos predichos",
+    y     = "Residual de Pearson"
+  ) +
+  theme_minimal()
+```
+El gráfico de residuales de Pearson evalúa el ajuste del modelo revisando si
+los errores tienen algún patrón sistemático. La línea discontinua central
+representa residual cero predicción perfecta y las líneas punteadas
+naranjas marcan el umbral ±2, dentro del cual se considera que el ajuste es
+aceptable.
+
+La gran mayoría de departamentos se encuentran dentro del rango ±2, lo que
+indica que el modelo ajusta razonablemente bien para el interior del país.
+Se observa una ligera asimetría: varios departamentos presentan residuales
+negativos, lo que significa que el modelo tiende a **sobreestimar** levemente
+el número de divorcios en esos casos. Esto puede explicarse porque algunos
+departamentos con alta violencia registrada tienen menos divorcios formalizados
+de lo esperado, posiblemente por barreras de acceso a los juzgados o factores
+culturales que desincentivan la disolución legal del matrimonio.
+
+El único punto que se acerca al umbral superior es el departamento 16, que
+ya fue identificado como la observación más influyente en la distancia de Cook.
+El punto aislado a la derecha con residual cercano a cero corresponde al
+**Departamento de Guatemala**, cuya predicción es prácticamente perfecta.
+
+En términos generales, la ausencia de un patrón sistemático claro en los
+residuales como una curva o un embudo confirma que el modelo Binomial
+Negativo es una especificación adecuada para estos datos y que la
+sobredispersión está siendo correctamente absorbida por el parámetro θ del
+modelo.
+
+```{r nb-verificacion}
+stopifnot(exists("metricas_nb"))
+stopifnot(exists("modelo_nb_final"))
+stopifnot(exists("pred_nb_final"))
+stopifnot(exists("diagnostico_nb"))
+stopifnot(nrow(metricas_nb) >= 3)
+cat("Binomial Negativa OK — modelo final:", mejor_nb_nombre, "\n")
+```
