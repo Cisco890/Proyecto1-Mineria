@@ -1,0 +1,299 @@
+---
+title: "Proyecto_Entrega2_Presentación_Resultados"
+author: "- Luis Pedro Lira (23669)   - Fernando Rocha (23501)   - Juan Francisco Martínez
+  (23617)   - Luis Gilberto González (23353)   - Joel Antonio Jaquez (23369)"
+date: "2026-05-01"
+output: pdf_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  message = FALSE,
+  warning = FALSE
+)
+set.seed(123)
+library(tidyverse)
+library(janitor)
+library(MASS)
+library(broom)
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+select <- dplyr::select
+filter <- dplyr::filter
+mutate <- dplyr::mutate
+```
+
+```{r cargar-datos, include=FALSE}
+divorcios_raw <- read_csv("Datos/divorcios_total.csv") %>% filter(year == 2022)
+violencia_raw <- read_csv("Datos/violencia_total.csv") %>% filter(year == 2022)
+```
+
+```{r limpiar-datos, include=FALSE}
+violencia_proc <- violencia_raw %>%
+  mutate(
+    cod_depto      = floor(hec_deptomcpio / 100),
+    vic_edad_clean = ifelse(vic_edad > 110, NA, vic_edad)
+  ) %>%
+  filter(!is.na(cod_depto), cod_depto != 99)
+
+divorcios_proc <- divorcios_raw %>%
+  mutate(cod_depto = DEPOCU) %>%
+  filter(!is.na(cod_depto), cod_depto != 99)
+```
+
+```{r agregar-departamentos, include=FALSE}
+violencia_dep <- violencia_proc %>%
+  group_by(cod_depto) %>%
+  summarise(
+    casos_violencia   = n(),
+    edad_victima_prom = mean(vic_edad_clean, na.rm = TRUE),
+    porc_urbano       = mean(hec_area == 1, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+divorcios_dep <- divorcios_proc %>%
+  group_by(cod_depto) %>%
+  summarise(
+    casos_divorcio = n(),
+    .groups = "drop"
+  )
+```
+
+```{r construir-datos-modelo, include=FALSE}
+datos_modelo <- violencia_dep %>%
+  inner_join(divorcios_dep, by = "cod_depto") %>%
+  mutate(
+    es_capital          = as.integer(cod_depto == 1),
+    casos_violencia_z   = as.numeric(scale(casos_violencia)),
+    edad_victima_prom_z = as.numeric(scale(edad_victima_prom)),
+    porc_urbano_z       = as.numeric(scale(porc_urbano))
+  )
+```
+
+```{r verificar-datos-modelo, include=FALSE}
+columnas_requeridas <- c(
+  "cod_depto", "casos_divorcio",
+  "casos_violencia_z", "edad_victima_prom_z",
+  "porc_urbano_z", "es_capital"
+)
+faltantes <- setdiff(columnas_requeridas, names(datos_modelo))
+if (length(faltantes) > 0) {
+  stop(paste("Faltan columnas:", paste(faltantes, collapse = ", ")))
+} else {
+  cat("datos_modelo OK —", nrow(datos_modelo), "departamentos,",
+      ncol(datos_modelo), "columnas\n")
+}
+```
+
+```{r funcion-metricas, include=FALSE}
+calcular_metricas <- function(observado, predicho) {
+  tibble(
+    MAE  = mean(abs(observado - predicho), na.rm = TRUE),
+    RMSE = sqrt(mean((observado - predicho)^2, na.rm = TRUE)),
+    MAPE = mean(
+      abs((observado - predicho) / ifelse(observado == 0, NA, observado)),
+      na.rm = TRUE
+    ) * 100
+  )
+}
+```
+
+------------------------------------------------------------------------
+
+# Actividad 5: Conjuntos de entrenamiento y prueba
+
+## Método de validación
+
+Dado que el conjunto de datos está agregado a nivel departamental y
+cuenta con únicamente 22 observaciones, no es posible aplicar una
+partición fija tradicional de entrenamiento y prueba. Con una división
+estándar 80/20 el conjunto de prueba quedaría con apenas 4
+departamentos, lo que haría que los resultados dependieran fuertemente
+de cuáles cayeron en cada partición.
+
+Por esta razón se utilizó **Leave-One-Out Cross Validation (LOOCV)**. En
+cada iteración el modelo se entrena con 21 departamentos y se evalúa en
+el departamento restante, repitiendo el proceso 22 veces hasta que todos
+los departamentos hayan sido usados exactamente una vez como prueba. Las
+métricas finales se calculan promediando los errores de las 22
+iteraciones, lo que produce una estimación más honesta del error de
+generalización sin desperdiciar observaciones.
+
+Como la variable respuesta es cuantitativa, **no aplica el concepto de
+balance de clases**. En su lugar se analiza la presencia de valores
+atípicos con alta influencia sobre el modelo.
+
+```{r loocv-proporciones}
+n_obs      <- nrow(datos_modelo)
+porc_train <- (n_obs - 1) / n_obs * 100
+porc_test  <- 1 / n_obs * 100
+
+tibble(
+  `N observaciones`               = n_obs,
+  `% entrenamiento por iteración` = round(porc_train, 2),
+  `% prueba por iteración`        = round(porc_test, 2)
+) %>%
+  kable(caption = "Proporciones de entrenamiento y prueba bajo LOOCV")
+```
+
+En cada iteración se usa el **95.45%** de los datos para entrenamiento y
+el **4.55%** para prueba.
+
+## Análisis de atípicos
+
+Al tratarse de un problema de regresión con variable respuesta
+cuantitativa, se analiza la distribución de `casos_divorcio` para
+identificar observaciones con comportamiento extremo que puedan influir
+desproporcionadamente en los modelos.
+
+```{r atipicos-boxplot, fig.height=4, fig.cap="Distribución de divorcios por departamento. El punto rojo corresponde al Departamento de Guatemala, cuyo volumen es extremadamente superior al resto del país."}
+ggplot(datos_modelo, aes(x = "", y = casos_divorcio)) +
+  geom_boxplot(fill = "lightblue", outlier.color = "red",
+               outlier.size = 3) +
+  geom_text(
+    data = datos_modelo %>% filter(casos_divorcio > 1000),
+    aes(label = cod_depto),
+    hjust = -0.5, size = 3
+  ) +
+  labs(
+    title = "Distribución de divorcios por departamento (2022)",
+    x     = "",
+    y     = "Número de divorcios"
+  ) +
+  theme_minimal()
+```
+
+```{r atipicos-zscore}
+datos_modelo %>%
+  arrange(desc(casos_divorcio)) %>%
+  select(cod_depto, casos_divorcio) %>%
+  mutate(
+    z_score = round(
+      (casos_divorcio - mean(casos_divorcio)) / sd(casos_divorcio), 2
+    )
+  ) %>%
+  kable(caption = "Departamentos ordenados por divorcios con z-score")
+```
+
+El Departamento de Guatemala (cod_depto = 1) presenta un z-score muy
+superior al resto, confirmando su condición de **outlier estructural
+extremo**. Su volumen de divorcios es entre 6 y 8 veces mayor que el
+promedio del resto de departamentos, lo que refleja su desproporción
+poblacional y su concentración de servicios judiciales respecto al
+interior del país.
+
+Este departamento no se elimina del análisis porque es una observación
+real y relevante para el problema. En su lugar se controla mediante la
+variable dummy `es_capital`, que se detalla en la siguiente sección.
+
+------------------------------------------------------------------------
+
+# Actividad 6: Preprocesamiento y preparación de datos
+
+Esta sección describe todas las transformaciones aplicadas a los datos
+antes de entrenar los modelos. El resultado final es el objeto
+`datos_modelo`, que será utilizado por todos los algoritmos en las
+actividades 7 y 8.
+
+## Carga y filtro por año
+
+Los archivos fuente del INE contienen registros del período 2012 a 2022.
+Se filtra únicamente el año **2022** para garantizar un análisis de
+corte transversal limpio, donde cada departamento representa una
+observación bajo condiciones temporales homogéneas. Mezclar múltiples
+años sin modelar la estructura temporal produciría conteos inflados sin
+interpretación válida para un modelo de regresión de corte transversal.
+
+```{r mostrar-carga}
+cat("Registros de divorcios (2022):", nrow(divorcios_raw), "\n")
+cat("Registros de violencia (2022):", nrow(violencia_raw), "\n")
+```
+
+## Limpieza y recodificación
+
+Los archivos del INE utilizan los códigos 99 y 999 para representar
+información no especificada. Estos valores se transforman en `NA` para
+evitar que distorsionen los cálculos. Adicionalmente, los registros con
+código departamental 99 se excluyen porque no pueden asignarse a ninguna
+unidad geográfica válida.
+
+## Agregación departamental y selección de covariables
+
+Los microdatos individuales se agrupan por departamento. Se calculan
+tres covariables a partir del dataset de violencia:
+
+-   **`casos_violencia`**: conteo total de casos de violencia
+    intrafamiliar.
+-   **`edad_victima_prom`**: edad promedio de la víctima como proxy del
+    perfil etario departamental.
+-   **`porc_urbano`**: proporción de casos en área urbana como proxy de
+    urbanización.
+
+La variable `hijos_prom` fue evaluada y descartada por presentar una
+correlación prácticamente nula con la variable respuesta (r = 0.095), lo
+que indica que no aporta capacidad predictiva al modelo.
+
+```{r mostrar-agregacion}
+cat("Departamentos en violencia:", nrow(violencia_dep), "\n")
+cat("Departamentos en divorcios:", nrow(divorcios_dep), "\n")
+```
+
+## Transformaciones aplicadas al dataset final
+
+Una vez construido el dataset con las variables base, se aplicaron dos
+transformaciones adicionales:
+
+**Estandarización z-score.** Las variables continuas (`casos_violencia`,
+`edad_victima_prom`, `porc_urbano`) se transformaron a z-score, restando
+la media y dividiendo por la desviación estándar. Esto permite comparar
+directamente la magnitud de los coeficientes entre predictores con
+escalas distintas y mejora la estabilidad numérica de los algoritmos.
+
+**Variable dummy `es_capital`.** El análisis exploratorio identificó al
+Departamento de Guatemala como un outlier estructural extremo. Esta
+variable binaria vale 1 para ese departamento y 0 para los demás,
+permitiendo que los modelos capturen su diferencia estructural sin
+eliminarlo del análisis.
+
+## Dataset final de modelado
+
+```{r vista-datos-modelo}
+datos_modelo %>%
+  select(cod_depto, casos_divorcio, casos_violencia,
+         edad_victima_prom, porc_urbano, es_capital) %>%
+  kable(digits = 2,
+        caption = "Dataset de modelado: variables originales por departamento (2022)")
+```
+
+```{r resumen-datos-modelo}
+datos_modelo %>%
+  select(casos_divorcio, casos_violencia,
+         edad_victima_prom, porc_urbano) %>%
+  summary()
+```
+
+El dataset final cuenta con **22 observaciones** una por departamento
+y las columnas estandarizadas (`_z`) listas para ser usadas
+directamente por todos los modelos. No hay valores faltantes en ninguna
+de las covariables, por lo que no fue necesario aplicar imputación.
+
+## Función de métricas
+
+Para mantener consistencia en la evaluación de todos los algoritmos, se
+define una única función de métricas que será utilizada por los cuatro
+modelos en las actividades siguientes:
+
+-   **MAE**: error absoluto promedio en número de divorcios.
+-   **RMSE**: penaliza más los errores grandes, útil para detectar
+    fallos en departamentos extremos.
+-   **MAPE**: error porcentual promedio, facilita la interpretación
+    relativa.
+
+Para los modelos estadísticos (Poisson y Binomial Negativa) se añaden
+adicionalmente **AIC** y **BIC** como criterios de selección entre
+variantes.
