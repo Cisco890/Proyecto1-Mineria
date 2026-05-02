@@ -26,6 +26,7 @@ library(knitr)
 library(kableExtra)
 library(ggplot2)
 library(ranger)
+library(xgboost)
 select <- dplyr::select
 filter <- dplyr::filter
 mutate <- dplyr::mutate
@@ -981,4 +982,242 @@ stopifnot(nrow(datos_rf) == nrow(datos_modelo))
 cat("Random Forest (apoyo) OK — configuración final: mtry =", mejor_rf$mtry,
     ", min.node.size =", mejor_rf$min_node_size,
     ", num.trees =", mejor_rf$num_trees, "\n")
+```
+
+## Benchmark predictivo: XGBoost
+
+XGBoost se incluye como benchmark predictivo para contrastar el desempeño de los modelos estadísticos contra un método de aprendizaje automático más flexible. Se utiliza el objetivo `count:poisson` para mantener coherencia con la naturaleza de conteo de la variable respuesta y garantizar predicciones no negativas. Se emplearon hiperparámetros conservadores para reducir el riesgo de sobreajuste, que es especialmente alto con n = 22. Un mejor error en LOOCV no implica automáticamente que XGBoost sea el modelo más adecuado, ya que la interpretabilidad y el fundamento estadístico también son criterios relevantes para la selección final.
+
+```{r xgb-verificacion-inicial}
+objetos_requeridos_xgb <- c(
+  "datos_modelo", "calcular_metricas",
+  "metricas_nb", "metricas_poisson", "metricas_rf"
+)
+
+for (obj in objetos_requeridos_xgb) {
+  if (!exists(obj)) {
+    stop(paste("Debe ejecutarse primero el paso anterior. Falta:", obj))
+  }
+}
+```
+
+```{r xgb-preparar-datos}
+datos_xgb <- datos_modelo %>%
+  select(
+    casos_divorcio,
+    casos_violencia_z,
+    edad_victima_prom_z,
+    porc_urbano_z,
+    es_capital
+  )
+
+if (nrow(datos_xgb) != nrow(datos_modelo)) {
+  stop("datos_xgb tiene distinto número de filas que datos_modelo. Verificar la preparación.")
+}
+
+x_xgb <- datos_xgb %>%
+  select(-casos_divorcio) %>%
+  as.matrix()
+
+y_xgb <- datos_xgb$casos_divorcio
+```
+
+Al igual que con Random Forest, se excluye `cod_depto` de los predictores para evitar que el modelo aprenda patrones espurios a partir de identificadores administrativos. El orden de filas se mantiene idéntico al de `datos_modelo` para garantizar la alineación correcta de predicciones en la comparación final.
+
+```{r xgb-funcion-loocv}
+loo_xgb <- function(x, y, params, nrounds_valor) {
+  n            <- length(y)
+  predicciones <- numeric(n)
+
+  for (i in seq_len(n)) {
+    x_train <- x[-i, , drop = FALSE]
+    y_train <- y[-i]
+    x_test  <- x[i, , drop = FALSE]
+
+    dtrain <- xgb.DMatrix(data = x_train, label = y_train)
+    dtest  <- xgb.DMatrix(data = x_test)
+
+    modelo <- xgb.train(
+      params  = params,
+      data    = dtrain,
+      nrounds = nrounds_valor,
+      verbose = 0
+    )
+
+    predicciones[i] <- predict(modelo, dtest)
+  }
+
+  predicciones <- pmax(predicciones, 0)
+
+  list(
+    metricas     = calcular_metricas(y, predicciones),
+    predicciones = predicciones
+  )
+}
+```
+
+La función `loo_xgb` sigue la misma estructura que `loo_nb` y `loo_rf`: en cada iteración entrena con 21 departamentos y predice el restante, acumulando predicciones que luego se usan para calcular MAE, RMSE y MAPE. El `pmax(..., 0)` asegura que ninguna predicción sea negativa, lo cual no debería ocurrir con `count:poisson` pero se aplica como salvaguarda.
+
+```{r xgb-ajuste-variantes}
+params_xgb_1 <- list(
+  objective        = "count:poisson",
+  eval_metric      = "rmse",
+  max_depth        = 1,
+  eta              = 0.05,
+  subsample        = 1,
+  colsample_bytree = 1,
+  min_child_weight = 1
+)
+
+params_xgb_2 <- list(
+  objective        = "count:poisson",
+  eval_metric      = "rmse",
+  max_depth        = 2,
+  eta              = 0.05,
+  subsample        = 0.9,
+  colsample_bytree = 0.9,
+  min_child_weight = 2
+)
+
+params_xgb_3 <- list(
+  objective        = "count:poisson",
+  eval_metric      = "rmse",
+  max_depth        = 2,
+  eta              = 0.10,
+  subsample        = 0.8,
+  colsample_bytree = 0.8,
+  min_child_weight = 2
+)
+
+loo_xgb_1 <- loo_xgb(x_xgb, y_xgb, params_xgb_1, nrounds_valor = 50)
+loo_xgb_2 <- loo_xgb(x_xgb, y_xgb, params_xgb_2, nrounds_valor = 75)
+loo_xgb_3 <- loo_xgb(x_xgb, y_xgb, params_xgb_3, nrounds_valor = 50)
+
+pred_loo_xgb <- list(
+  XGB_1 = loo_xgb_1$predicciones,
+  XGB_2 = loo_xgb_2$predicciones,
+  XGB_3 = loo_xgb_3$predicciones
+)
+
+metricas_xgb <- bind_rows(
+  loo_xgb_1$metricas %>% mutate(
+    modelo = "XGB_1", max_depth = 1, eta = 0.05,
+    subsample = 1.0, colsample_bytree = 1.0, min_child_weight = 1, nrounds = 50
+  ),
+  loo_xgb_2$metricas %>% mutate(
+    modelo = "XGB_2", max_depth = 2, eta = 0.05,
+    subsample = 0.9, colsample_bytree = 0.9, min_child_weight = 2, nrounds = 75
+  ),
+  loo_xgb_3$metricas %>% mutate(
+    modelo = "XGB_3", max_depth = 2, eta = 0.10,
+    subsample = 0.8, colsample_bytree = 0.8, min_child_weight = 2, nrounds = 50
+  )
+) %>%
+  mutate(
+    algoritmo = "XGBoost",
+    rol       = "Benchmark predictivo"
+  ) %>%
+  select(
+    algoritmo, rol, modelo,
+    max_depth, eta, subsample, colsample_bytree, min_child_weight, nrounds,
+    MAE, RMSE, MAPE
+  )
+
+metricas_xgb %>%
+  arrange(MAE, RMSE) %>%
+  kable(digits = 3, caption = "Comparación de modelos XGBoost (LOOCV)")
+```
+
+Se evalúan tres configuraciones con hiperparámetros deliberadamente conservadores. XGB_1 usa árboles de profundidad 1 (tocones) que solo realizan una partición binaria por árbol, lo que minimiza el sobreajuste en datasets pequeños. XGB_2 y XGB_3 aumentan ligeramente la complejidad a profundidad 2 con distintas tasas de aprendizaje y subsampling. Con n = 22, incluso árboles de profundidad 2 pueden capturar patrones espurios, por lo que las métricas LOOCV son la referencia más honesta para comparar las variantes.
+
+```{r xgb-modelo-final}
+mejor_xgb <- metricas_xgb %>%
+  arrange(MAE, RMSE) %>%
+  slice(1)
+
+params_xgb_final <- list(
+  objective        = "count:poisson",
+  eval_metric      = "rmse",
+  max_depth        = mejor_xgb$max_depth,
+  eta              = mejor_xgb$eta,
+  subsample        = mejor_xgb$subsample,
+  colsample_bytree = mejor_xgb$colsample_bytree,
+  min_child_weight = mejor_xgb$min_child_weight
+)
+
+dtrain_xgb_final <- xgb.DMatrix(data = x_xgb, label = y_xgb)
+
+modelo_xgb_final <- xgb.train(
+  params  = params_xgb_final,
+  data    = dtrain_xgb_final,
+  nrounds = mejor_xgb$nrounds,
+  verbose = 0
+)
+
+pred_xgb_final     <- pmax(predict(modelo_xgb_final, dtrain_xgb_final), 0)
+metricas_xgb_final <- calcular_metricas(y_xgb, pred_xgb_final)
+```
+
+El modelo final se entrena sobre el dataset completo usando la configuración con menor MAE bajo LOOCV. Las predicciones en muestra completa (`pred_xgb_final`) se usan exclusivamente para el diagnóstico visual y la comparación por departamento en la sección siguiente; las métricas de generalización provienen del LOOCV.
+
+```{r xgb-diagnostico-tabla}
+diagnostico_xgb <- datos_modelo %>%
+  select(cod_depto, casos_divorcio) %>%
+  mutate(pred_xgb = pred_xgb_final)
+
+diagnostico_xgb %>%
+  kable(digits = 3, caption = "Predicciones del modelo XGBoost final por departamento")
+```
+
+```{r xgb-grafica-obs-pred, fig.height=4, fig.cap="Valores observados frente a predichos para XGBoost (ajuste en muestra completa). La línea discontinua es predicción perfecta."}
+ggplot(diagnostico_xgb, aes(x = pred_xgb, y = casos_divorcio)) +
+  geom_point(size = 2.5) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
+  labs(
+    title = "Valores observados vs predichos — XGBoost",
+    x     = "Casos predichos",
+    y     = "Casos observados"
+  ) +
+  theme_minimal()
+```
+
+El gráfico compara los valores observados de divorcios contra los predichos por XGBoost en muestra completa. Los puntos más cercanos a la diagonal discontinua representan mejores predicciones. Con `count:poisson` como objetivo, XGBoost garantiza predicciones no negativas y se alinea con la naturaleza de conteo de la variable respuesta. El Departamento de Guatemala (cod_depto = 1), con el mayor volumen de divorcios, es el punto más alejado hacia la derecha; su posición respecto a la diagonal indica cuán bien el modelo captura ese outlier estructural sin una variable dummy explícita como la usada en la Binomial Negativa.
+
+```{r xgb-importancia-tabla}
+importancia_xgb <- xgb.importance(
+  feature_names = colnames(x_xgb),
+  model         = modelo_xgb_final
+)
+
+importancia_xgb %>%
+  as_tibble() %>%
+  kable(digits = 3, caption = "Importancia de variables en XGBoost (Gain)")
+```
+
+```{r xgb-importancia-grafica, fig.height=4, fig.cap="Importancia de variables en XGBoost medida por Gain. Mayor valor indica mayor contribución a la reducción del error en los splits del árbol."}
+importancia_xgb %>%
+  as_tibble() %>%
+  ggplot(aes(x = reorder(Feature, Gain), y = Gain)) +
+  geom_col(fill = "darkorange", alpha = 0.85) +
+  coord_flip() +
+  labs(
+    title = "Importancia de variables — XGBoost",
+    x     = "Variable",
+    y     = "Gain"
+  ) +
+  theme_minimal()
+```
+
+La importancia por Gain mide cuánto reduce el error de predicción cada variable cuando se usa en un split, promediado sobre todos los árboles. Si `es_capital` y `casos_violencia_z` lideran tanto en XGBoost como en Random Forest, esto refuerza la solidez del análisis: dos métodos con arquitecturas distintas convergen en identificar los mismos predictores como los más informativos. Una discrepancia entre ambos señalaría que XGBoost está aprovechando interacciones no lineales que el bosque no captura con igual profundidad, lo cual enriquece la lectura exploratoria sin invalidar el modelo principal.
+
+```{r xgb-verificacion-final}
+stopifnot(exists("metricas_xgb"))
+stopifnot(exists("modelo_xgb_final"))
+stopifnot(exists("pred_xgb_final"))
+stopifnot(exists("diagnostico_xgb"))
+stopifnot(nrow(metricas_xgb) >= 3)
+stopifnot(nrow(datos_xgb) == nrow(datos_modelo))
+cat("XGBoost (benchmark) OK — configuración final: max_depth =", mejor_xgb$max_depth,
+    ", eta =", mejor_xgb$eta,
+    ", nrounds =", mejor_xgb$nrounds, "\n")
 ```
