@@ -1221,3 +1221,231 @@ cat("XGBoost (benchmark) OK — configuración final: max_depth =", mejor_xgb$ma
     ", eta =", mejor_xgb$eta,
     ", nrounds =", mejor_xgb$nrounds, "\n")
 ```
+
+------------------------------------------------------------------------
+
+# Actividad 8: Comparación final de modelos y selección
+
+## Verificación de dependencias
+
+```{r comparacion-verificacion-inicial}
+objetos_requeridos_final <- c(
+  "datos_modelo",
+  "metricas_nb", "metricas_poisson", "metricas_rf", "metricas_xgb",
+  "modelo_nb_final", "modelo_poisson_final", "modelo_rf_final", "modelo_xgb_final",
+  "pred_nb_final", "pred_poisson_final", "pred_rf_final", "pred_xgb_final"
+)
+
+for (obj in objetos_requeridos_final) {
+  if (!exists(obj)) {
+    stop(paste("Falta ejecutar un paso anterior. No existe:", obj))
+  }
+}
+cat("Todos los objetos requeridos están disponibles.\n")
+```
+
+## Tabla unificada de métricas
+
+Se construye una tabla única que consolida las métricas de todos los algoritmos. Para los modelos estadísticos (Binomial Negativa y Poisson) se incluyen AIC y BIC como criterios adicionales de selección entre variantes; estos criterios no aplican para Random Forest ni XGBoost, que no son modelos de máxima verosimilitud.
+
+```{r comparacion-tabla-unificada}
+comparacion_modelos <- bind_rows(
+  metricas_nb %>%
+    select(algoritmo, rol, modelo, MAE, RMSE, MAPE, AIC, BIC) %>%
+    mutate(nota = "Modelo estadístico para conteos con sobredispersión"),
+
+  metricas_poisson %>%
+    select(algoritmo, rol, modelo, MAE, RMSE, MAPE, AIC, BIC) %>%
+    mutate(nota = "Referencia estadística clásica para conteos"),
+
+  metricas_rf %>%
+    select(algoritmo, rol, modelo, MAE, RMSE, MAPE) %>%
+    mutate(AIC = NA_real_, BIC = NA_real_,
+           nota = "Modelo no lineal de apoyo"),
+
+  metricas_xgb %>%
+    select(algoritmo, rol, modelo, MAE, RMSE, MAPE) %>%
+    mutate(AIC = NA_real_, BIC = NA_real_,
+           nota = "Benchmark predictivo")
+) %>%
+  arrange(MAE, RMSE)
+
+comparacion_modelos %>%
+  kable(digits = 3, caption = "Comparación final de todos los modelos predictivos")
+```
+
+La tabla presenta todas las variantes evaluadas ordenadas de menor a mayor MAE bajo LOOCV. Los modelos estadísticos (Binomial Negativa y Poisson) incluyen AIC y BIC; los modelos de aprendizaje automático no disponen de estos criterios porque no se basan en estimación por máxima verosimilitud. La columna `nota` describe el rol de cada algoritmo dentro del análisis.
+
+## Mejor modelo por algoritmo
+
+```{r comparacion-mejor-por-algoritmo}
+mejor_por_algoritmo <- comparacion_modelos %>%
+  group_by(algoritmo, rol) %>%
+  arrange(MAE, RMSE, .by_group = TRUE) %>%
+  slice(1) %>%
+  ungroup()
+
+mejor_por_algoritmo %>%
+  select(algoritmo, rol, modelo, MAE, RMSE, MAPE, AIC, BIC) %>%
+  kable(digits = 3, caption = "Mejor modelo por algoritmo")
+```
+
+Esta tabla concentra únicamente la mejor variante de cada algoritmo, lo que permite comparar en términos equivalentes el desempeño de los cuatro enfoques metodológicos. La comparación se realiza sobre las métricas LOOCV (MAE, RMSE, MAPE), que son las más confiables dado el tamaño reducido del conjunto de datos (n = 22).
+
+## Gráfica comparativa
+
+```{r comparacion-grafica, fig.height=5, fig.cap="Comparación de métricas de error por algoritmo (mejor variante de cada uno bajo LOOCV). Valores menores indican mejor desempeño predictivo."}
+mejor_por_algoritmo %>%
+  select(algoritmo, MAE, RMSE, MAPE) %>%
+  pivot_longer(cols = c(MAE, RMSE, MAPE), names_to = "metrica", values_to = "valor") %>%
+  ggplot(aes(x = reorder(algoritmo, valor), y = valor, fill = algoritmo)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ metrica, scales = "free_y") +
+  coord_flip() +
+  labs(
+    title = "Comparación de métricas por algoritmo (mejor variante de cada uno)",
+    x     = "Algoritmo",
+    y     = "Valor de la métrica"
+  ) +
+  theme_minimal()
+```
+
+La gráfica permite identificar visualmente qué algoritmo obtiene el menor error en cada métrica. Con n = 22 observaciones, los modelos de aprendizaje automático (XGBoost y Random Forest) pueden mostrar métricas LOOCV aparentemente más bajas en alguna dimensión; sin embargo, este resultado debe interpretarse con cautela. Al no parametrizar explícitamente la distribución del conteo, estos modelos tienen mayor riesgo de ajustarse a patrones específicos de estos 22 departamentos que no generalizarían a nuevas observaciones. Las métricas en muestra completa serían aún más susceptibles a sobreajuste, por lo que el LOOCV es la referencia más honesta para esta comparación.
+
+## Tabla de roles y selección final
+
+```{r comparacion-tabla-roles}
+tabla_roles_modelos <- tibble(
+  rol        = c("Modelo principal", "Benchmark predictivo", "Referencia", "Apoyo"),
+  algoritmo  = c(
+    "Regresión Binomial Negativa",
+    "XGBoost",
+    "Regresión Poisson",
+    "Random Forest"
+  ),
+  justificacion = c(
+    "Adecuado para conteos con sobredispersión severa (razón varianza/media ≈ 949). Interpretable y parsimonioso.",
+    "Captura relaciones no lineales. Resultados interpretados con cautela por riesgo de sobreajuste con n = 22.",
+    "Modelo clásico de conteo. Descartado como principal por violación del supuesto de equidispersión.",
+    "Modelo no lineal que aporta importancia de variables. Complementa el análisis sin reemplazar al principal."
+  )
+)
+
+tabla_roles_modelos %>%
+  kable(caption = "Rol de cada algoritmo en el análisis")
+```
+
+Cada algoritmo cumple una función diferenciada dentro del análisis. La Regresión Binomial Negativa es el modelo principal porque es estadísticamente adecuado para la naturaleza de los datos. La Regresión Poisson actúa como referencia que cuantifica el costo de ignorar la sobredispersión. Random Forest y XGBoost complementan el análisis desde la perspectiva del aprendizaje automático, aportando evidencia sobre la importancia relativa de los predictores y el desempeño predictivo bajo un paradigma distinto.
+
+## Predicciones finales comparadas por departamento
+
+Como todos los vectores de predicción fueron construidos a partir del mismo `datos_modelo` con las mismas 22 filas y el mismo orden, la alineación entre algoritmos es directa sin necesidad de uniones adicionales.
+
+```{r comparacion-predicciones-tabla}
+predicciones_finales <- datos_modelo %>%
+  select(cod_depto, casos_divorcio) %>%
+  mutate(
+    pred_nb      = pred_nb_final,
+    pred_poisson = pred_poisson_final,
+    pred_rf      = pred_rf_final,
+    pred_xgb     = pred_xgb_final
+  )
+
+predicciones_finales %>%
+  kable(digits = 2, caption = "Predicciones finales por departamento y algoritmo")
+```
+
+```{r comparacion-predicciones-grafica, fig.height=5, fig.cap="Valores observados contra predichos por cada algoritmo. La línea discontinua representa predicción perfecta; los puntos más cercanos a ella indican mejor ajuste por departamento."}
+predicciones_finales %>%
+  pivot_longer(
+    cols      = starts_with("pred_"),
+    names_to  = "modelo",
+    values_to = "prediccion"
+  ) %>%
+  ggplot(aes(x = casos_divorcio, y = prediccion)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  facet_wrap(~ modelo, scales = "free") +
+  labs(
+    title = "Observados vs predichos por algoritmo",
+    x     = "Casos observados",
+    y     = "Casos predichos"
+  ) +
+  theme_minimal()
+```
+
+Los puntos más cercanos a la diagonal discontinua representan departamentos con mejor predicción. En todos los paneles se observa el mismo patrón estructural: una nube densa de departamentos del interior con bajos volúmenes de divorcio y un punto aislado correspondiente al Departamento de Guatemala (cod_depto = 1). La Binomial Negativa, gracias a la variable dummy `es_capital`, predice con mayor precisión ese departamento en muestra completa. En los modelos de aprendizaje automático, la posición del punto de Guatemala respecto a la diagonal refleja cuánto logran capturar esa diferencia estructural sin una variable indicadora explícita.
+
+## Método de validación y proporciones
+
+```{r comparacion-validacion-proporciones}
+n_obs           <- nrow(datos_modelo)
+porc_train_loo  <- (n_obs - 1) / n_obs * 100
+porc_test_loo   <- 1 / n_obs * 100
+
+tibble(
+  n_observaciones                        = n_obs,
+  porcentaje_entrenamiento_por_iteracion = round(porc_train_loo, 2),
+  porcentaje_prueba_por_iteracion        = round(porc_test_loo, 2)
+) %>%
+  kable(caption = "Proporciones de entrenamiento y prueba bajo LOOCV")
+```
+
+Dado que el conjunto de datos está agregado a nivel departamental y tiene un tamaño reducido (n = 22), no se utilizó una partición fija tradicional. En su lugar se aplicó validación cruzada Leave-One-Out (LOOCV). En cada iteración, el modelo se entrena con 21 departamentos (≈ 95.5%) y se evalúa en el departamento restante (≈ 4.5%). Al finalizar, todos los departamentos fueron usados exactamente una vez como conjunto de prueba. Esta estrategia maximiza el uso de los datos disponibles y produce estimaciones de error de generalización más robustas que un split fijo con tan pocas observaciones.
+
+## Análisis de atípicos e influencia
+
+```{r comparacion-atipicos-influencia}
+diagnostico_nb %>%
+  arrange(desc(cooks_nb)) %>%
+  select(cod_depto, casos_divorcio, pred_nb, residuo_pearson_nb, cooks_nb) %>%
+  kable(digits = 3, caption = "Observaciones influyentes en el modelo principal (Cook's Distance)")
+```
+
+El umbral estándar para la distancia de Cook es 4/n = `r round(4/nrow(datos_modelo), 3)`. Los departamentos que superan este umbral ejercen influencia desproporcionada sobre los coeficientes del modelo. El departamento con mayor distancia de Cook corresponde al departamento 16, cuyo volumen de divorcios es inusualmente bajo en relación con sus niveles de violencia registrada, generando una combinación atípica que el modelo tiene dificultades para ajustar. El Departamento de Guatemala (cod_depto = 1) presenta distancia de Cook como NaN porque al ser el único departamento con `es_capital = 1`, su exclusión en LOOCV impide estimar ese coeficiente; esta es una limitación conocida del diseño con n = 22 y una sola observación en esa categoría. No se eliminó ningún departamento del análisis porque todas las observaciones son registros reales y relevantes para el contexto del problema, no errores de medición.
+
+## Selección argumentada del modelo principal
+
+> La Regresión Binomial Negativa se mantiene como modelo principal por tres razones: primero, la variable respuesta es un conteo y los datos presentan sobredispersión severa (razón varianza/media ≈ 949), lo que invalida la Regresión Poisson y favorece estadísticamente a la Binomial Negativa. Segundo, el modelo permite interpretar directamente la relación entre cada predictor y el número esperado de divorcios por departamento, lo cual es relevante para el objetivo del análisis. Tercero, dado el tamaño reducido del conjunto departamental, la parsimonia es un criterio prioritario, y los modelos estadísticos más simples generalizan mejor bajo estas condiciones. XGBoost y Random Forest se mantienen como benchmark y apoyo respectivamente, pero su desempeño en LOOCV debe interpretarse con cautela por el riesgo inherente de sobreajuste con n = 22.
+
+## Cierre técnico del modelado
+
+El presente análisis cumplió con los siguientes requisitos metodológicos:
+
+- Se definió `casos_divorcio` como variable respuesta cuantitativa discreta de conteo.
+- Se aplicó el filtro de año 2022 para garantizar un análisis de corte transversal coherente.
+- Se construyeron covariables departamentales a partir de los microdatos de violencia intrafamiliar.
+- Se descartó `hijos_prom` por correlación prácticamente nula con la variable respuesta (r = 0.095).
+- Las variables predictoras se estandarizaron para facilitar la comparación de coeficientes.
+- Se aplicó LOOCV en todos los modelos por el tamaño reducido de la muestra.
+- Se revisaron atípicos e influencia mediante distancia de Cook.
+- Se implementaron al menos 3 variantes por algoritmo (4 para modelos estadísticos).
+- Se compararon métricas de regresión: MAE, RMSE y MAPE para todos los algoritmos.
+- Se usaron AIC y BIC para los modelos estadísticos.
+- La Regresión Binomial Negativa queda como modelo principal y XGBoost como benchmark predictivo.
+- El texto no establece relaciones causales entre violencia y divorcios.
+
+```{r comparacion-verificacion-final}
+stopifnot(exists("datos_modelo"))
+stopifnot(exists("modelo_nb_final"))
+stopifnot(exists("modelo_poisson_final"))
+stopifnot(exists("modelo_rf_final"))
+stopifnot(exists("modelo_xgb_final"))
+stopifnot(exists("comparacion_modelos"))
+stopifnot(exists("predicciones_finales"))
+
+stopifnot(nrow(datos_modelo) == 22)
+stopifnot(nrow(predicciones_finales) == 22)
+
+stopifnot(length(pred_nb_final) == 22)
+stopifnot(length(pred_poisson_final) == 22)
+stopifnot(length(pred_rf_final) == 22)
+stopifnot(length(pred_xgb_final) == 22)
+
+stopifnot(nrow(metricas_nb) >= 3)
+stopifnot(nrow(metricas_poisson) >= 3)
+stopifnot(nrow(metricas_rf) >= 3)
+stopifnot(nrow(metricas_xgb) >= 3)
+
+cat("Verificación final completa — documento listo para renderizar.\n")
+```
