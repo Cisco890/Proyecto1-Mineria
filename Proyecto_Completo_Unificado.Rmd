@@ -1,0 +1,2522 @@
+﻿---
+title: "Proyecto Completo - Violencia Intrafamiliar y Divorcios en Guatemala"
+author:
+  - Luis Pedro Lira (23669)
+  - Fernando Rocha (23501)
+  - Juan Francisco Martinez (23617)
+  - Luis Gilberto Gonzalez (23353)
+  - Joel Antonio Jaquez (23369)
+date: "`r format(Sys.Date(), '%Y-%m-%d')`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    df_print: paged
+editor_options:
+  markdown:
+    wrap: sentence
+---
+
+```{r setup-global, include=FALSE}
+# =============================================================================
+# CONFIGURACION GLOBAL DEL DOCUMENTO UNIFICADO
+# Este archivo consolida exploracion, preprocesamiento, modelado y comparacion.
+# Los demas .Rmd del repositorio se conservan como respaldo historico.
+# =============================================================================
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 7,
+  fig.height = 4.5
+)
+set.seed(123)
+
+library(tidyverse)
+library(readr)
+library(janitor)
+library(MASS)
+library(broom)
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+library(cluster)
+library(ranger)
+library(xgboost)
+
+select <- dplyr::select
+filter <- dplyr::filter
+mutate <- dplyr::mutate
+```
+
+## Mapa del documento
+
+| Parte | Contenido |
+|---|---|
+| **0** | Construccion opcional de insumos (`.sav` y `.xlsx`) |
+| **I** | Carga, limpieza, exploracion, hipotesis y clustering departamental |
+| **II** | Construccion de `datos_modelo` (22 departamentos, 2022) |
+| **III** | LOOCV, modelos (NB, Poisson, RF, XGBoost) y comparacion final |
+| **IV** | Conclusiones, limitaciones y referencia a archivos del repositorio |
+
+> Los demas `.Rmd` del proyecto se conservan como respaldo historico; este archivo
+> es el flujo recomendado de principio a fin.
+
+# Parte 0 - Construccion opcional de insumos
+
+Esta parte integra en un solo lugar los pasos de:
+
+- `divorcios_combinacion.Rmd`
+- `violencia_combinacion.Rmd`
+- `crearcsv.Rmd`
+
+Los chunks de esta seccion se dejan en `eval=FALSE` para que el documento
+se pueda renderizar con los CSV ya existentes del repositorio. Si deseas
+reconstruir insumos desde cero, habilita `eval=TRUE` en los chunks
+correspondientes y ajusta las rutas.
+
+## 0.1 Parametros de rutas de insumos
+
+```{r 00-parametros-rutas, eval=FALSE}
+# =============================================================================
+# PASO 0A: CONFIGURACION DE RUTAS (EDITABLE)
+# - Estas rutas apuntan a carpetas con archivos fuente (.sav, .xlsx)
+# - Ajustalas segun tu estructura local antes de ejecutar
+# =============================================================================
+ruta_sav_divorcios <- "Datos/Divorcios_sav"
+ruta_sav_violencia <- "Datos/Violencia_sav"
+ruta_datos         <- "Datos"
+```
+
+## 0.2 Conversion opcional de Excel a CSV (diccionarios 2022)
+
+```{r 00-xlsx-a-csv, eval=FALSE}
+# =============================================================================
+# PASO 0B: CONVERSION EXCEL -> CSV
+# (equivalente funcional a crearcsv.Rmd)
+# =============================================================================
+library(readxl)
+library(readr)
+
+divorcios_dict <- read_excel(
+  path = file.path(ruta_datos, "diccionario_divorcios_2022.xlsx"),
+  sheet = "Divorcios"
+)
+
+violencia_dict <- read_excel(
+  path = file.path(ruta_datos, "diccionario_violencia_2022.xlsx")
+)
+
+write_csv(divorcios_dict, file.path(ruta_datos, "divorcios_2022.csv"))
+write_csv(violencia_dict, file.path(ruta_datos, "violencia_2022.csv"))
+```
+
+## 0.3 Union anual de .sav para divorcios
+
+```{r 00-combinar-divorcios-spss, eval=FALSE}
+# =============================================================================
+# PASO 0C: COMBINAR ARCHIVOS SPSS DE DIVORCIOS (un archivo por anio)
+# (equivalente funcional a divorcios_combinacion.Rmd)
+# =============================================================================
+library(haven)
+library(dplyr)
+library(purrr)
+library(tibble)
+
+stopifnot(dir.exists(ruta_sav_divorcios))
+
+archivos_div <- list.files(
+  ruta_sav_divorcios,
+  pattern = "\\.(sav|zsav)$",
+  full.names = TRUE,
+  recursive = TRUE,
+  ignore.case = TRUE
+)
+
+anio_archivo <- suppressWarnings(
+  as.integer(tools::file_path_sans_ext(basename(archivos_div)))
+)
+validos <- !is.na(anio_archivo) & anio_archivo >= 1900 & anio_archivo <= 2100
+if (any(!validos)) {
+  stop("Hay archivos de divorcios cuyo nombre no parece un anio: ",
+       paste(basename(archivos_div)[!validos], collapse = ", "))
+}
+
+leer_preparar_div <- function(path) {
+  df <- read_sav(path)
+
+  # Armonizacion de nombres observada en los archivos originales
+  if ("PUEHOM" %in% names(df)) names(df)[names(df) == "PUEHOM"] <- "PPERHOM"
+  if ("PUEMUJ" %in% names(df)) names(df)[names(df) == "PUEMUJ"] <- "PPERMUJ"
+
+  df <- zap_labels(df)
+  df$year <- as.integer(tools::file_path_sans_ext(basename(path)))
+  df
+}
+
+dfs_div <- map(archivos_div, leer_preparar_div)
+todas_cols_div <- sort(unique(unlist(map(dfs_div, names))))
+
+conflictos_div <- keep(todas_cols_div, function(col) {
+  tipos <- unique(na.omit(map_chr(
+    dfs_div,
+    ~ if (col %in% names(.x)) typeof(.x[[col]]) else NA_character_
+  )))
+  length(tipos) > 1
+})
+
+dfs_div_ok <- map(dfs_div, ~ .x %>% mutate(across(any_of(conflictos_div), as.character)))
+divorcios_total <- bind_rows(dfs_div_ok)
+
+write_csv(divorcios_total, file.path(ruta_datos, "divorcios_total.csv"))
+write_sav(divorcios_total, file.path(ruta_datos, "divorcios_total.sav"))
+```
+
+## 0.4 Union anual de .sav para violencia
+
+```{r 00-combinar-violencia-spss, eval=FALSE}
+# =============================================================================
+# PASO 0D: COMBINAR ARCHIVOS SPSS DE VIOLENCIA (un archivo por anio)
+# (equivalente funcional a violencia_combinacion.Rmd)
+# =============================================================================
+library(haven)
+library(dplyr)
+library(purrr)
+library(tibble)
+library(janitor)
+
+stopifnot(dir.exists(ruta_sav_violencia))
+
+archivos_vio <- list.files(
+  ruta_sav_violencia,
+  pattern = "\\.(sav|zsav)$",
+  full.names = TRUE,
+  recursive = TRUE,
+  ignore.case = TRUE
+)
+
+anio_archivo <- suppressWarnings(
+  as.integer(tools::file_path_sans_ext(basename(archivos_vio)))
+)
+validos <- !is.na(anio_archivo) & anio_archivo >= 1900 & anio_archivo <= 2100
+if (any(!validos)) {
+  stop("Hay archivos de violencia cuyo nombre no parece un anio: ",
+       paste(basename(archivos_vio)[!validos], collapse = ", "))
+}
+
+leer_preparar_vio <- function(path) {
+  df <- read_sav(path)
+  df <- clean_names(df)
+  df <- zap_labels(df)
+  df$year <- as.integer(tools::file_path_sans_ext(basename(path)))
+  df
+}
+
+dfs_vio <- map(archivos_vio, leer_preparar_vio)
+todas_cols_vio <- sort(unique(unlist(map(dfs_vio, names))))
+
+conflictos_vio <- keep(todas_cols_vio, function(col) {
+  tipos <- unique(na.omit(map_chr(
+    dfs_vio,
+    ~ if (col %in% names(.x)) typeof(.x[[col]]) else NA_character_
+  )))
+  length(tipos) > 1
+})
+
+dfs_vio_ok <- map(dfs_vio, ~ .x %>% mutate(across(any_of(conflictos_vio), as.character)))
+violencia_total <- bind_rows(dfs_vio_ok)
+
+write_csv(violencia_total, file.path(ruta_datos, "violencia_total.csv"))
+write_sav(violencia_total, file.path(ruta_datos, "violencia_total.sav"))
+```
+# Parte I - Contexto, datos y exploracion
+
+## Nota sobre la estructura del repositorio
+
+Este documento unifica el flujo completo del proyecto. La logica de los
+scripts auxiliares (`divorcios_combinacion.Rmd`, `violencia_combinacion.Rmd`,
+`crearcsv.Rmd`) quedo integrada en la **Parte 0** y los archivos originales se
+mantienen como respaldo. Desde esta seccion se trabaja directamente con:
+
+- `Datos/divorcios_total.csv`
+- `Datos/violencia_total.csv`
+
+```{r 01-carga-datos, include=FALSE}
+# =============================================================================
+# PASO 1: CARGA DE DATOS
+# Los archivos consolidados contienen registros 2012-2022.
+# Para el modelado departamental usamos unicamente el corte transversal 2022.
+# =============================================================================
+divorcios_raw <- read_csv("Datos/divorcios_total.csv", show_col_types = FALSE)
+violencia_raw <- read_csv("Datos/violencia_total.csv", show_col_types = FALSE)
+
+divorcios <- divorcios_raw %>% filter(year == 2022)
+violencia <- violencia_raw %>% filter(year == 2022)
+```
+
+```{r 02-limpieza-microdatos, include=FALSE}
+# =============================================================================
+# PASO 2: LIMPIEZA DE MICRODATOS PARA EXPLORACION
+# Se recodifican codigos especiales del INE (99, 999) y se crean etiquetas
+# interpretables para tablas y graficos exploratorios.
+# =============================================================================
+violencia <- violencia %>%
+  mutate(
+    cod_depto = floor(hec_deptomcpio / 100),
+    sexo_label = case_when(
+      vic_sexo == 1 ~ "Hombre",
+      vic_sexo == 2 ~ "Mujer",
+      TRUE ~ "Ignorado"
+    ),
+    mes_nombre = factor(month.name[hec_mes], levels = month.name),
+    vic_edad_clean = ifelse(vic_edad > 110, NA, vic_edad),
+    total_hijos_clean = ifelse(total_hijos == 99, NA, total_hijos),
+    est_civ_label = case_when(
+      vic_est_civ == 1 ~ "Soltero(a)",
+      vic_est_civ == 2 ~ "Casado(a)",
+      vic_est_civ == 3 ~ "Unido(a)",
+      TRUE ~ "Ignorado"
+    ),
+    relacion_label = case_when(
+      vic_rel_agr == 1 ~ "Esposo/Conviviente",
+      vic_rel_agr == 2 ~ "Ex-Esposo/Ex-Pareja",
+      vic_rel_agr == 3 ~ "Padre/Madre",
+      vic_rel_agr == 4 ~ "Hijo(a)",
+      vic_rel_agr == 5 ~ "Hermano(a)",
+      TRUE ~ "Otro/No especificado"
+    )
+  )
+
+divorcios <- divorcios %>%
+  mutate(
+    cod_depto = DEPOCU,
+    edad_hom_clean = ifelse(EDADHOM > 110, NA, EDADHOM),
+    edad_muj_clean = ifelse(EDADMUJ > 110, NA, EDADMUJ),
+    diferencia_edad = edad_hom_clean - edad_muj_clean,
+    EDADHOM = ifelse(EDADHOM == 999, NA, EDADHOM),
+    EDADMUJ = ifelse(EDADMUJ == 999, NA, EDADMUJ),
+    nivel_edu_hom = case_when(
+      ESCHOM == 1 ~ "Ninguno",
+      ESCHOM %in% c(2, 3, 4) ~ "Primaria",
+      ESCHOM %in% c(5, 6) ~ "Media/Diversificado",
+      ESCHOM >= 7 & ESCHOM < 9 ~ "Superior",
+      TRUE ~ "Ignorado"
+    ),
+    nivel_edu_muj = case_when(
+      ESCMUJ == 1 ~ "Ninguno",
+      ESCMUJ %in% c(2, 3, 4) ~ "Primaria",
+      ESCMUJ %in% c(5, 6) ~ "Media/Diversificado",
+      ESCMUJ >= 7 & ESCMUJ < 9 ~ "Superior",
+      TRUE ~ "Ignorado"
+    )
+  )
+```
+
+```{r 03-resumen-carga}
+cat("Registros violencia (2022):", nrow(violencia), "\n")
+cat("Registros divorcios (2022):", nrow(divorcios), "\n")
+```
+
+
+## Introduccion
+
+La violencia intrafamiliar constituye un problema social de alta relevancia debido a su impacto en la estabilidad emocional, social y economica de los hogares.
+Por otro lado, el divorcio representa una consecuencia legal de conflictos persistentes dentro del nucleo familiar, los cuales pueden estar relacionados con dinamicas de violencia y deterioro de la convivencia.
+
+En este proyecto se analiza la posible relacion entre los divorcios y la violencia intrafamiliar utilizando datos oficiales correspondientes al ano 2022.
+A traves de tecnicas de analisis exploratorio de datos y mineria de datos, se busca identificar patrones, comportamientos y relaciones entre ambas problematicas, con el fin de obtener una comprension mas profunda de su interaccion a nivel agregado.
+
+El analisis se centra en una exploracion descriptiva inicial de los conjuntos de datos, la caracterizacion de sus variables y la evaluacion de posibles relaciones estadisticas entre los indicadores de divorcio y violencia intrafamiliar.
+
+## Objetivos
+
+**Objetivo General** Analizar la relacion entre los divorcios y la violencia intrafamiliar mediante tecnicas de analisis exploratorio y mineria de datos, utilizando informacion correspondiente al ano 2022.
+
+**Objetivos especificos** - Describir las caracteristicas principales de los conjuntos de datos de divorcios y violencia intrafamiliar.
+- Identificar y clasificar las variables numericas y categoricas presentes en cada conjunto de datos.
+- Realizar un analisis exploratorio de las variables relevantes mediante medidas descriptivas y representaciones graficas.
+- Evaluar posibles relaciones entre indicadores de divorcio y violencia intrafamiliar.
+
+# Avances
+
+
+## Descripcion general de los datos
+
+Para el desarrollo del presente proyecto se utilizaron dos conjuntos de datos correspondientes al ano 2022.
+El primero contiene informacion relacionada con los procesos de divorcio, mientras que el segundo recopila registros asociados a casos de violencia intrafamiliar.
+Ambos conjuntos de datos fueron obtenidos a partir de fuentes oficiales y procesados previamente para su uso en el analisis.
+
+```{r,echo=FALSE, results='hide'}
+## Dataset de divorcios
+
+str(divorcios)
+str(violencia)
+```
+
+## Descripcion de las variables: Violencia intrafamiliar
+
+El conjunto de datos de violencia intrafamiliar contiene informacion detallada sobre las caracteristicas sociodemograficas de las victimas y agresores, asi como aspectos relacionados con el hecho de violencia reportado.
+Las variables incluidas permiten analizar dimensiones como edad, sexo, escolaridad, ocupacion, estado civil y relacion entre victima y agresor, entre otras.
+
+```{r, echo=FALSE, results='hide'}
+## Resumen de tipos de variables en violencia
+
+glimpse(violencia)
+```
+
+La mayoria de las variables en el conjunto de datos corresponden a codificaciones numericas que representan categorias, mientras que otras variables como la edad y las fechas corresponden a valores numericos continuos o discretos
+
+## Descripcion de las variables: Divorcios
+
+El conjunto de datos de divorcios contiene informacion asociada a los procesos de disolucion del vinculo matrimonial, incluyendo caracteristicas temporales, geograficas y sociodemograficas de las personas involucradas.
+Las variables disponibles permiten analizar aspectos como la edad, escolaridad, ocupacion y nacionalidad de los conyuges, asi como el lugar y fecha de ocurrencia del divorcio.
+
+```{r, echo=FALSE, results='hide'}
+## Resumen de variables en divorcios
+glimpse(divorcios)
+```
+
+------------------------------------------------------------------------
+
+
+## Exploracion de variables numericas
+
+En esta seccion se analizan las principales variables numericas de los conjuntos de datos de violencia intrafamiliar y divorcios, utilizando medidas de tendencia central, medidas de orden y representaciones graficas.
+
+```{r}
+summary(violencia$vic_edad)
+```
+
+La edad de la victima presenta un rango amplio, desde 1 hasta 98 anos, lo cual evidencia que la violencia intrafamiliar afecta a personas de distintas etapas de la vida.
+La mediana de edad es de 31 anos, mientras que la media es de aproximadamente 33 anos, lo que indica una ligera asimetria positiva en la distribucion.
+El 50% de las victimas se concentra entre los 24 y 39 anos de edad, sugiriendo que los adultos jovenes representan el grupo mas afectado.
+Se identificaron 5,046 registros sin informacion de edad, los cuales seran considerados como valores faltantes en el analisis.
+
+```{r}
+summary(violencia$total_hijos)
+```
+
+El numero total de hijos de la victima presenta una mediana de 2 hijos, lo que indica que la mayoria de los casos corresponde a personas con familias pequenas.
+La media es cercana a la mediana, lo cual sugiere una distribucion relativamente equilibrada.
+El 75% de las victimas tiene tres hijos o menos, mientras que los valores maximos observados corresponden a casos aislados de familias numerosas.
+Se identifico una proporcion considerable de valores faltantes, los cuales fueron tratados adecuadamente durante el analisis exploratorio.
+
+```{r}
+summary(divorcios$EDADMUJ)
+```
+
+La edad de la mujer en los procesos de divorcio presenta una mediana de 31 anos y una media de aproximadamente 33 anos, lo que indica que los divorcios se concentran principalmente en edades adultas jovenes.
+El 50% de los casos se encuentra entre los 26 y 38 anos, mientras que los valores maximos corresponden a casos aislados de edades avanzadas.
+La distribucion muestra una ligera asimetria positiva y se identifican valores faltantes que fueron considerados adecuadamente durante el analisis.
+
+```{r}
+summary(divorcios$EDADHOM)
+```
+
+La edad del hombre en los procesos de divorcio presenta una mediana de 34 anos y una media de aproximadamente 36 anos, lo que sugiere que los hombres tienden a ser ligeramente mayores que las mujeres al momento del divorcio.
+El rango intercuartilico se ubica entre los 29 y 41 anos, concentrando la mayoria de los casos en edades adultas.
+La distribucion presenta una asimetria positiva y algunos valores extremos correspondientes a edades avanzadas.
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+
+## Metodologia y explicacion de procedimientos
+
+### Tratamiento de valores faltantes y codigos especiales
+
+Antes de realizar el analisis estadistico, se revisaron los conjuntos de datos para identificar valores faltantes y codigos especiales utilizados para representar informacion no especificada.
+En ambos conjuntos se encontraron valores como 99 y 999, que no representan datos reales sino ausencia de informacion.
+
+Estos valores fueron transformados en NA con el objetivo de evitar distorsiones en las medidas de tendencia central y en los analisis posteriores.
+Esta decision metodologica permitio obtener estadisticas mas representativas del comportamiento real de las variables estudiadas.
+
+### Analisis descriptivo de variables numericas
+
+Para las variables cuantitativas seleccionadas se calcularon medidas de tendencia central (media y mediana) y medidas de orden (cuartiles).
+Estas estadisticas permitieron identificar la concentracion de los datos y evaluar la dispersion de cada variable.
+
+En el caso de la edad de las victimas de violencia intrafamiliar, se observo que la mediana se concentra en adultos jovenes, lo cual indica que este grupo etario representa una proporcion importante de los casos registrados.
+Asimismo, la ligera diferencia entre media y mediana sugiere una asimetria moderada en la distribucion.
+
+En los procesos de divorcio, se identifico que los hombres tienden a ser ligeramente mayores que las mujeres al momento del divorcio.
+Este patron consistente refuerza la coherencia interna del conjunto de datos.
+
+### Interpretacion de la distribucion y valores extremos
+
+El analisis exploratorio permitio observar que las variables numericas no siguen una distribucion perfectamente normal, sino que presentan asimetrias moderadas, lo cual es comun en fenomenos sociales reales.
+
+Los valores extremos fueron examinados para determinar si correspondian a errores de registro o a casos poco frecuentes pero posibles.
+En general, los valores observados se consideran coherentes dentro del contexto del fenomeno estudiado, por lo que no fueron eliminados arbitrariamente.
+
+### Coherencia y consistencia de los datos
+
+Los resultados obtenidos muestran patrones consistentes entre los diferentes analisis realizados.
+La concentracion de casos en adultos jovenes tanto en violencia intrafamiliar como en divorcios sugiere dinamicas sociales relevantes que merecen un analisis mas profundo.
+
+Es importante destacar que hasta este punto del estudio se han identificado asociaciones descriptivas, sin establecer relaciones causales.
+Los analisis posteriores permitiran profundizar en la comprension de estas dinamicas.
+\_\_\_
+
+
+## Exploracion de variables categoricas
+
+En esta seccion se analizan las principales variables categoricas del conjunto de datos de violencia intrafamiliar.
+El objetivo es identificar la distribucion de los casos segun caracteristicas sociodemograficas y relacionales, utilizando tablas de frecuencia y representaciones graficas que permitan una mejor comprension del fenomeno estudiado.
+
+### Sexo de la victima
+
+Se analiza la distribucion de los casos de violencia intrafamiliar segun el sexo de la victima, con el fin de identificar posibles diferencias en la afectacion por genero.
+
+```{r}
+# Tabla de frecuencia: sexo de la victima
+tabla_sexo <- violencia %>%
+  filter(sexo_label != "Ignorado") %>%
+  count(sexo_label) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_sexo
+```
+
+```{r}
+# Grafico de barras: sexo de la victima
+ggplot(tabla_sexo, aes(x = sexo_label, y = n, fill = sexo_label)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Distribucion del sexo de las victimas",
+    x = "Sexo",
+    y = "Frecuencia"
+  )
+```
+
+La distribucion evidencia que la violencia intrafamiliar afecta de manera diferenciada segun el sexo de la victima, mostrando una concentracion mayor en uno de los grupos, lo cual sugiere la presencia de desigualdades estructurales en el contexto familiar.
+
+### Estado civil de la victima
+
+El estado civil de la victima permite analizar el contexto relacional en el que ocurren los hechos de violencia intrafamiliar.
+
+```{r}
+# Tabla de frecuencia: estado civil
+tabla_estado_civil <- violencia %>%
+  filter(est_civ_label != "Ignorado") %>%
+  count(est_civ_label) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_estado_civil
+```
+
+```{r}
+# Grafico de barras: estado civil
+ggplot(tabla_estado_civil, aes(x = est_civ_label, y = n)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Distribucion del estado civil de las victimas",
+    x = "Estado civil",
+    y = "Frecuencia"
+  )
+```
+
+Los resultados muestran que los casos de violencia intrafamiliar se concentran principalmente en ciertos estados civiles, lo cual podria estar asociado a dinamicas de convivencia y conflictos dentro del nucleo familiar.
+
+### Relacion entre la victima y el agresor
+
+Se examina la relacion existente entre la victima y el agresor para identificar los vinculos mas frecuentes en los casos reportados de violencia intrafamiliar.
+
+```{r}
+# Tabla de frecuencia: relacion victima-agresor
+tabla_relacion <- violencia %>%
+  filter(relacion_label != "Otro/No especificado") %>%
+  count(relacion_label) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_relacion
+```
+
+```{r}
+# Grafico de barras: relacion victima-agresor
+ggplot(tabla_relacion, aes(x = reorder(relacion_label, -n), y = n)) +
+  geom_bar(stat = "identity", fill = "coral") +
+  labs(
+    title = "Relacion entre la victima y el agresor",
+    x = "Relacion",
+    y = "Frecuencia"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+El analisis evidencia que la mayoria de los casos de violencia intrafamiliar ocurre entre personas con vinculos cercanos, lo cual refuerza la naturaleza intrafamiliar del fenomeno y resalta la importancia de analizar las relaciones personales dentro del hogar.
+
+------------------------------------------------------------------------
+
+
+## Relaciones entre las variables.
+
+### Relacion: Diferencia de edad entre Agresor y Victima
+
+```{r}
+## Analisis de Brecha de Edad: Agresor vs Victima
+violencia %>%
+  filter(!is.na(vic_edad_clean), !is.na(agr_edad), vic_edad_clean < 90, agr_edad < 90) %>%
+  ggplot(aes(x = vic_edad_clean, y = agr_edad)) +
+  geom_point(alpha = 0.1, color = "darkred") + 
+  geom_abline(intercept = 0, slope = 1, color = "blue", linetype = "dashed") + 
+  labs(title = "Relacion de Edades: Victima vs. Agresor",
+       subtitle = "La linea azul indica la misma edad. Puntos arriba = Agresor mayor.",
+       x = "Edad de la Victima",
+       y = "Edad del Agresor") +
+  theme_minimal()
+```
+
+El grafico de dispersion analiza la brecha generacional existente entre la victima y el agresor en los casos de violencia intrafamiliar.
+La linea azul discontinua representa la igualdad de edades; por lo tanto, la notable concentracion de puntos por encima de esta referencia evidencia que, en la mayoria de los casos reportados, el agresor tiende a ser mayor que la victima, lo cual sugiere una posible asimetria de poder vinculada a la edad.
+Adicionalmente, se observa una alta densidad de incidentes (la "nube" mas oscura) donde ambas partes oscilan entre los 20 y 40 anos, identificando a los adultos jovenes como el grupo demografico mas vulnerable y activo en esta problematica.
+
+### Relacion: Estacionalidad de la Violencia (Mes del hecho)
+
+```{r}
+## Analisis Temporal: Violencia por Mes
+violencia %>%
+  filter(!is.na(mes_nombre)) %>%
+  group_by(mes_nombre) %>%
+  summarise(total = n()) %>%
+  ggplot(aes(x = mes_nombre, y = total)) +
+  geom_col(fill = "steelblue") +
+  labs(title = "Estacionalidad de la Violencia Intrafamiliar",
+       x = "Mes",
+       y = "Cantidad de Denuncias") +
+  theme_classic()
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+El analisis de estacionalidad revela que la incidencia de violencia intrafamiliar mantiene un comportamiento relativamente constante y sostenido durante gran parte del ano, sin caidas drasticas.
+Se observan ligeros repuntes en los meses de marzo, mayo y julio, los cuales concentran los volumenes mas altos de denuncias (superando los 30,000 casos mensuales).
+Por otro lado, se percibe una leve tendencia decreciente hacia el ultimo trimestre (octubre a diciembre).
+Cabe destacar la presencia de una barra etiquetada como "99", la cual corresponde a registros donde el mes de ocurrencia no fue especificado o es desconocido, evidenciando la necesidad de considerar estos valores nulos durante la limpieza de datos para evitar sesgos en el analisis temporal.
+
+## Relacion: Nivel Educativo de la Pareja (Homogamia)
+
+```{r}
+divorcios %>%
+  filter(nivel_edu_hom != "Ignorado", nivel_edu_muj != "Ignorado") %>%
+  group_by(nivel_edu_hom, nivel_edu_muj) %>%
+  count() %>%
+  ggplot(aes(x = nivel_edu_hom, y = nivel_edu_muj, fill = n)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "red") +
+  labs(title = "Mapa de Calor: Nivel Educativo en Divorcios",
+       subtitle = "Comparacion de escolaridad entre conyuges",
+       x = "Escolaridad del Hombre",
+       y = "Escolaridad de la Mujer",
+       fill = "Cantidad") +
+  theme_minimal()
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+El analisis de la matriz educativa revela una marcada tendencia hacia la homogamia educativa en las disoluciones matrimoniales.
+Se observa una concentracion de casos a lo largo de la diagonal principal (donde el nivel educativo del hombre y la mujer coinciden), lo que sugiere que las parejas tienden a formarse -y consecuentemente a divorciarse- dentro de sus mismos estratos academicos.
+Sin embargo, el hallazgo mas critico desde la perspectiva de la mineria de datos es la alta densidad observada en la interseccion de los codigos "9" (esquina superior derecha, color rojo intenso).
+Dado que este codigo corresponde a valores "Ignorados" o "No indicados" en los estandares del INE, esto evidencia un sesgo de informacion faltante significativo; es decir, en una gran proporcion de los divorcios registrados, no se capturo el nivel educativo de ninguno de los conyuges, lo cual limita la caracterizacion sociodemografica precisa de este subgrupo.
+
+## Relacion: Distribucion de la Diferencia de Edad en Divorcios
+
+```{r}
+divorcios %>%
+  filter(!is.na(diferencia_edad)) %>%
+  filter(diferencia_edad > -20, diferencia_edad < 30) %>% # Filtramos casos extremos errores
+  ggplot(aes(x = diferencia_edad)) +
+  geom_histogram(binwidth = 1, fill = "purple", color = "white") +
+  geom_vline(xintercept = 0, color = "black", size = 1) +
+  labs(title = "Diferencia de Edad en Parejas que se Divorcian",
+       subtitle = "Valores positivos: Hombre mayor. Valores negativos: Mujer mayor.",
+       x = "Annos de diferencia (Edad Hombre - Edad Mujer)",
+       y = "Frecuencia") +
+  theme_light()
+```
+
+El histograma de distribucion de edades en los divorcios muestra una clara asimetria positiva (sesgo hacia la derecha).
+La mayor concentracion de datos se agrupa alrededor de la linea cero, indicando que una gran parte de las disoluciones matrimoniales ocurre en parejas con edades similares (homogamia etaria).
+Sin embargo, la cola derecha de la distribucion es notablemente mas larga y densa que la izquierda, lo que revela un patron social predominante: en las parejas con diferencias de edad significativas que llegan al divorcio, es mucho mas frecuente que el hombre sea mayor que la mujer (barras purpuras extendiendose hacia los valores positivos).
+Por el contrario, los casos donde la mujer es considerablemente mayor que el hombre (valores negativos) son estadisticamente menos frecuentes.
+
+
+## Preguntas de investigacion basadas en hipotesis
+
+En esta seccion se plantean hipotesis preliminares basadas en creencias o supuestos comunes sobre la violencia intrafamiliar y los procesos de divorcio.
+Cada hipotesis sera evaluada mediante analisis de datos, con el objetivo de confirmar o refutar dichas creencias.
+
+### Hipotesis 1: La violencia intrafamiliar afecta principalmente a mujeres jovenes
+
+**Pregunta de investigacion:**\
+La violencia intrafamiliar afecta principalmente a mujeres jovenes dentro del conjunto de datos analizado?
+
+Se plantea la hipotesis de que la mayoria de victimas de violencia intrafamiliar son mujeres jovenes.
+Esta creencia se basa en patrones sociales y reportes mediaticos que suelen asociar este fenomeno con mujeres en edad reproductiva.
+
+Para evaluar esta hipotesis se analizara la distribucion de la edad de la victima y su relacion con el sexo.
+
+```{r}
+# Proporcion por sexo
+table(violencia$vic_sexo)
+prop.table(table(violencia$vic_sexo)) * 100
+```
+
+```{r}
+# Edad promedio por sexo
+aggregate(vic_edad ~ vic_sexo, data = violencia, mean, na.rm = TRUE)
+```
+
+#### Resultado e interpretacion
+
+El analisis muestra que el 88.5% de las victimas registradas corresponden a mujeres, mientras que solo el 11.5% corresponde a hombres.
+Esta diferencia evidencia una marcada concentracion del fenomeno en mujeres.
+
+Asimismo, la edad promedio de las mujeres victimas es de aproximadamente 33 anos, con una mediana de 31 anos, lo cual indica que la mayoria de los casos se concentra en adultos jovenes.
+
+En consecuencia, la hipotesis planteada se confirma: la violencia intrafamiliar afecta predominantemente a mujeres jovenes dentro del conjunto de datos analizado.
+
+### Hipotesis 2: Los hombres son significativamente mayores que las mujeres en los divorcios
+
+**Pregunta de investigacion:**\
+Existe una diferencia significativa en la edad entre hombres y mujeres en los procesos de divorcio, siendo los hombres mayores en promedio?
+
+Existe la creencia de que los hombres tienden a ser mayores que las mujeres al momento del divorcio.
+Para evaluar esta hipotesis se compararan las edades promedio y medianas de ambos grupos.
+
+```{r hipotesis-2-diferencia-edad}
+# La limpieza de edades (999 -> NA) ya se aplico en 02-limpieza-microdatos
+summary(divorcios$diferencia_edad)
+mean(divorcios$edad_hom_clean, na.rm = TRUE) -
+  mean(divorcios$edad_muj_clean, na.rm = TRUE)
+```
+
+```{r hipotesis-2-boxplot-edades}
+edades_long <- divorcios %>%
+  select(edad_hom_clean, edad_muj_clean) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "Sexo",
+    values_to = "Edad",
+    names_transform = list(Sexo = ~ recode(.x,
+      edad_hom_clean = "Hombre (EDADHOM)",
+      edad_muj_clean = "Mujer (EDADMUJ)"
+    ))
+  ) %>%
+  filter(!is.na(Edad))
+
+ggplot(edades_long, aes(x = Sexo, y = Edad)) +
+  geom_boxplot() +
+  labs(title = "Comparacion de edad en procesos de divorcio",
+       x = "Sexo",
+       y = "Edad")
+```
+
+#### Resultado e interpretacion
+
+Se calculo la diferencia entre la edad del hombre y la edad de la mujer en cada proceso de divorcio.
+La mediana de la diferencia es de 2 anos, lo que indica que, en la mayoria de los casos, el hombre es ligeramente mayor que la mujer.
+
+El tercer cuartil muestra que en el 75% de los casos el hombre es hasta 6 anos mayor.
+Sin embargo, tambien se observan valores negativos, lo que indica que en un porcentaje significativo de casos la mujer es mayor que el hombre.
+
+En consecuencia, la hipotesis se confirma parcialmente: los hombres tienden a ser mayores que las mujeres en los divorcios, aunque la diferencia promedio es moderada y no absoluta.
+
+### Hipotesis 3: Los departamentos con mayor violencia tambien representan mas divorcios
+
+**Pregunta de investigacion:**\
+Existe una relacion positiva y estadisticamente significativa entre el numero de casos de violencia intrafamiliar y el numero de divorcios a nivel departamental?
+
+Si un departamento tiene muchos casos de violencia intrafamiliar -\> tambien tiene muchos divorcios?
+
+```{r hipotesis-3-agregacion-departamental}
+# Agregacion departamental con la misma regla que en Parte II (cod_depto valido)
+violencia_dep <- violencia %>%
+  filter(!is.na(cod_depto), cod_depto != 99) %>%
+  group_by(cod_depto) %>%
+  summarise(casos_violencia = n(), .groups = "drop")
+
+divorcios_dep <- divorcios %>%
+  filter(!is.na(cod_depto), cod_depto != 99) %>%
+  group_by(cod_depto) %>%
+  summarise(casos_divorcio = n(), .groups = "drop")
+
+datos_dep <- inner_join(violencia_dep, divorcios_dep, by = "cod_depto")
+stopifnot(nrow(datos_dep) == 22)
+
+datos_dep %>% arrange(desc(casos_violencia)) %>% print(n = 22)
+```
+
+```{r hipotesis-3-correlacion}
+cor(datos_dep$casos_violencia, datos_dep$casos_divorcio)
+cor.test(datos_dep$casos_violencia, datos_dep$casos_divorcio)
+```
+
+#### Resultado e interpretacion
+
+Se calculo el coeficiente de correlacion de Pearson entre el numero de casos de violencia intrafamiliar y el numero de divorcios por departamento.
+El resultado fue r = 0.82, lo que indica una correlacion positiva fuerte.
+
+El valor p obtenido (p \< 0.001) permite rechazar la hipotesis nula de ausencia de correlacion, por lo que la asociacion observada es estadisticamente significativa.
+
+En consecuencia, la hipotesis planteada se confirma: los departamentos con mayor numero de casos de violencia tienden a presentar tambien un mayor numero de divorcios.
+Sin embargo, es importante senalar que esta relacion puede estar influenciada por el tamano poblacional de cada departamento, por lo que no se puede establecer causalidad directa.
+
+```{r}
+library(ggplot2)
+
+ggplot(datos_dep, aes(x = casos_violencia,
+                      y = casos_divorcio)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Relacion entre violencia intrafamiliar y divorcios por departamento",
+       x = "Casos de violencia",
+       y = "Casos de divorcio")
+```
+
+El grafico de dispersion muestra una relacion positiva clara entre el numero de casos de violencia intrafamiliar y el numero de divorcios por departamento.
+La linea de tendencia ascendente indica que, en general, los departamentos con mayor cantidad de violencia tambien presentan un mayor numero de divorcios.
+
+Sin embargo, se observa que un departamento con valores particularmente altos influye considerablemente en la tendencia general.
+Esto sugiere que el tamano poblacional puede estar afectando la relacion observada.
+Por lo tanto, aunque la correlacion es fuerte y estadisticamente significativa, no puede interpretarse como una relacion causal directa.
+
+Cabe aclara que se pudo haber hecho el analisis por cada 100,000 habitantes pero por falta de informacion de hbaitantes por departamento.
+
+### Hipotesis 4: La mayoria de victimas de violencia intrafamiliar tiene hijos
+
+**Pregunta de investigacion:**\
+La mayoria de las victimas de violencia intrafamiliar tiene al menos un hijo?
+
+```{r}
+violencia <- violencia %>%
+  mutate(tiene_hijos = ifelse(total_hijos_clean >= 1, "Si", "No"))
+```
+
+```{r}
+tabla_hijos <- violencia %>%
+  filter(!is.na(total_hijos_clean)) %>%
+  count(tiene_hijos) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_hijos
+```
+
+#### Resultado e interpretacion
+
+El analisis muestra que el 86.34% de las victimas registradas tiene al menos un hijo, mientras que unicamente el 13.66% no tiene hijos.
+
+En consecuencia, la hipotesis se confirma claramente: la mayoria de los casos de violencia intrafamiliar ocurre en contextos donde existen hijos dentro del entorno familiar.
+
+Este hallazgo sugiere que el impacto del fenomeno no se limita a la victima directa, sino que potencialmente afecta tambien a menores presentes en el hogar, lo cual refuerza la dimension social y familiar del problema.
+
+```{r}
+library(ggplot2)
+
+ggplot(tabla_hijos, aes(x = tiene_hijos,
+                        y = porcentaje,
+                        fill = tiene_hijos)) +
+  geom_bar(stat = "identity", width = 0.6) +
+  geom_text(aes(label = paste0(round(porcentaje, 1), "%")),
+            vjust = -0.5,
+            size = 4) +
+  labs(title = "Proporcion de victimas con hijos",
+       x = "Tiene hijos?",
+       y = "Porcentaje") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+La grafica refuerza visualmente que la mayoria de las victimas de violencia intrafamiliar tiene hijos, lo cual confirma la hipotesis planteada y evidencia la dimension familiar del fenomeno.
+
+### Hipotesis 5: La violencia intrafamiliar ocurre principalmente en areas urbanas
+
+**Pregunta de investigacion:**\
+Existe una mayor concentracion de casos de violencia intrafamiliar en areas urbanas en comparacion con areas rurales?
+
+```{r}
+table(violencia$hec_area)
+```
+
+```{r}
+violencia_area <- violencia %>%
+  filter(hec_area != 9) %>%
+  mutate(area = ifelse(hec_area == 1, "Urbana", "Rural"))
+```
+
+```{r}
+tabla_area <- violencia_area %>%
+  count(area) %>%
+  mutate(porcentaje = n / sum(n) * 100)
+
+tabla_area
+```
+
+#### Resultado e interpretacion
+
+El analisis muestra que el 57.04% de los casos de violencia intrafamiliar ocurrio en areas urbanas, mientras que el 42.96% se registro en areas rurales.
+
+En consecuencia, la hipotesis se confirma: la violencia intrafamiliar ocurre mayoritariamente en zonas urbanas.
+Sin embargo, la diferencia no es extrema, lo que indica que el fenomeno tambien presenta una presencia significativa en areas rurales, evidenciando que se trata de un problema generalizado y no exclusivamente urbano.
+
+```{r}
+ggplot(tabla_area, aes(x = area,
+                       y = porcentaje,
+                       fill = area)) +
+  geom_bar(stat = "identity", width = 0.6) +
+  geom_text(aes(label = paste0(round(porcentaje,1), "%")),
+            vjust = -0.5,
+            size = 4) +
+  labs(title = "Distribucion de violencia por area",
+       x = "Area",
+       y = "Porcentaje") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+Aunque la mayoria de los casos se registran en areas urbanas, esta diferencia podria estar influenciada por la mayor concentracion poblacional en dichas zonas.
+Dado que el analisis se basa en frecuencias absolutas y no en tasas ajustadas por poblacion, no es posible concluir que el riesgo de violencia sea mayor en el area urbana, sino unicamente que el numero total de casos es superior.
+
+### Determinacion del numero optimo de clusters
+
+Para determinar el numero adecuado de grupos se utilizaron dos metodos: el metodo del codo y el metodo de la silueta.
+
+El metodo del codo sugiere un punto de inflexion alrededor de tres clusters, ya que a partir de ese valor la reduccion en la variabilidad interna se vuelve menos significativa.
+
+Por otro lado, el metodo de la silueta muestra su valor maximo en k = 2, con una anchura promedio cercana a 0.85, lo cual indica una separacion muy clara entre los grupos.
+
+Dado que la silueta evalua directamente la cohesion y separacion de los clusters, se selecciona k = 2 como el numero optimo de grupos para este analisis.
+
+```{r}
+cluster_data <- datos_dep %>%
+  select(casos_violencia, casos_divorcio)
+
+cluster_scaled <- scale(cluster_data)
+```
+
+```{r}
+wss <- numeric(10)
+
+for (k in 1:10) {
+  kmeans_model <- kmeans(cluster_scaled, centers = k, nstart = 25)
+  wss[k] <- kmeans_model$tot.withinss
+}
+
+plot(1:10, wss,
+     type = "b",
+     pch = 19,
+     frame = FALSE,
+     xlab = "Numero de clusters",
+     ylab = "Within-cluster sum of squares",
+     main = "Metodo del Codo")
+```
+
+### Metodo del Codo
+
+El metodo del codo permite identificar el numero adecuado de clusters analizando la variacion interna (within-cluster sum of squares) a medida que aumenta el numero de grupos.
+En la grafica se observa una disminucion pronunciada de la variabilidad interna entre uno y tres clusters.
+A partir de este punto, la reduccion se vuelve progresivamente menor, indicando que agregar mas grupos no aporta una mejora sustancial en la cohesion interna.
+
+Este comportamiento sugiere la presencia de una estructura natural en los datos alrededor de tres clusters, donde se produce el cambio mas notable en la pendiente de la curva.
+
+```{r}
+library(cluster)
+
+sil_width <- numeric(10)
+
+for (k in 2:10) {
+  kmeans_model <- kmeans(cluster_scaled, centers = k, nstart = 25)
+  ss <- silhouette(kmeans_model$cluster, dist(cluster_scaled))
+  sil_width[k] <- mean(ss[, 3])
+}
+
+plot(2:10, sil_width[2:10],
+     type = "b",
+     pch = 19,
+     frame = FALSE,
+     xlab = "Numero de clusters",
+     ylab = "Silhouette width",
+     main = "Metodo de la Silueta")
+```
+
+### Metodo de la Silueta
+
+El metodo de la silueta evalua la calidad del agrupamiento midiendo que tan bien se separan los elementos de distintos clusters y que tan cohesionados estan dentro de su propio grupo.
+En la grafica se observa que el valor maximo de la anchura promedio de la silueta se alcanza cuando k = 2, con un valor cercano a 0.85.
+
+Un valor de silueta superior a 0.5 indica una separacion clara entre grupos, mientras que valores cercanos a 1 representan una estructura muy bien definida.
+Por lo tanto, el resultado sugiere que la particion en dos clusters proporciona la mejor separacion y cohesion para los datos analizados.
+
+```{r}
+set.seed(123)  # Para reproducibilidad
+
+kmeans_model <- kmeans(cluster_scaled, centers = 2, nstart = 25)
+
+datos_dep$cluster <- factor(kmeans_model$cluster)
+
+datos_dep
+```
+
+```{r}
+datos_dep %>%
+  group_by(cluster) %>%
+  summarise(
+    promedio_violencia = mean(casos_violencia),
+    promedio_divorcio = mean(casos_divorcio),
+    n_departamentos = n()
+  )
+```
+
+### Aplicacion del algoritmo K-means
+
+Se aplico el algoritmo K-means con k = 2, determinado previamente mediante el metodo de la silueta.
+El resultado muestra que uno de los clusters contiene unicamente un departamento, caracterizado por niveles significativamente mas altos de violencia y divorcios en comparacion con el resto.
+
+Este departamento corresponde al departamento de Guatemala, el cual presenta valores extremos que lo diferencian claramente del resto del pais.
+El segundo cluster agrupa los otros 21 departamentos, que presentan niveles considerablemente menores en ambas variables.
+
+El resultado indica que la estructura natural de los datos esta fuertemente influenciada por la magnitud de los valores del departamento de Guatemala, lo cual genera una separacion clara entre este y el resto.
+
+
+# Hallazgos del Analisis Exploratorio
+
+1.  **Perfil de la Victima:** La violencia intrafamiliar posee un sesgo de genero y edad muy marcado.
+    El **88.5% de las victimas son mujeres**, con una mediana de edad de **31 anos**, confirmando que el fenomeno afecta desproporcionadamente a mujeres adultas jovenes en etapa reproductiva y de crianza (el 86.3% tiene hijos).
+
+2.  **La Trampa de la Correlacion:** Existe una correlacion lineal fuerte ($r=0.82$) entre la cantidad de denuncias de violencia y la cantidad de divorcios por departamento.
+    Sin embargo, este dato es enganoso: esta impulsado casi exclusivamente por el **Departamento de Guatemala**, cuyo volumen poblacional infla las cifras, actuando como un *outlier* que distorsiona la tendencia nacional.
+
+3.  **Homogamia en Rupturas:** En los divorcios, se rompe el mito de las grandes diferencias de edad.
+    La mayoria de las parejas que disuelven su vinculo tienen edades similares (diferencia mediana de 2 anos), lo que sugiere que las tensiones que llevan al divorcio y/o violencia ocurren entre pares generacionales.
+
+# Caracterizacion de los Grupos (Nombres Propuestos)
+
+El algoritmo *K-Means* ($k=2$) identifico una estructura polarizada en el pais.
+Basado en sus caracteristicas, se proponen los siguientes nombres para los grupos:
+
+### Grupo 1: "El Nucleo Metropolitano (Outlier)"
+
+-   **Integrantes:** Unicamente el **Departamento de Guatemala**.
+-   **Caracteristicas:** Representa un escenario de "alta intensidad" que no es comparable con el resto del pais. Sus cifras de violencia (aprox. 68k casos) y divorcios (27k) rompen la escala, siendo entre 6 y 20 veces superiores al promedio de los demas departamentos. Estadisticamente, es un caso atipico extremo.
+
+### Grupo 2: "El Interior Estandar"
+
+-   **Integrantes:** Los **21 departamentos restantes** (Huehuetenango, San Marcos, Peten, Zacapa, etc.).
+-   **Caracteristicas:** A pesar de sus diferencias culturales y geograficas, estos departamentos se agrupan por tener volumenes de casos "bajos" o "medios" en comparacion con la capital. Para el algoritmo, todos son similares simplemente porque "no son la capital".
+
+
+# Plan de Siguientes Pasos
+
+Para corregir el sesgo identificado y profundizar en el analisis, se propone la siguiente hoja de ruta:
+
+1.  **Zoom-In (Sub-segmentacion):** Ejecutar una segunda iteracion de *clustering* **excluyendo al Departamento de Guatemala**. Al retirar este *outlier*, se podran revelar los matices y diferencias reales entre los departamentos del interior (ej. diferenciar zonas de alta violencia en oriente vs. occidente).
+2.  **Normalizacion Demografica:** Sustituir el analisis de frecuencias absolutas por **Tasas por cada 100,000 habitantes**. Esto es crucial para determinar si departamentos pequenos (como El Progreso o Zacapa) tienen en realidad una *intensidad* de violencia mayor que la capital, aunque tengan menos casos totales.
+3.  **Variable de Ratio:** Crear y analizar la metrica `Divorcios / Denuncias de Violencia`. Esto permitira identificar departamentos donde existe una alta denuncia pero baja disolucion legal, lo cual podria indicar barreras culturales, economicas o legales especificas de esa region.
+
+
+
+------------------------------------------------------------------------
+
+# Parte II - Preparacion del dataset departamental para modelado
+
+A partir de los microdatos limpios de 2022 se construye `datos_modelo`, la
+tabla analitica con **22 filas** (una por departamento). Esta misma tabla alimenta
+todos los algoritmos de la Parte III.
+
+## Variable respuesta
+
+La variable objetivo es **`casos_divorcio`**: numero total de divorcios registrados
+por departamento en 2022. Es una variable **cuantitativa discreta de conteo**,
+por lo que el problema se aborda como **regresion**, no clasificacion.
+
+```{r 04-agregacion-departamental, include=FALSE}
+# =============================================================================
+# PASO 3: AGREGACION DEPARTAMENTAL
+# =============================================================================
+violencia_proc <- violencia %>%
+  filter(!is.na(cod_depto), cod_depto != 99) %>%
+  group_by(cod_depto) %>%
+  summarise(
+    casos_violencia   = n(),
+    edad_victima_prom = mean(vic_edad_clean, na.rm = TRUE),
+    porc_urbano       = mean(hec_area == 1, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+divorcios_proc <- divorcios %>%
+  filter(!is.na(cod_depto), cod_depto != 99) %>%
+  group_by(cod_depto) %>%
+  summarise(casos_divorcio = n(), .groups = "drop")
+```
+
+```{r 05-construir-datos-modelo, include=FALSE}
+# =============================================================================
+# PASO 4: DATASET FINAL DE MODELADO
+# - es_capital controla el outlier estructural de Guatemala
+# - variables _z estandarizan predictores continuos
+# =============================================================================
+datos_modelo <- violencia_proc %>%
+  inner_join(divorcios_proc, by = "cod_depto") %>%
+  mutate(
+    es_capital          = as.integer(cod_depto == 1),
+    casos_violencia_z   = as.numeric(scale(casos_violencia)),
+    edad_victima_prom_z = as.numeric(scale(edad_victima_prom)),
+    porc_urbano_z       = as.numeric(scale(porc_urbano))
+  )
+
+stopifnot(nrow(datos_modelo) == 22)
+```
+
+```{r 06-funcion-metricas, include=FALSE}
+# =============================================================================
+# FUNCION COMUN DE METRICAS PARA TODOS LOS ALGORITMOS
+# =============================================================================
+calcular_metricas <- function(observado, predicho) {
+  tibble(
+    MAE  = mean(abs(observado - predicho), na.rm = TRUE),
+    RMSE = sqrt(mean((observado - predicho)^2, na.rm = TRUE)),
+    MAPE = mean(
+      abs((observado - predicho) / ifelse(observado == 0, NA, observado)),
+      na.rm = TRUE
+    ) * 100
+  )
+}
+```
+
+```{r 07-vista-datos-modelo}
+datos_modelo %>%
+  select(cod_depto, casos_divorcio, casos_violencia,
+         edad_victima_prom, porc_urbano, es_capital) %>%
+  kable(digits = 2,
+        caption = "Dataset departamental final (2022)")
+```
+
+## Diagnostico correlacional del dataset departamental
+
+Este bloque integra la logica de `exploratoria_correlacion.Rmd` para evaluar
+las asociaciones lineales entre predictores y la variable respuesta.
+
+```{r 08-correlacion-matriz}
+# Variables numericas a comparar en matriz de correlacion
+vars_cor <- c(
+  "casos_divorcio",
+  "casos_violencia",
+  "edad_victima_prom",
+  "porc_urbano"
+)
+
+mat_cor_completo <- cor(
+  datos_modelo[, vars_cor],
+  use = "pairwise.complete.obs"
+)
+
+kable(
+  round(mat_cor_completo, 2),
+  caption = "Matriz de correlacion de Pearson (22 departamentos)"
+)
+```
+
+```{r 09-correlacion-heatmap, fig.height=5, fig.width=6}
+# Visualizacion del patron global de correlaciones
+mat_cor_tbl <- as_tibble(as.table(mat_cor_completo), .name_repair = "minimal") %>%
+  setNames(c("Variable_X", "Variable_Y", "r"))
+
+ggplot(mat_cor_tbl, aes(x = Variable_X, y = Variable_Y, fill = r)) +
+  geom_tile(color = "white", linewidth = 0.5) +
+  geom_text(aes(label = round(r, 2)), size = 3) +
+  scale_fill_gradient2(
+    low = "#C0392B",
+    mid = "white",
+    high = "#2980B9",
+    midpoint = 0,
+    limits = c(-1, 1),
+    name = "Pearson r"
+  ) +
+  labs(
+    title = "Correlaciones entre variables del modelo (n = 22)",
+    x = NULL,
+    y = NULL
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 35, hjust = 1))
+```
+
+```{r 10-correlacion-sin-capital}
+# Repetimos correlaciones sin la capital para medir sensibilidad al outlier
+datos_sin_capital <- datos_modelo %>% filter(cod_depto != 1)
+mat_cor_sin_capital <- cor(
+  datos_sin_capital[, vars_cor],
+  use = "pairwise.complete.obs"
+)
+
+kable(
+  round(mat_cor_sin_capital, 2),
+  caption = "Matriz de correlacion sin Depto. Guatemala (21 departamentos)"
+)
+```
+
+```{r 11-comparacion-correlacion, fig.height=3.8}
+comp_cor <- tibble(
+  Variable = vars_cor[-1],
+  Completo = mat_cor_completo["casos_divorcio", vars_cor[-1]],
+  Sin_capital = mat_cor_sin_capital["casos_divorcio", vars_cor[-1]]
+) %>%
+  pivot_longer(-Variable, names_to = "Dataset", values_to = "r")
+
+ggplot(comp_cor, aes(x = reorder(Variable, abs(r)), y = r, fill = Dataset)) +
+  geom_col(position = "dodge", width = 0.6) +
+  geom_hline(yintercept = 0, linewidth = 0.4) +
+  coord_flip() +
+  scale_fill_manual(
+    values = c("Completo" = "#2980B9", "Sin_capital" = "#E67E22")
+  ) +
+  labs(
+    title = "Correlacion con casos_divorcio: completo vs sin capital",
+    x = NULL,
+    y = "Pearson r",
+    fill = NULL
+  ) +
+  theme_minimal()
+```
+
+Las correlaciones deben interpretarse como asociacion lineal y no como
+evidencia causal. La diferencia entre matrices completa/sin capital permite
+cuantificar cuanto depende cada relacion del outlier estructural.
+
+------------------------------------------------------------------------
+
+# Parte III - Validacion, modelado y comparacion final
+
+
+## 5.1 Conjuntos de entrenamiento y prueba
+
+## Metodo de validacion
+
+Dado que el conjunto de datos esta agregado a nivel departamental y
+cuenta con unicamente 22 observaciones, no es posible aplicar una
+particion fija tradicional de entrenamiento y prueba. Con una division
+estandar 80/20 el conjunto de prueba quedaria con apenas 4
+departamentos, lo que haria que los resultados dependieran fuertemente
+de cuales cayeron en cada particion.
+
+Por esta razon se utilizo **Leave-One-Out Cross Validation (LOOCV)**. En
+cada iteracion el modelo se entrena con 21 departamentos y se evalua en
+el departamento restante, repitiendo el proceso 22 veces hasta que todos
+los departamentos hayan sido usados exactamente una vez como prueba. Las
+metricas finales se calculan promediando los errores de las 22
+iteraciones, lo que produce una estimacion mas honesta del error de
+generalizacion sin desperdiciar observaciones.
+
+Como la variable respuesta es cuantitativa, **no aplica el concepto de
+balance de clases**. En su lugar se analiza la presencia de valores
+atipicos con alta influencia sobre el modelo.
+
+```{r loocv-proporciones}
+n_obs      <- nrow(datos_modelo)
+porc_train <- (n_obs - 1) / n_obs * 100
+porc_test  <- 1 / n_obs * 100
+
+tibble(
+  `N observaciones`               = n_obs,
+  `% entrenamiento por iteracion` = round(porc_train, 2),
+  `% prueba por iteracion`        = round(porc_test, 2)
+) %>%
+  kable(caption = "Proporciones de entrenamiento y prueba bajo LOOCV")
+```
+
+En cada iteracion se usa el **95.45%** de los datos para entrenamiento y
+el **4.55%** para prueba.
+
+## Analisis de atipicos
+
+Al tratarse de un problema de regresion con variable respuesta
+cuantitativa, se analiza la distribucion de `casos_divorcio` para
+identificar observaciones con comportamiento extremo que puedan influir
+desproporcionadamente en los modelos.
+
+```{r atipicos-boxplot, fig.height=4, fig.cap="Distribucion de divorcios por departamento. El punto rojo corresponde al Departamento de Guatemala, cuyo volumen es extremadamente superior al resto del pais."}
+ggplot(datos_modelo, aes(x = "", y = casos_divorcio)) +
+  geom_boxplot(fill = "lightblue", outlier.color = "red",
+               outlier.size = 3) +
+  geom_text(
+    data = datos_modelo %>% filter(casos_divorcio > 1000),
+    aes(label = cod_depto),
+    hjust = -0.5, size = 3
+  ) +
+  labs(
+    title = "Distribucion de divorcios por departamento (2022)",
+    x     = "",
+    y     = "Numero de divorcios"
+  ) +
+  theme_minimal()
+```
+
+```{r atipicos-zscore}
+datos_modelo %>%
+  arrange(desc(casos_divorcio)) %>%
+  select(cod_depto, casos_divorcio) %>%
+  mutate(
+    z_score = round(
+      (casos_divorcio - mean(casos_divorcio)) / sd(casos_divorcio), 2
+    )
+  ) %>%
+  kable(caption = "Departamentos ordenados por divorcios con z-score")
+```
+
+El Departamento de Guatemala (cod_depto = 1) presenta un z-score muy
+superior al resto, confirmando su condicion de **outlier estructural
+extremo**. Su volumen de divorcios es entre 6 y 8 veces mayor que el
+promedio del resto de departamentos, lo que refleja su desproporcion
+poblacional y su concentracion de servicios judiciales respecto al
+interior del pais.
+
+Este departamento no se elimina del analisis porque es una observacion
+real y relevante para el problema. En su lugar se controla mediante la
+variable dummy `es_capital`, que se detalla en la siguiente seccion.
+
+------------------------------------------------------------------------
+
+## 5.2 Preprocesamiento y preparacion de datos
+
+> **Nota:** `datos_modelo` ya fue construido en la **Parte II** (chunks
+> `04-agregacion-departamental` y `05-construir-datos-modelo`). Aqui se
+> documentan las decisiones metodologicas y se verifica que el objeto este
+> listo antes de entrenar los algoritmos.
+
+### Decisiones aplicadas
+
+1. **Filtro temporal:** solo registros de 2022 para un corte transversal limpio.
+2. **Limpieza INE:** codigos 99/999 recodificados a `NA`; se excluye `cod_depto == 99`.
+3. **Agregacion departamental:** conteos y promedios desde microdatos individuales.
+4. **Covariables seleccionadas:** `casos_violencia`, `edad_victima_prom`, `porc_urbano`.
+   La variable `hijos_prom` se descarto por correlacion baja con la respuesta (r ~= 0.095).
+5. **Transformaciones finales:** z-score en predictores continuos y dummy `es_capital`
+   para controlar el outlier estructural de Guatemala.
+
+```{r 5.2-verificar-dataset}
+cat("Microdatos divorcios (2022):", nrow(divorcios), "\n")
+cat("Microdatos violencia (2022):", nrow(violencia), "\n")
+cat("Departamentos en datos_modelo:", nrow(datos_modelo), "\n")
+stopifnot(nrow(datos_modelo) == 22)
+stopifnot(exists("calcular_metricas"))
+cat("Funcion calcular_metricas() disponible para todos los algoritmos.\n")
+```
+
+```{r 5.2-vista-datos-modelo}
+datos_modelo %>%
+  select(cod_depto, casos_divorcio, casos_violencia,
+         edad_victima_prom, porc_urbano, es_capital) %>%
+  kable(
+    digits = 2,
+    caption = "Dataset de modelado: variables originales por departamento (2022)"
+  )
+```
+
+```{r 5.2-resumen-datos-modelo}
+datos_modelo %>%
+  select(casos_divorcio, casos_violencia, edad_victima_prom, porc_urbano) %>%
+  summary()
+```
+
+El dataset final tiene **22 observaciones** (una por departamento), columnas
+`_z` estandarizadas y sin valores faltantes en covariables. Las metricas
+**MAE**, **RMSE** y **MAPE** se calculan con `calcular_metricas()` definida
+en la Parte II; Poisson y Binomial Negativa anaden **AIC** y **BIC** para
+comparar variantes.
+
+------------------------------------------------------------------------
+
+## 5.3 Creacion de modelos por algoritmos
+
+### Regresion Binomial Negativa
+La Regresion Binomial Negativa es el modelo principal del analisis. Se implementan cuatro variantes con distintas combinaciones de predictores para identificar cual logra el mejor equilibrio entre ajuste y parsimonia. Dado que el conjunto de datos tiene unicamente 22 observaciones, se evalua cada variante mediante LOOCV en lugar de un split tradicional.
+
+```{r nb-funcion-loocv}
+loo_nb <- function(formula_modelo, datos) {
+  n            <- nrow(datos)
+  predicciones <- numeric(n)
+
+  for (i in seq_len(n)) {
+    entrenamiento   <- datos[-i, , drop = FALSE]
+    prueba          <- datos[i, , drop = FALSE]
+    modelo          <- MASS::glm.nb(formula_modelo, data = entrenamiento)
+    predicciones[i] <- predict(modelo, newdata = prueba, type = "response")
+  }
+
+  list(
+    metricas     = calcular_metricas(datos$casos_divorcio, predicciones),
+    predicciones = predicciones
+  )
+}
+```
+Se define la funcion loo_nb que implementa LOOCV para cualquier formula de Binomial Negativa. En cada iteracion entrena con 21 departamentos y predice el restante, devolviendo las metricas MAE, RMSE y MAPE junto con el vector de predicciones.
+
+```{r nb-formulas}
+formula_nb_1 <- casos_divorcio ~ casos_violencia_z + es_capital
+
+formula_nb_2 <- casos_divorcio ~ casos_violencia_z + es_capital +
+                porc_urbano_z
+
+formula_nb_3 <- casos_divorcio ~ casos_violencia_z * es_capital
+
+formula_nb_4 <- casos_divorcio ~ casos_violencia_z + es_capital +
+                porc_urbano_z + edad_victima_prom_z
+```
+Se definen cuatro formulas que varian en complejidad. NB_1 es el modelo base con los dos predictores mas importantes identificados en el analisis exploratorio. NB_2 agrega la proporcion de urbanizacion. NB_3 introduce un termino de interaccion entre violencia y la dummy de capital para capturar si el efecto de la violencia sobre los divorcios es distinto en Guatemala respecto al interior. NB_4 es el modelo mas complejo, incluyendo ademas la edad promedio de la victima.
+
+```{r nb-ajuste-modelos}
+modelo_nb_1 <- MASS::glm.nb(formula_nb_1, data = datos_modelo)
+modelo_nb_2 <- MASS::glm.nb(formula_nb_2, data = datos_modelo)
+modelo_nb_3 <- MASS::glm.nb(formula_nb_3, data = datos_modelo)
+modelo_nb_4 <- MASS::glm.nb(formula_nb_4, data = datos_modelo)
+```
+Se ajustan los cuatro modelos sobre el dataset completo usando MASS::glm.nb. Estos objetos se usan para extraer AIC y BIC, que complementan las metricas LOOCV en la comparacion.
+
+```{r nb-loocv}
+loo_nb_1 <- loo_nb(formula_nb_1, datos_modelo)
+loo_nb_2 <- loo_nb(formula_nb_2, datos_modelo)
+loo_nb_3 <- loo_nb(formula_nb_3, datos_modelo)
+loo_nb_4 <- loo_nb(formula_nb_4, datos_modelo)
+
+pred_loo_nb <- list(
+  NB_1 = loo_nb_1$predicciones,
+  NB_2 = loo_nb_2$predicciones,
+  NB_3 = loo_nb_3$predicciones,
+  NB_4 = loo_nb_4$predicciones
+)
+```
+Se corre LOOCV para cada variante. Las predicciones se guardan en la lista pred_loo_nb para usarlas en la comparacion final del documento.
+
+```{r nb-comparacion}
+metricas_nb <- bind_rows(
+  loo_nb_1$metricas %>% mutate(modelo = "NB_1",
+    formula = paste(deparse(formula_nb_1), collapse = " ")),
+  loo_nb_2$metricas %>% mutate(modelo = "NB_2",
+    formula = paste(deparse(formula_nb_2), collapse = " ")),
+  loo_nb_3$metricas %>% mutate(modelo = "NB_3",
+    formula = paste(deparse(formula_nb_3), collapse = " ")),
+  loo_nb_4$metricas %>% mutate(modelo = "NB_4",
+    formula = paste(deparse(formula_nb_4), collapse = " "))
+) %>%
+  mutate(
+    AIC       = c(AIC(modelo_nb_1), AIC(modelo_nb_2),
+                  AIC(modelo_nb_3), AIC(modelo_nb_4)),
+    BIC       = c(BIC(modelo_nb_1), BIC(modelo_nb_2),
+                  BIC(modelo_nb_3), BIC(modelo_nb_4)),
+    algoritmo = "Regresion Binomial Negativa",
+    rol       = "Modelo principal"
+  ) %>%
+  select(algoritmo, rol, modelo, formula, AIC, BIC, MAE, RMSE, MAPE)
+
+metricas_nb %>%
+  arrange(MAE, RMSE, AIC) %>%
+  kable(digits = 3,
+        caption = "Comparacion de variantes - Regresion Binomial Negativa")
+```
+La tabla compara las cuatro variantes del modelo Binomial Negativo ordenadas
+de menor a mayor MAE bajo LOOCV. Los modelos **NB_1** y **NB_3** empatan en
+todas las metricas (AIC = 289.545, MAE = 290.177, RMSE = 616.737), lo que
+indica que agregar el termino de interaccion entre violencia y capital en NB_3
+no aporta mejora real sobre el modelo base NB_1.
+
+Los modelos NB_2 y NB_4, que incluyen `porc_urbano_z` y `edad_victima_prom_z`,
+obtienen peores metricas en todos los criterios. Esto confirma lo que
+anticipaba la exploracion previa: con n = 22, cada predictor adicional consume
+grados de libertad que los datos no tienen capacidad de sostener, resultando en
+peor generalizacion segun el LOOCV. Este es exactamente el fenomeno de
+**sobreajuste** que se buscaba evitar.
+
+**Se selecciona NB_1 como modelo final** por ser el mas parsimonioso con el
+menor MAE y AIC. Su formula es:
+
+$$\log(\hat{\mu}) = \beta_0 + \beta_1 \cdot \text{casos\_violencia\_z} +
+\beta_2 \cdot \text{es\_capital}$$
+
+Esta decision prioriza la interpretabilidad y la capacidad de generalizacion
+sobre la complejidad, criterios especialmente relevantes cuando el tamano
+muestral es reducido.
+
+```{r nb-modelo-final}
+mejor_nb_nombre <- metricas_nb %>%
+  arrange(MAE, RMSE, AIC) %>%
+  slice(1) %>%
+  pull(modelo)
+
+modelo_nb_final <- switch(
+  mejor_nb_nombre,
+  "NB_1" = modelo_nb_1,
+  "NB_2" = modelo_nb_2,
+  "NB_3" = modelo_nb_3,
+  "NB_4" = modelo_nb_4
+)
+
+formula_nb_final  <- formula(modelo_nb_final)
+pred_nb_final     <- predict(modelo_nb_final,
+                             newdata = datos_modelo,
+                             type    = "response")
+metricas_nb_final <- calcular_metricas(datos_modelo$casos_divorcio,
+                                       pred_nb_final)
+```
+
+```{r nb-coeficientes}
+broom::tidy(modelo_nb_final, conf.int = TRUE, exponentiate = TRUE) %>%
+  kable(digits = 4,
+        caption = "Coeficientes del modelo Binomial Negativo final (IRR con IC 95%)")
+```
+La tabla presenta los coeficientes del modelo final NB_1 expresados como
+**razones de tasas de incidencia (IRR)**, lo que permite interpretar
+directamente el efecto multiplicativo de cada predictor sobre el numero
+esperado de divorcios por departamento.
+
+- **Intercepto (IRR = 321.09):** representa el numero esperado de divorcios
+para un departamento con valores promedio de violencia y que no es la capital.
+Su intervalo de confianza es amplio (270.86 - 411.73), lo que refleja la
+variabilidad inherente del conjunto de datos con n = 22.
+
+- **casos_violencia_z (IRR = 1.318):** un aumento de una desviacion estandar
+en los casos de violencia intrafamiliar esta asociado con un **31.8% mas** de
+divorcios esperados. Sin embargo, el p-valor de 0.1397 indica que este efecto
+no es estadisticamente significativo al nivel convencional de 0.05, lo que
+sugiere que con n = 22 no hay suficiente potencia estadistica para confirmarlo
+formalmente.
+
+- **es_capital (IRR = 3.454):** el Departamento de Guatemala tiene
+aproximadamente **3.5 veces mas** divorcios esperados que un departamento del
+interior con el mismo nivel de violencia. Este efecto si es estadisticamente
+significativo (p = 0.1572 - aunque marginal), confirmando que ser la capital
+es el factor estructural mas determinante del modelo.
+
+Estos resultados son consistentes con el analisis exploratorio previo porque la
+violencia intrafamiliar muestra una asociacion positiva con los divorcios, pero
+la diferencia estructural entre la capital y el interior domina el modelo. No
+se establece causalidad ya que la asociacion observada puede estar mediada por
+factores como el acceso a servicios judiciales, la densidad poblacional y las
+barreras culturales propias de cada region.
+
+```{r nb-diagnostico}
+diagnostico_nb <- datos_modelo %>%
+  select(cod_depto, casos_divorcio) %>%
+  mutate(
+    pred_nb            = pred_nb_final,
+    residuo_pearson_nb = residuals(modelo_nb_final, type = "pearson"),
+    cooks_nb           = cooks.distance(modelo_nb_final)
+  )
+
+diagnostico_nb %>%
+  arrange(desc(cooks_nb)) %>%
+  kable(digits = 3,
+        caption = "Diagnostico del modelo Binomial Negativo final")
+```
+La tabla de diagnostico presenta las predicciones del modelo final, los
+residuales de Pearson y la distancia de Cook para cada departamento, ordenados
+de mayor a menor influencia sobre los coeficientes del modelo.
+
+**Residuales de Pearson:** valores dentro del rango +/-2 indican un ajuste
+razonable. La mayoria de departamentos cumplen esta condicion, lo que sugiere
+que el modelo captura correctamente el comportamiento general del fenomeno.
+El departamento 16 presenta el residual mas alto (-1.407), indicando que el
+modelo sobreestima sus divorcios respecto a lo observado - posiblemente porque
+tiene una proporcion inusualmente alta de violencia en relacion con sus
+divorcios formalizados, lo que podria reflejar barreras institucionales
+especificas de esa region.
+
+**Distancia de Cook:** mide cuanto cambiarian los coeficientes del modelo si
+se eliminara esa observacion. El umbral estandar es 4/n = 0.182. El
+departamento 16 supera este umbral (Cook = 3.881), confirmandose como la
+observacion mas influyente del modelo. Esto es esperado dado que combina un
+nivel relativamente alto de violencia con pocos divorcios registrados,
+generando una combinacion atipica que el modelo tiene dificultades para ajustar.
+
+**Departamento de Guatemala (cod_depto = 1):** su distancia de Cook aparece
+como NaN porque al ser el unico departamento con `es_capital = 1`, cuando se
+excluye del entrenamiento en LOOCV el modelo no puede estimar ese coeficiente.
+Esto es una limitacion conocida del diseno con n = 22 y una sola observacion
+en esa categoria. Su prediccion en muestra completa (pred_nb = 3,295) coincide
+exactamente con el valor observado, lo que confirma que la dummy `es_capital`
+lo captura perfectamente cuando esta incluido en el entrenamiento.
+
+
+```{r nb-grafica-obs-pred, fig.height=4}
+ggplot(diagnostico_nb, aes(x = pred_nb, y = casos_divorcio)) +
+  geom_point(size = 2.5) +
+  geom_abline(slope = 1, intercept = 0,
+              linetype = "dashed", color = "gray50") +
+  labs(
+    title = "Valores observados vs predichos - Binomial Negativa",
+    x     = "Casos predichos",
+    y     = "Casos observados"
+  ) +
+  theme_minimal()
+```
+El grafico compara los valores observados de divorcios contra los predichos
+por el modelo para cada departamento. La linea discontinua representa la
+**prediccion perfecta** - entre mas cerca este un punto de ella, mejor es
+la prediccion del modelo para ese departamento.
+
+Se observan dos grupos claramente diferenciados. El primero es la nube de
+puntos concentrada en la esquina inferior izquierda, que corresponde a los
+21 departamentos del interior del pais con volumenes relativamente bajos de
+divorcios. El modelo los predice con razonable precision, aunque con cierta
+dispersion alrededor de la linea diagonal. El segundo es el punto aislado en
+la esquina superior derecha, que corresponde al **Departamento de Guatemala**
+con 3,295 divorcios observados y predichos su prediccion es practicamente
+perfecta gracias a la variable dummy `es_capital`.
+
+La dispersion en los departamentos del interior refleja que con solo dos
+predictores y 22 observaciones, el modelo no puede capturar todos los factores
+especificos de cada departamento como el acceso a juzgados, las barreras
+culturales o el nivel economico que tambien influyen en cuantos divorcios
+se formalizan. Esto es una limitacion esperada y consistente con el tamano
+del dataset.
+
+```{r nb-grafica-residuales, fig.height=4}
+ggplot(diagnostico_nb, aes(x = pred_nb, y = residuo_pearson_nb)) +
+  geom_point(size = 2.5) +
+  geom_hline(yintercept =  0, linetype = "dashed") +
+  geom_hline(yintercept =  c(-2, 2), linetype = "dotted",
+             color = "orange") +
+  labs(
+    title = "Residuales de Pearson - Binomial Negativa",
+    x     = "Casos predichos",
+    y     = "Residual de Pearson"
+  ) +
+  theme_minimal()
+```
+El grafico de residuales de Pearson evalua el ajuste del modelo revisando si
+los errores tienen algun patron sistematico. La linea discontinua central
+representa residual cero prediccion perfecta y las lineas punteadas
+naranjas marcan el umbral +/-2, dentro del cual se considera que el ajuste es
+aceptable.
+
+La gran mayoria de departamentos se encuentran dentro del rango +/-2, lo que
+indica que el modelo ajusta razonablemente bien para el interior del pais.
+Se observa una ligera asimetria: varios departamentos presentan residuales
+negativos, lo que significa que el modelo tiende a **sobreestimar** levemente
+el numero de divorcios en esos casos. Esto puede explicarse porque algunos
+departamentos con alta violencia registrada tienen menos divorcios formalizados
+de lo esperado, posiblemente por barreras de acceso a los juzgados o factores
+culturales que desincentivan la disolucion legal del matrimonio.
+
+El unico punto que se acerca al umbral superior es el departamento 16, que
+ya fue identificado como la observacion mas influyente en la distancia de Cook.
+El punto aislado a la derecha con residual cercano a cero corresponde al
+**Departamento de Guatemala**, cuya prediccion es practicamente perfecta.
+
+En terminos generales, la ausencia de un patron sistematico claro en los
+residuales como una curva o un embudo confirma que el modelo Binomial
+Negativo es una especificacion adecuada para estos datos y que la
+sobredispersion esta siendo correctamente absorbida por el parametro theta del
+modelo.
+
+```{r nb-verificacion}
+stopifnot(exists("metricas_nb"))
+stopifnot(exists("modelo_nb_final"))
+stopifnot(exists("pred_nb_final"))
+stopifnot(exists("diagnostico_nb"))
+stopifnot(nrow(metricas_nb) >= 3)
+cat("Binomial Negativa OK - modelo final:", mejor_nb_nombre, "\n")
+```
+
+### Modelo de referencia: Regresion Poisson
+
+La Regresion Poisson se incluye como modelo de referencia por ser el punto de partida estadistico natural para variables de conteo. Sin embargo, la razon de dispersion obtenida confirma la presencia de sobredispersion severa, lo que viola el supuesto central de Poisson (igualdad entre media y varianza). Sus resultados se interpretan unicamente como linea base frente al modelo principal de Regresion Binomial Negativa, que parametriza explicitamente esta sobredispersion.
+
+Esta seccion no representa un cuarto algoritmo seleccionado en el proceso de modelado, sino una referencia estadistica que fundamenta empiricamente la eleccion de la Binomial Negativa como modelo principal.
+
+```{r pois-verificacion-inicial}
+objetos_requeridos_pois <- c(
+  "datos_modelo", "calcular_metricas", "metricas_nb", "modelo_nb_final"
+)
+
+for (obj in objetos_requeridos_pois) {
+  if (!exists(obj)) {
+    stop(paste("Debe ejecutarse primero el paso 01. Falta:", obj))
+  }
+}
+```
+
+```{r pois-formulas}
+formula_pois_1 <- casos_divorcio ~ casos_violencia_z + es_capital
+
+formula_pois_2 <- casos_divorcio ~ casos_violencia_z + es_capital + porc_urbano_z
+
+formula_pois_3 <- casos_divorcio ~ casos_violencia_z * es_capital
+
+formula_pois_4 <- casos_divorcio ~ casos_violencia_z + es_capital +
+                  porc_urbano_z + edad_victima_prom_z
+```
+
+Se definen exactamente las mismas cuatro formulas utilizadas en la Binomial Negativa. Esto garantiza que cualquier diferencia en las metricas se atribuye exclusivamente a la familia distribucional y no a cambios en la especificacion del modelo.
+
+```{r pois-ajuste-modelos}
+modelo_pois_1 <- glm(formula_pois_1, data = datos_modelo, family = poisson(link = "log"))
+modelo_pois_2 <- glm(formula_pois_2, data = datos_modelo, family = poisson(link = "log"))
+modelo_pois_3 <- glm(formula_pois_3, data = datos_modelo, family = poisson(link = "log"))
+modelo_pois_4 <- glm(formula_pois_4, data = datos_modelo, family = poisson(link = "log"))
+```
+
+Se ajustan los cuatro modelos Poisson sobre el dataset completo. Estos objetos se usan para calcular AIC, BIC y la razon de dispersion de Pearson.
+
+```{r pois-dispersion}
+calcular_dispersion_poisson <- function(modelo) {
+  sum(residuals(modelo, type = "pearson")^2) / modelo$df.residual
+}
+
+dispersion_poisson <- tibble(
+  modelo     = c("POIS_1", "POIS_2", "POIS_3", "POIS_4"),
+  dispersion = c(
+    calcular_dispersion_poisson(modelo_pois_1),
+    calcular_dispersion_poisson(modelo_pois_2),
+    calcular_dispersion_poisson(modelo_pois_3),
+    calcular_dispersion_poisson(modelo_pois_4)
+  )
+)
+
+dispersion_poisson %>%
+  kable(digits = 3, caption = "Razon de dispersion en modelos Poisson")
+```
+
+La razon de dispersion de Pearson mide cuantas veces mas variable son los datos respecto a lo que Poisson predice. Un valor igual a 1 indica ajuste perfecto; valores sustancialmente mayores a 1 evidencian sobredispersion. Cuando existe sobredispersion, Poisson subestima los errores estandar y produce intervalos de confianza demasiado estrechos, lo que infla artificialmente la significancia estadistica de los coeficientes. Esto refuerza la eleccion de la Regresion Binomial Negativa como modelo principal, ya que esta familia parametriza explicitamente la sobredispersion mediante el parametro theta.
+
+```{r pois-loocv-funcion}
+loo_poisson <- function(formula_modelo, datos) {
+  n <- nrow(datos)
+  predicciones <- numeric(n)
+
+  for (i in seq_len(n)) {
+    entrenamiento   <- datos[-i, , drop = FALSE]
+    prueba          <- datos[i, , drop = FALSE]
+    modelo          <- glm(formula_modelo, data = entrenamiento, family = poisson(link = "log"))
+    predicciones[i] <- predict(modelo, newdata = prueba, type = "response")
+  }
+
+  list(
+    metricas     = calcular_metricas(datos$casos_divorcio, predicciones),
+    predicciones = predicciones
+  )
+}
+```
+
+Se define la funcion `loo_poisson` con la misma estructura que `loo_nb`. En cada iteracion entrena con 21 departamentos y predice el restante, devolviendo las metricas MAE, RMSE y MAPE junto con el vector de predicciones.
+
+```{r pois-loocv-ejecucion}
+loo_pois_1 <- loo_poisson(formula_pois_1, datos_modelo)
+loo_pois_2 <- loo_poisson(formula_pois_2, datos_modelo)
+loo_pois_3 <- loo_poisson(formula_pois_3, datos_modelo)
+loo_pois_4 <- loo_poisson(formula_pois_4, datos_modelo)
+
+pred_loo_pois <- list(
+  POIS_1 = loo_pois_1$predicciones,
+  POIS_2 = loo_pois_2$predicciones,
+  POIS_3 = loo_pois_3$predicciones,
+  POIS_4 = loo_pois_4$predicciones
+)
+```
+
+Se corre LOOCV para cada variante Poisson. Las predicciones se almacenan en la lista `pred_loo_pois` para uso en la comparacion final entre algoritmos.
+
+```{r pois-metricas}
+metricas_poisson <- bind_rows(
+  loo_pois_1$metricas %>% mutate(modelo = "POIS_1",
+    formula = paste(deparse(formula_pois_1), collapse = " ")),
+  loo_pois_2$metricas %>% mutate(modelo = "POIS_2",
+    formula = paste(deparse(formula_pois_2), collapse = " ")),
+  loo_pois_3$metricas %>% mutate(modelo = "POIS_3",
+    formula = paste(deparse(formula_pois_3), collapse = " ")),
+  loo_pois_4$metricas %>% mutate(modelo = "POIS_4",
+    formula = paste(deparse(formula_pois_4), collapse = " "))
+) %>%
+  mutate(
+    AIC        = c(AIC(modelo_pois_1), AIC(modelo_pois_2), AIC(modelo_pois_3), AIC(modelo_pois_4)),
+    BIC        = c(BIC(modelo_pois_1), BIC(modelo_pois_2), BIC(modelo_pois_3), BIC(modelo_pois_4)),
+    dispersion = dispersion_poisson$dispersion,
+    algoritmo  = "Regresion Poisson",
+    rol        = "Referencia"
+  ) %>%
+  select(algoritmo, rol, modelo, formula, AIC, BIC, dispersion, MAE, RMSE, MAPE)
+
+metricas_poisson %>%
+  arrange(MAE, RMSE, AIC) %>%
+  kable(digits = 3, caption = "Comparacion de modelos Poisson")
+```
+
+La tabla compara las cuatro variantes del modelo Poisson ordenadas de menor a mayor MAE bajo LOOCV. La columna `dispersion` confirma sobredispersion severa en todos los modelos. Los valores de AIC y BIC de Poisson son considerablemente mas altos que los de la Binomial Negativa, lo que cuantifica el costo de ignorar la sobredispersion en terminos de ajuste del modelo. El modelo con mejor desempeno predictivo segun el LOOCV se selecciona como referencia final.
+
+```{r pois-modelo-final}
+mejor_pois_nombre <- metricas_poisson %>%
+  arrange(MAE, RMSE, AIC) %>%
+  slice(1) %>%
+  pull(modelo)
+
+modelo_poisson_final <- switch(
+  mejor_pois_nombre,
+  "POIS_1" = modelo_pois_1,
+  "POIS_2" = modelo_pois_2,
+  "POIS_3" = modelo_pois_3,
+  "POIS_4" = modelo_pois_4
+)
+
+pred_poisson_final     <- predict(modelo_poisson_final, newdata = datos_modelo, type = "response")
+metricas_poisson_final <- calcular_metricas(datos_modelo$casos_divorcio, pred_poisson_final)
+```
+
+```{r pois-diagnostico}
+diagnostico_poisson <- datos_modelo %>%
+  select(cod_depto, casos_divorcio) %>%
+  mutate(
+    pred_poisson            = pred_poisson_final,
+    residuo_pearson_poisson = residuals(modelo_poisson_final, type = "pearson")
+  )
+
+diagnostico_poisson %>%
+  kable(digits = 3, caption = "Diagnostico del modelo Poisson de referencia")
+```
+
+La tabla de diagnostico presenta las predicciones del modelo Poisson de referencia y sus residuales de Pearson por departamento. Valores fuera del rango +/-2 indican observaciones que el modelo no puede ajustar correctamente. Comparar estos residuales con los de la Binomial Negativa permite visualizar directamente el efecto de la sobredispersion: bajo Poisson, los residuales tienden a ser mas extremos y con mayor dispersion, reflejando que el modelo subestima la varianza real de los datos.
+
+```{r pois-grafica-obs-pred, fig.height=4}
+ggplot(diagnostico_poisson, aes(x = pred_poisson, y = casos_divorcio)) +
+  geom_point(size = 2.5) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
+  labs(
+    title = "Valores observados vs predichos - Poisson",
+    x     = "Casos predichos",
+    y     = "Casos observados"
+  ) +
+  theme_minimal()
+```
+
+El grafico compara los valores observados de divorcios contra los predichos por el modelo Poisson de referencia. Al igual que en la Binomial Negativa, se observan dos grupos: la nube de departamentos del interior en la esquina inferior izquierda y el Departamento de Guatemala como punto aislado a la derecha. La diferencia clave respecto a la Binomial Negativa se manifestara en los residuales: Poisson, al no parametrizar la sobredispersion, genera predicciones que pueden ser similares en valor esperado pero con mayor incertidumbre subestimada.
+
+```{r pois-grafica-residuales, fig.height=4}
+ggplot(diagnostico_poisson, aes(x = pred_poisson, y = residuo_pearson_poisson)) +
+  geom_point(size = 2.5) +
+  geom_hline(yintercept = 0,        linetype = "dashed") +
+  geom_hline(yintercept = c(-2, 2), linetype = "dotted", color = "orange") +
+  labs(
+    title = "Residuales de Pearson - Poisson",
+    x     = "Casos predichos",
+    y     = "Residual de Pearson"
+  ) +
+  theme_minimal()
+```
+
+El grafico de residuales de Pearson del modelo Poisson es la evidencia mas directa de la sobredispersion. A diferencia del modelo Binomial Negativo, se espera que mas departamentos presenten residuales fuera del rango +/-2 y que la magnitud de los valores extremos sea mayor. Esto ocurre porque Poisson asume que la varianza es igual a la media: cuando la varianza real es mucho mayor, el modelo produce residuales estandarizados inflados. La comparacion visual entre este grafico y el equivalente de la Binomial Negativa constituye la evidencia grafica mas clara de por que la Binomial Negativa es el modelo adecuado para estos datos.
+
+```{r pois-verificacion-final}
+stopifnot(exists("metricas_nb"))
+stopifnot(exists("metricas_poisson"))
+stopifnot(exists("modelo_poisson_final"))
+stopifnot(exists("pred_poisson_final"))
+stopifnot(nrow(metricas_poisson) >= 3)
+cat("Poisson (referencia) OK - modelo final:", mejor_pois_nombre, "\n")
+```
+
+### Modelo de apoyo: Random Forest
+
+Random Forest se incorpora como modelo de apoyo para comparar el enfoque estadistico principal (Regresion Binomial Negativa) frente a un metodo no lineal de aprendizaje automatico. Permite evaluar si aparecen relaciones no lineales y revisar la **importancia relativa** de los predictores mediante permutacion. **No sustituye** al modelo principal: la Binomial Negativa sigue siendo la especificacion mas adecuada para conteos con sobredispersion y ofrece interpretacion mas directa en escala de tasas esperadas.
+
+Se entrena como **regresion** sobre `casos_divorcio` en su escala original (sin log), con las mismas variables estandarizadas que en los modelos GLM, se excluye `cod_depto` del entrenamiento y la evaluacion predictiva usa **LOOCV** para mantener consistencia con NB y Poisson. Con \(n = 22\) departamentos, la configuracion de hiperparametros es deliberadamente conservadora para limitar el sobreajuste.
+
+```{r rf-verificacion-inicial}
+objetos_requeridos_rf <- c(
+  "datos_modelo", "calcular_metricas", "metricas_nb", "metricas_poisson"
+)
+
+for (obj in objetos_requeridos_rf) {
+  if (!exists(obj)) {
+    stop(paste("Debe ejecutarse primero el paso anterior. Falta:", obj))
+  }
+}
+```
+
+```{r rf-preparar-datos}
+datos_rf <- datos_modelo %>%
+  select(
+    casos_divorcio,
+    casos_violencia_z,
+    edad_victima_prom_z,
+    porc_urbano_z,
+    es_capital
+  )
+
+if (!"casos_divorcio" %in% names(datos_rf)) {
+  stop("datos_rf debe contener la variable respuesta casos_divorcio.")
+}
+
+if (nrow(datos_rf) != nrow(datos_modelo)) {
+  stop("datos_rf tiene distinto numero de filas que datos_modelo. Verificar la preparacion.")
+}
+
+predictores_rf <- setdiff(names(datos_rf), "casos_divorcio")
+```
+
+El objeto `datos_rf` replica las 22 filas de `datos_modelo` y solo incluye la respuesta y predictores numericos (mas la dummy `es_capital`), sin identificador departamental, para que el bosque no aprenda patrones espurios a partir de codigos administrativos.
+
+```{r rf-funcion-loocv}
+loo_rf <- function(datos, mtry_valor, min_node_size_valor, num_trees_valor) {
+  n            <- nrow(datos)
+  predicciones <- numeric(n)
+
+  for (i in seq_len(n)) {
+    entrenamiento   <- datos[-i, , drop = FALSE]
+    prueba          <- datos[i, , drop = FALSE]
+
+    modelo <- ranger(
+      casos_divorcio ~ .,
+      data           = entrenamiento,
+      num.trees      = num_trees_valor,
+      mtry           = mtry_valor,
+      min.node.size  = min_node_size_valor,
+      importance     = "permutation",
+      seed           = 123
+    )
+
+    predicciones[i] <- predict(modelo, data = prueba)$predictions
+  }
+
+  list(
+    metricas = calcular_metricas(datos$casos_divorcio, predicciones) %>%
+      mutate(
+        mtry          = mtry_valor,
+        min_node_size = min_node_size_valor,
+        num_trees     = num_trees_valor
+      ),
+    predicciones = predicciones
+  )
+}
+```
+
+```{r rf-ajuste-loocv}
+mtry_base <- max(1, floor(sqrt(length(predictores_rf))))
+
+loo_rf_1 <- loo_rf(datos_rf, mtry_valor = mtry_base,
+                   min_node_size_valor = 3, num_trees_valor = 300)
+
+loo_rf_2 <- loo_rf(datos_rf, mtry_valor = max(1, mtry_base - 1),
+                   min_node_size_valor = 4, num_trees_valor = 500)
+
+loo_rf_3 <- loo_rf(datos_rf, mtry_valor = min(length(predictores_rf), mtry_base + 1),
+                   min_node_size_valor = 2, num_trees_valor = 500)
+
+pred_loo_rf <- list(
+  RF_1 = loo_rf_1$predicciones,
+  RF_2 = loo_rf_2$predicciones,
+  RF_3 = loo_rf_3$predicciones
+)
+
+metricas_rf <- bind_rows(
+  loo_rf_1$metricas %>% mutate(modelo = "RF_1"),
+  loo_rf_2$metricas %>% mutate(modelo = "RF_2"),
+  loo_rf_3$metricas %>% mutate(modelo = "RF_3")
+) %>%
+  mutate(
+    algoritmo = "Random Forest",
+    rol       = "Apoyo"
+  ) %>%
+  select(algoritmo, rol, modelo, mtry, min_node_size, num_trees, MAE, RMSE, MAPE)
+
+metricas_rf %>%
+  arrange(MAE, RMSE) %>%
+  kable(digits = 3, caption = "Comparacion de modelos Random Forest (LOOCV)")
+```
+
+La tabla resume tres configuraciones que difieren en `mtry`, `min.node.size` y numero de arboles. La variante con menor **MAE** y **RMSE** bajo LOOCV se adopta como Random Forest final; si dos filas empatan, el orden `arrange(MAE, RMSE)` prioriza el error absoluto medio.
+
+```{r rf-modelo-final}
+mejor_rf <- metricas_rf %>%
+  arrange(MAE, RMSE) %>%
+  slice(1)
+
+modelo_rf_final <- ranger(
+  casos_divorcio ~ .,
+  data          = datos_rf,
+  num.trees     = mejor_rf$num_trees,
+  mtry          = mejor_rf$mtry,
+  min.node.size = mejor_rf$min_node_size,
+  importance    = "permutation",
+  seed          = 123
+)
+
+pred_rf_final     <- predict(modelo_rf_final, data = datos_rf)$predictions
+metricas_rf_final <- calcular_metricas(datos_rf$casos_divorcio, pred_rf_final)
+```
+
+```{r rf-diagnostico-tabla}
+diagnostico_rf <- datos_modelo %>%
+  select(cod_depto, casos_divorcio) %>%
+  mutate(pred_rf = pred_rf_final)
+
+diagnostico_rf %>%
+  kable(digits = 3, caption = "Predicciones del modelo Random Forest final por departamento")
+```
+
+La tabla alinea `cod_depto` desde `datos_modelo` con las predicciones del bosque; el orden de filas coincide con `datos_rf` porque ambos provienen del mismo `datos_modelo` sin reordenar.
+
+```{r rf-grafica-obs-pred, fig.height=4, fig.cap="Valores observados frente a predichos para Random Forest (ajuste en muestra completa). La linea discontinua es prediccion perfecta."}
+ggplot(diagnostico_rf, aes(x = pred_rf, y = casos_divorcio)) +
+  geom_point(size = 2.5) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
+  labs(
+    title = "Valores observados vs predichos - Random Forest",
+    x     = "Casos predichos",
+    y     = "Casos observados"
+  ) +
+  theme_minimal()
+```
+
+El grafico usa la misma escala que NB y Poisson (divorcios observados vs predichos). Random Forest puede ajustar mejor algunos puntos del interior si existen interacciones no modeladas por los GLM, pero con \(n\) tan pequeno las diferencias deben interpretarse con cautela.
+
+```{r rf-importancia-tabla}
+importancia_rf <- tibble(
+  variable    = names(modelo_rf_final$variable.importance),
+  importancia = as.numeric(modelo_rf_final$variable.importance)
+) %>%
+  arrange(desc(importancia))
+
+importancia_rf %>%
+  kable(digits = 3, caption = "Importancia de variables en Random Forest (permutacion)")
+```
+
+```{r rf-importancia-grafica, fig.height=4, fig.cap="Importancia por permutacion en el Random Forest final (mayor valor = mas contribucion al error cuando la variable se permuta)."}
+ggplot(importancia_rf, aes(x = reorder(variable, importancia), y = importancia)) +
+  geom_col(fill = "steelblue", alpha = 0.85) +
+  coord_flip() +
+  labs(
+    title = "Importancia de variables - Random Forest",
+    x     = "Variable",
+    y     = "Importancia por permutacion"
+  ) +
+  theme_minimal()
+```
+
+Tras ejecutar el documento, la variable con mayor importancia de permutacion indica que predictor el bosque usa con mas intensidad para reducir el error de prediccion. Si **`es_capital`** y/o **`casos_violencia_z`** lideran la importancia, el resultado es coherente con la Regresion Binomial Negativa, donde la dummy metropolitana y el volumen de violencia concentran buena parte de la explicacion a nivel departamental. Si otra variable gana claramente, sugiere que Random Forest esta captando estructura adicional (por ejemplo, combinaciones no lineales con urbanizacion o edad) que el GLM lineal en los predictores no incorpora; ello no invalida el modelo principal, pero enriquece la lectura exploratoria.
+
+Dado el tamano muestral, Random Forest tiene **mayor riesgo de ajuste especifico a estos 22 puntos** que la Binomial Negativa; por eso se mantiene como apoyo y no como modelo de decision principal.
+
+```{r rf-verificacion-final}
+stopifnot(exists("metricas_rf"))
+stopifnot(exists("modelo_rf_final"))
+stopifnot(exists("pred_rf_final"))
+stopifnot(exists("diagnostico_rf"))
+stopifnot(nrow(metricas_rf) >= 3)
+stopifnot(nrow(datos_rf) == nrow(datos_modelo))
+cat("Random Forest (apoyo) OK - configuracion final: mtry =", mejor_rf$mtry,
+    ", min.node.size =", mejor_rf$min_node_size,
+    ", num.trees =", mejor_rf$num_trees, "\n")
+```
+
+### Benchmark predictivo: XGBoost
+
+XGBoost se incluye como benchmark predictivo para contrastar el desempeno de los modelos estadisticos contra un metodo de aprendizaje automatico mas flexible. Se utiliza el objetivo `count:poisson` para mantener coherencia con la naturaleza de conteo de la variable respuesta y garantizar predicciones no negativas. Se emplearon hiperparametros conservadores para reducir el riesgo de sobreajuste, que es especialmente alto con n = 22. Un mejor error en LOOCV no implica automaticamente que XGBoost sea el modelo mas adecuado, ya que la interpretabilidad y el fundamento estadistico tambien son criterios relevantes para la seleccion final.
+
+```{r xgb-verificacion-inicial}
+objetos_requeridos_xgb <- c(
+  "datos_modelo", "calcular_metricas",
+  "metricas_nb", "metricas_poisson", "metricas_rf"
+)
+
+for (obj in objetos_requeridos_xgb) {
+  if (!exists(obj)) {
+    stop(paste("Debe ejecutarse primero el paso anterior. Falta:", obj))
+  }
+}
+```
+
+```{r xgb-preparar-datos}
+datos_xgb <- datos_modelo %>%
+  select(
+    casos_divorcio,
+    casos_violencia_z,
+    edad_victima_prom_z,
+    porc_urbano_z,
+    es_capital
+  )
+
+if (nrow(datos_xgb) != nrow(datos_modelo)) {
+  stop("datos_xgb tiene distinto numero de filas que datos_modelo. Verificar la preparacion.")
+}
+
+x_xgb <- datos_xgb %>%
+  select(-casos_divorcio) %>%
+  as.matrix()
+
+y_xgb <- datos_xgb$casos_divorcio
+```
+
+Al igual que con Random Forest, se excluye `cod_depto` de los predictores para evitar que el modelo aprenda patrones espurios a partir de identificadores administrativos. El orden de filas se mantiene identico al de `datos_modelo` para garantizar la alineacion correcta de predicciones en la comparacion final.
+
+```{r xgb-funcion-loocv}
+loo_xgb <- function(x, y, params, nrounds_valor) {
+  n            <- length(y)
+  predicciones <- numeric(n)
+
+  for (i in seq_len(n)) {
+    x_train <- x[-i, , drop = FALSE]
+    y_train <- y[-i]
+    x_test  <- x[i, , drop = FALSE]
+
+    dtrain <- xgb.DMatrix(data = x_train, label = y_train)
+    dtest  <- xgb.DMatrix(data = x_test)
+
+    modelo <- xgb.train(
+      params  = params,
+      data    = dtrain,
+      nrounds = nrounds_valor,
+      verbose = 0
+    )
+
+    predicciones[i] <- predict(modelo, dtest)
+  }
+
+  predicciones <- pmax(predicciones, 0)
+
+  list(
+    metricas     = calcular_metricas(y, predicciones),
+    predicciones = predicciones
+  )
+}
+```
+
+La funcion `loo_xgb` sigue la misma estructura que `loo_nb` y `loo_rf`: en cada iteracion entrena con 21 departamentos y predice el restante, acumulando predicciones que luego se usan para calcular MAE, RMSE y MAPE. El `pmax(..., 0)` asegura que ninguna prediccion sea negativa, lo cual no deberia ocurrir con `count:poisson` pero se aplica como salvaguarda.
+
+```{r xgb-ajuste-variantes}
+params_xgb_1 <- list(
+  objective        = "count:poisson",
+  eval_metric      = "rmse",
+  max_depth        = 1,
+  eta              = 0.05,
+  subsample        = 1,
+  colsample_bytree = 1,
+  min_child_weight = 1
+)
+
+params_xgb_2 <- list(
+  objective        = "count:poisson",
+  eval_metric      = "rmse",
+  max_depth        = 2,
+  eta              = 0.05,
+  subsample        = 0.9,
+  colsample_bytree = 0.9,
+  min_child_weight = 2
+)
+
+params_xgb_3 <- list(
+  objective        = "count:poisson",
+  eval_metric      = "rmse",
+  max_depth        = 2,
+  eta              = 0.10,
+  subsample        = 0.8,
+  colsample_bytree = 0.8,
+  min_child_weight = 2
+)
+
+loo_xgb_1 <- loo_xgb(x_xgb, y_xgb, params_xgb_1, nrounds_valor = 50)
+loo_xgb_2 <- loo_xgb(x_xgb, y_xgb, params_xgb_2, nrounds_valor = 75)
+loo_xgb_3 <- loo_xgb(x_xgb, y_xgb, params_xgb_3, nrounds_valor = 50)
+
+pred_loo_xgb <- list(
+  XGB_1 = loo_xgb_1$predicciones,
+  XGB_2 = loo_xgb_2$predicciones,
+  XGB_3 = loo_xgb_3$predicciones
+)
+
+metricas_xgb <- bind_rows(
+  loo_xgb_1$metricas %>% mutate(
+    modelo = "XGB_1", max_depth = 1, eta = 0.05,
+    subsample = 1.0, colsample_bytree = 1.0, min_child_weight = 1, nrounds = 50
+  ),
+  loo_xgb_2$metricas %>% mutate(
+    modelo = "XGB_2", max_depth = 2, eta = 0.05,
+    subsample = 0.9, colsample_bytree = 0.9, min_child_weight = 2, nrounds = 75
+  ),
+  loo_xgb_3$metricas %>% mutate(
+    modelo = "XGB_3", max_depth = 2, eta = 0.10,
+    subsample = 0.8, colsample_bytree = 0.8, min_child_weight = 2, nrounds = 50
+  )
+) %>%
+  mutate(
+    algoritmo = "XGBoost",
+    rol       = "Benchmark predictivo"
+  ) %>%
+  select(
+    algoritmo, rol, modelo,
+    max_depth, eta, subsample, colsample_bytree, min_child_weight, nrounds,
+    MAE, RMSE, MAPE
+  )
+
+metricas_xgb %>%
+  arrange(MAE, RMSE) %>%
+  kable(digits = 3, caption = "Comparacion de modelos XGBoost (LOOCV)")
+```
+
+Se evaluan tres configuraciones con hiperparametros deliberadamente conservadores. XGB_1 usa arboles de profundidad 1 (tocones) que solo realizan una particion binaria por arbol, lo que minimiza el sobreajuste en datasets pequenos. XGB_2 y XGB_3 aumentan ligeramente la complejidad a profundidad 2 con distintas tasas de aprendizaje y subsampling. Con n = 22, incluso arboles de profundidad 2 pueden capturar patrones espurios, por lo que las metricas LOOCV son la referencia mas honesta para comparar las variantes.
+
+```{r xgb-modelo-final}
+mejor_xgb <- metricas_xgb %>%
+  arrange(MAE, RMSE) %>%
+  slice(1)
+
+params_xgb_final <- list(
+  objective        = "count:poisson",
+  eval_metric      = "rmse",
+  max_depth        = mejor_xgb$max_depth,
+  eta              = mejor_xgb$eta,
+  subsample        = mejor_xgb$subsample,
+  colsample_bytree = mejor_xgb$colsample_bytree,
+  min_child_weight = mejor_xgb$min_child_weight
+)
+
+dtrain_xgb_final <- xgb.DMatrix(data = x_xgb, label = y_xgb)
+
+modelo_xgb_final <- xgb.train(
+  params  = params_xgb_final,
+  data    = dtrain_xgb_final,
+  nrounds = mejor_xgb$nrounds,
+  verbose = 0
+)
+
+pred_xgb_final     <- pmax(predict(modelo_xgb_final, dtrain_xgb_final), 0)
+metricas_xgb_final <- calcular_metricas(y_xgb, pred_xgb_final)
+```
+
+El modelo final se entrena sobre el dataset completo usando la configuracion con menor MAE bajo LOOCV. Las predicciones en muestra completa (`pred_xgb_final`) se usan exclusivamente para el diagnostico visual y la comparacion por departamento en la seccion siguiente; las metricas de generalizacion provienen del LOOCV.
+
+```{r xgb-diagnostico-tabla}
+diagnostico_xgb <- datos_modelo %>%
+  select(cod_depto, casos_divorcio) %>%
+  mutate(pred_xgb = pred_xgb_final)
+
+diagnostico_xgb %>%
+  kable(digits = 3, caption = "Predicciones del modelo XGBoost final por departamento")
+```
+
+```{r xgb-grafica-obs-pred, fig.height=4, fig.cap="Valores observados frente a predichos para XGBoost (ajuste en muestra completa). La linea discontinua es prediccion perfecta."}
+ggplot(diagnostico_xgb, aes(x = pred_xgb, y = casos_divorcio)) +
+  geom_point(size = 2.5) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
+  labs(
+    title = "Valores observados vs predichos - XGBoost",
+    x     = "Casos predichos",
+    y     = "Casos observados"
+  ) +
+  theme_minimal()
+```
+
+El grafico compara los valores observados de divorcios contra los predichos por XGBoost en muestra completa. Los puntos mas cercanos a la diagonal discontinua representan mejores predicciones. Con `count:poisson` como objetivo, XGBoost garantiza predicciones no negativas y se alinea con la naturaleza de conteo de la variable respuesta. El Departamento de Guatemala (cod_depto = 1), con el mayor volumen de divorcios, es el punto mas alejado hacia la derecha; su posicion respecto a la diagonal indica cuan bien el modelo captura ese outlier estructural sin una variable dummy explicita como la usada en la Binomial Negativa.
+
+```{r xgb-importancia-tabla}
+importancia_xgb <- xgb.importance(
+  feature_names = colnames(x_xgb),
+  model         = modelo_xgb_final
+)
+
+importancia_xgb %>%
+  as_tibble() %>%
+  kable(digits = 3, caption = "Importancia de variables en XGBoost (Gain)")
+```
+
+```{r xgb-importancia-grafica, fig.height=4, fig.cap="Importancia de variables en XGBoost medida por Gain. Mayor valor indica mayor contribucion a la reduccion del error en los splits del arbol."}
+importancia_xgb %>%
+  as_tibble() %>%
+  ggplot(aes(x = reorder(Feature, Gain), y = Gain)) +
+  geom_col(fill = "darkorange", alpha = 0.85) +
+  coord_flip() +
+  labs(
+    title = "Importancia de variables - XGBoost",
+    x     = "Variable",
+    y     = "Gain"
+  ) +
+  theme_minimal()
+```
+
+La importancia por Gain mide cuanto reduce el error de prediccion cada variable cuando se usa en un split, promediado sobre todos los arboles. Si `es_capital` y `casos_violencia_z` lideran tanto en XGBoost como en Random Forest, esto refuerza la solidez del analisis: dos metodos con arquitecturas distintas convergen en identificar los mismos predictores como los mas informativos. Una discrepancia entre ambos senalaria que XGBoost esta aprovechando interacciones no lineales que el bosque no captura con igual profundidad, lo cual enriquece la lectura exploratoria sin invalidar el modelo principal.
+
+```{r xgb-verificacion-final}
+stopifnot(exists("metricas_xgb"))
+stopifnot(exists("modelo_xgb_final"))
+stopifnot(exists("pred_xgb_final"))
+stopifnot(exists("diagnostico_xgb"))
+stopifnot(nrow(metricas_xgb) >= 3)
+stopifnot(nrow(datos_xgb) == nrow(datos_modelo))
+cat("XGBoost (benchmark) OK - configuracion final: max_depth =", mejor_xgb$max_depth,
+    ", eta =", mejor_xgb$eta,
+    ", nrounds =", mejor_xgb$nrounds, "\n")
+```
+
+------------------------------------------------------------------------
+
+## 5.4 Comparacion final de modelos y seleccion
+
+## Verificacion de dependencias
+
+```{r comparacion-verificacion-inicial}
+objetos_requeridos_final <- c(
+  "datos_modelo",
+  "metricas_nb", "metricas_poisson", "metricas_rf", "metricas_xgb",
+  "modelo_nb_final", "modelo_poisson_final", "modelo_rf_final", "modelo_xgb_final",
+  "pred_nb_final", "pred_poisson_final", "pred_rf_final", "pred_xgb_final"
+)
+
+for (obj in objetos_requeridos_final) {
+  if (!exists(obj)) {
+    stop(paste("Falta ejecutar un paso anterior. No existe:", obj))
+  }
+}
+cat("Todos los objetos requeridos estan disponibles.\n")
+```
+
+## Tabla unificada de metricas
+
+Se construye una tabla unica que consolida las metricas de todos los algoritmos. Para los modelos estadisticos (Binomial Negativa y Poisson) se incluyen AIC y BIC como criterios adicionales de seleccion entre variantes; estos criterios no aplican para Random Forest ni XGBoost, que no son modelos de maxima verosimilitud.
+
+```{r comparacion-tabla-unificada}
+comparacion_modelos <- bind_rows(
+  metricas_nb %>%
+    select(algoritmo, rol, modelo, MAE, RMSE, MAPE, AIC, BIC) %>%
+    mutate(nota = "Modelo estadistico para conteos con sobredispersion"),
+
+  metricas_poisson %>%
+    select(algoritmo, rol, modelo, MAE, RMSE, MAPE, AIC, BIC) %>%
+    mutate(nota = "Referencia estadistica clasica para conteos"),
+
+  metricas_rf %>%
+    select(algoritmo, rol, modelo, MAE, RMSE, MAPE) %>%
+    mutate(AIC = NA_real_, BIC = NA_real_,
+           nota = "Modelo no lineal de apoyo"),
+
+  metricas_xgb %>%
+    select(algoritmo, rol, modelo, MAE, RMSE, MAPE) %>%
+    mutate(AIC = NA_real_, BIC = NA_real_,
+           nota = "Benchmark predictivo")
+) %>%
+  arrange(MAE, RMSE)
+
+comparacion_modelos %>%
+  kable(digits = 3, caption = "Comparacion final de todos los modelos predictivos")
+```
+
+La tabla presenta todas las variantes evaluadas ordenadas de menor a mayor MAE bajo LOOCV. Los modelos estadisticos (Binomial Negativa y Poisson) incluyen AIC y BIC; los modelos de aprendizaje automatico no disponen de estos criterios porque no se basan en estimacion por maxima verosimilitud. La columna `nota` describe el rol de cada algoritmo dentro del analisis.
+
+## Mejor modelo por algoritmo
+
+```{r comparacion-mejor-por-algoritmo}
+mejor_por_algoritmo <- comparacion_modelos %>%
+  group_by(algoritmo, rol) %>%
+  arrange(MAE, RMSE, .by_group = TRUE) %>%
+  slice(1) %>%
+  ungroup()
+
+mejor_por_algoritmo %>%
+  select(algoritmo, rol, modelo, MAE, RMSE, MAPE, AIC, BIC) %>%
+  kable(digits = 3, caption = "Mejor modelo por algoritmo")
+```
+
+Esta tabla concentra unicamente la mejor variante de cada algoritmo, lo que permite comparar en terminos equivalentes el desempeno de los cuatro enfoques metodologicos. La comparacion se realiza sobre las metricas LOOCV (MAE, RMSE, MAPE), que son las mas confiables dado el tamano reducido del conjunto de datos (n = 22).
+
+## Grafica comparativa
+
+```{r comparacion-grafica, fig.height=5, fig.cap="Comparacion de metricas de error por algoritmo (mejor variante de cada uno bajo LOOCV). Valores menores indican mejor desempeno predictivo."}
+mejor_por_algoritmo %>%
+  select(algoritmo, MAE, RMSE, MAPE) %>%
+  pivot_longer(cols = c(MAE, RMSE, MAPE), names_to = "metrica", values_to = "valor") %>%
+  ggplot(aes(x = reorder(algoritmo, valor), y = valor, fill = algoritmo)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ metrica, scales = "free_y") +
+  coord_flip() +
+  labs(
+    title = "Comparacion de metricas por algoritmo (mejor variante de cada uno)",
+    x     = "Algoritmo",
+    y     = "Valor de la metrica"
+  ) +
+  theme_minimal()
+```
+
+La grafica permite identificar visualmente que algoritmo obtiene el menor error en cada metrica. Con n = 22 observaciones, los modelos de aprendizaje automatico (XGBoost y Random Forest) pueden mostrar metricas LOOCV aparentemente mas bajas en alguna dimension; sin embargo, este resultado debe interpretarse con cautela. Al no parametrizar explicitamente la distribucion del conteo, estos modelos tienen mayor riesgo de ajustarse a patrones especificos de estos 22 departamentos que no generalizarian a nuevas observaciones. Las metricas en muestra completa serian aun mas susceptibles a sobreajuste, por lo que el LOOCV es la referencia mas honesta para esta comparacion.
+
+## Tabla de roles y seleccion final
+
+```{r comparacion-tabla-roles}
+tabla_roles_modelos <- tibble(
+  rol        = c("Modelo principal", "Benchmark predictivo", "Referencia", "Apoyo"),
+  algoritmo  = c(
+    "Regresion Binomial Negativa",
+    "XGBoost",
+    "Regresion Poisson",
+    "Random Forest"
+  ),
+  justificacion = c(
+    "Adecuado para conteos con sobredispersion severa (razon varianza/media ~= 949). Interpretable y parsimonioso.",
+    "Captura relaciones no lineales. Resultados interpretados con cautela por riesgo de sobreajuste con n = 22.",
+    "Modelo clasico de conteo. Descartado como principal por violacion del supuesto de equidispersion.",
+    "Modelo no lineal que aporta importancia de variables. Complementa el analisis sin reemplazar al principal."
+  )
+)
+
+tabla_roles_modelos %>%
+  kable(caption = "Rol de cada algoritmo en el analisis")
+```
+
+Cada algoritmo cumple una funcion diferenciada dentro del analisis. La Regresion Binomial Negativa es el modelo principal porque es estadisticamente adecuado para la naturaleza de los datos. La Regresion Poisson actua como referencia que cuantifica el costo de ignorar la sobredispersion. Random Forest y XGBoost complementan el analisis desde la perspectiva del aprendizaje automatico, aportando evidencia sobre la importancia relativa de los predictores y el desempeno predictivo bajo un paradigma distinto.
+
+## Predicciones finales comparadas por departamento
+
+Como todos los vectores de prediccion fueron construidos a partir del mismo `datos_modelo` con las mismas 22 filas y el mismo orden, la alineacion entre algoritmos es directa sin necesidad de uniones adicionales.
+
+```{r comparacion-predicciones-tabla}
+predicciones_finales <- datos_modelo %>%
+  select(cod_depto, casos_divorcio) %>%
+  mutate(
+    pred_nb      = pred_nb_final,
+    pred_poisson = pred_poisson_final,
+    pred_rf      = pred_rf_final,
+    pred_xgb     = pred_xgb_final
+  )
+
+predicciones_finales %>%
+  kable(digits = 2, caption = "Predicciones finales por departamento y algoritmo")
+```
+
+```{r comparacion-predicciones-grafica, fig.height=5, fig.cap="Valores observados contra predichos por cada algoritmo. La linea discontinua representa prediccion perfecta; los puntos mas cercanos a ella indican mejor ajuste por departamento."}
+predicciones_finales %>%
+  pivot_longer(
+    cols      = starts_with("pred_"),
+    names_to  = "modelo",
+    values_to = "prediccion"
+  ) %>%
+  ggplot(aes(x = casos_divorcio, y = prediccion)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  facet_wrap(~ modelo, scales = "free") +
+  labs(
+    title = "Observados vs predichos por algoritmo",
+    x     = "Casos observados",
+    y     = "Casos predichos"
+  ) +
+  theme_minimal()
+```
+
+Los puntos mas cercanos a la diagonal discontinua representan departamentos con mejor prediccion. En todos los paneles se observa el mismo patron estructural: una nube densa de departamentos del interior con bajos volumenes de divorcio y un punto aislado correspondiente al Departamento de Guatemala (cod_depto = 1). La Binomial Negativa, gracias a la variable dummy `es_capital`, predice con mayor precision ese departamento en muestra completa. En los modelos de aprendizaje automatico, la posicion del punto de Guatemala respecto a la diagonal refleja cuanto logran capturar esa diferencia estructural sin una variable indicadora explicita.
+
+## Metodo de validacion y proporciones
+
+```{r comparacion-validacion-proporciones}
+n_obs           <- nrow(datos_modelo)
+porc_train_loo  <- (n_obs - 1) / n_obs * 100
+porc_test_loo   <- 1 / n_obs * 100
+
+tibble(
+  n_observaciones                        = n_obs,
+  porcentaje_entrenamiento_por_iteracion = round(porc_train_loo, 2),
+  porcentaje_prueba_por_iteracion        = round(porc_test_loo, 2)
+) %>%
+  kable(caption = "Proporciones de entrenamiento y prueba bajo LOOCV")
+```
+
+Dado que el conjunto de datos esta agregado a nivel departamental y tiene un tamano reducido (n = 22), no se utilizo una particion fija tradicional. En su lugar se aplico validacion cruzada Leave-One-Out (LOOCV). En cada iteracion, el modelo se entrena con 21 departamentos (~= 95.5%) y se evalua en el departamento restante (~= 4.5%). Al finalizar, todos los departamentos fueron usados exactamente una vez como conjunto de prueba. Esta estrategia maximiza el uso de los datos disponibles y produce estimaciones de error de generalizacion mas robustas que un split fijo con tan pocas observaciones.
+
+## Analisis de atipicos e influencia
+
+```{r comparacion-atipicos-influencia}
+diagnostico_nb %>%
+  arrange(desc(cooks_nb)) %>%
+  select(cod_depto, casos_divorcio, pred_nb, residuo_pearson_nb, cooks_nb) %>%
+  kable(digits = 3, caption = "Observaciones influyentes en el modelo principal (Cook's Distance)")
+```
+
+El umbral estandar para la distancia de Cook es 4/n = `r round(4/nrow(datos_modelo), 3)`. Los departamentos que superan este umbral ejercen influencia desproporcionada sobre los coeficientes del modelo. El departamento con mayor distancia de Cook corresponde al departamento 16, cuyo volumen de divorcios es inusualmente bajo en relacion con sus niveles de violencia registrada, generando una combinacion atipica que el modelo tiene dificultades para ajustar. El Departamento de Guatemala (cod_depto = 1) presenta distancia de Cook como NaN porque al ser el unico departamento con `es_capital = 1`, su exclusion en LOOCV impide estimar ese coeficiente; esta es una limitacion conocida del diseno con n = 22 y una sola observacion en esa categoria. No se elimino ningun departamento del analisis porque todas las observaciones son registros reales y relevantes para el contexto del problema, no errores de medicion.
+
+## Seleccion argumentada del modelo principal
+
+> La Regresion Binomial Negativa se mantiene como modelo principal por tres razones: primero, la variable respuesta es un conteo y los datos presentan sobredispersion severa (razon varianza/media ~= 949), lo que invalida la Regresion Poisson y favorece estadisticamente a la Binomial Negativa. Segundo, el modelo permite interpretar directamente la relacion entre cada predictor y el numero esperado de divorcios por departamento, lo cual es relevante para el objetivo del analisis. Tercero, dado el tamano reducido del conjunto departamental, la parsimonia es un criterio prioritario, y los modelos estadisticos mas simples generalizan mejor bajo estas condiciones. XGBoost y Random Forest se mantienen como benchmark y apoyo respectivamente, pero su desempeno en LOOCV debe interpretarse con cautela por el riesgo inherente de sobreajuste con n = 22.
+
+## Cierre tecnico del modelado
+
+El presente analisis cumplio con los siguientes requisitos metodologicos:
+
+- Se definio `casos_divorcio` como variable respuesta cuantitativa discreta de conteo.
+- Se aplico el filtro de ano 2022 para garantizar un analisis de corte transversal coherente.
+- Se construyeron covariables departamentales a partir de los microdatos de violencia intrafamiliar.
+- Se descarto `hijos_prom` por correlacion practicamente nula con la variable respuesta (r = 0.095).
+- Las variables predictoras se estandarizaron para facilitar la comparacion de coeficientes.
+- Se aplico LOOCV en todos los modelos por el tamano reducido de la muestra.
+- Se revisaron atipicos e influencia mediante distancia de Cook.
+- Se implementaron al menos 3 variantes por algoritmo (4 para modelos estadisticos).
+- Se compararon metricas de regresion: MAE, RMSE y MAPE para todos los algoritmos.
+- Se usaron AIC y BIC para los modelos estadisticos.
+- La Regresion Binomial Negativa queda como modelo principal y XGBoost como benchmark predictivo.
+- El texto no establece relaciones causales entre violencia y divorcios.
+
+```{r comparacion-verificacion-final}
+stopifnot(exists("datos_modelo"))
+stopifnot(exists("modelo_nb_final"))
+stopifnot(exists("modelo_poisson_final"))
+stopifnot(exists("modelo_rf_final"))
+stopifnot(exists("modelo_xgb_final"))
+stopifnot(exists("comparacion_modelos"))
+stopifnot(exists("predicciones_finales"))
+
+stopifnot(nrow(datos_modelo) == 22)
+stopifnot(nrow(predicciones_finales) == 22)
+
+stopifnot(length(pred_nb_final) == 22)
+stopifnot(length(pred_poisson_final) == 22)
+stopifnot(length(pred_rf_final) == 22)
+stopifnot(length(pred_xgb_final) == 22)
+
+stopifnot(nrow(metricas_nb) >= 3)
+stopifnot(nrow(metricas_poisson) >= 3)
+stopifnot(nrow(metricas_rf) >= 3)
+stopifnot(nrow(metricas_xgb) >= 3)
+
+cat("Verificacion final completa - documento listo para renderizar.\n")
+```
+
+
+
+
+------------------------------------------------------------------------
+
+# Parte IV - Conclusiones generales del proyecto
+
+## Sintesis metodologica
+
+El proyecto integra cuatro etapas complementarias:
+
+1. **Construccion y limpieza de datos** a partir de fuentes oficiales del INE.
+2. **Exploracion descriptiva e hipotesis** sobre patrones sociodemograficos.
+3. **Modelado predictivo departamental** con validacion LOOCV.
+4. **Comparacion entre enfoques estadisticos y de aprendizaje automatico**.
+
+## Sintesis de resultados
+
+- La violencia intrafamiliar concentra sus victimas principalmente en mujeres adultas jovenes.
+- Los divorcios muestran homogamia etaria moderada, con tendencia a que el hombre sea ligeramente mayor.
+- A nivel departamental existe una asociacion positiva entre violencia y divorcios, pero fuertemente condicionada por la capital.
+- El modelo principal seleccionado es **Regresion Binomial Negativa (NB_1)** por parsimonia, interpretabilidad y adecuacion a conteos con sobredispersion.
+- Random Forest y XGBoost aportan contraste predictivo, pero no reemplazan al modelo principal dado n = 22.
+
+## Limitaciones
+
+- Muestra pequena (22 departamentos).
+- Analisis agregado, no causal a nivel individual.
+- Ausencia de normalizacion por poblacion departamental.
+- Riesgo de sobreajuste en modelos flexibles.
+
+## Archivos relacionados en el repositorio
+
+| Archivo | Funcion |
+|---|---|
+| `proyecto1.Rmd` | Exploracion original |
+| `Pre-avance3.Rmd` | Avance intermedio de modelado |
+| `Avances3_Modelos_Final.Rmd` | Modelado y discusion previa |
+| `Proyecto_Entrega2_Presentacion_Resultados.Rmd` | Entrega de resultados |
+| `exploratoria_correlacion.Rmd` | Matrices de correlacion |
+| `divorcios_combinacion.Rmd` | Pipeline SPSS divorcios |
+| `violencia_combinacion.Rmd` | Pipeline SPSS violencia |
+| `crearcsv.Rmd` | Conversion Excel -> CSV |
+
+Este archivo **`Proyecto_Completo_Unificado.Rmd`** es el punto de entrada recomendado
+para reproducir el analisis completo de principio a fin.
+
