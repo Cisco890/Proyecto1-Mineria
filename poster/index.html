@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Póster científico | Divorcios y violencia intrafamiliar en Guatemala</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="poster" aria-label="Póster científico sobre divorcios y violencia intrafamiliar en Guatemala">
+    <header class="poster-header">
+      <p class="kicker">Minería de datos · Guatemala 2022</p>
+      <h1>Predicción de divorcios departamentales mediante regresión binomial negativa</h1>
+      <p class="subtitle">Relación con casos registrados de violencia intrafamiliar</p>
+      <p class="authors">Mario Fernando Rocha, Luis Pedro Lira, Juan Francisco Martínez, Joel Antonio Jaquez López, Luis Gilberto González Marroquín</p>
+      <p class="affiliation">Departamento de Ciencias de la Computación, Facultad de Ingeniería, Universidad del Valle de Guatemala</p>
+    </header>
+
+    <section class="poster-grid">
+      <article class="card span-left">
+        <h2>Introducción</h2>
+        <p>
+          La violencia intrafamiliar y el divorcio son fenómenos sociales registrados oficialmente por el INE, pero su comportamiento varía entre departamentos por urbanización, acceso a servicios legales, concentración poblacional y subregistro.
+        </p>
+        <p>
+          El estudio evalúa si los casos registrados de violencia intrafamiliar aportan información útil para explicar o predecir los divorcios departamentales en 2022.
+        </p>
+
+        <h2>Objetivos</h2>
+        <ul class="compact-list">
+          <li>Construir una base departamental con registros del INE 2022.</li>
+          <li>Caracterizar la heterogeneidad territorial de los divorcios.</li>
+          <li>Evaluar la asociación entre violencia intrafamiliar y divorcios.</li>
+          <li>Comparar modelos con validación Leave-One-Out.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Datos</h2>
+        <div class="metric-grid">
+          <div class="metric">
+            <span class="metric-value">22</span>
+            <span class="metric-label">departamentos</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">9,945</span>
+            <span class="metric-label">divorcios</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">&gt;100k</span>
+            <span class="metric-label">casos de violencia</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">949</span>
+            <span class="metric-label">varianza / media</span>
+          </div>
+        </div>
+
+        <h2>Métodos</h2>
+        <ul class="compact-list">
+          <li>Microdatos de violencia intrafamiliar y divorcios del INE.</li>
+          <li>Filtrado al año 2022 y agregación por departamento.</li>
+          <li>Recodificación de 99 y 999 como datos no registrados.</li>
+          <li>Estandarización z-score de predictores numéricos.</li>
+          <li>Variable dummy <strong>es_capital</strong> para Guatemala.</li>
+          <li>Comparación de NB, Poisson, Random Forest y XGBoost.</li>
+        </ul>
+      </article>
+
+      <article class="card results-card">
+        <h2>Comparación de modelos</h2>
+        <figure>
+          <img src="assets/grafica_01.png" alt="Barras con MAE, RMSE y MAPE de los mejores modelos por algoritmo" />
+          <figcaption>
+            Bajo LOOCV, Poisson obtuvo menor MAE, pero la sobredispersión severa invalida su uso inferencial. NB_1 ofrece el mejor balance entre ajuste, parsimonia e interpretación.
+          </figcaption>
+        </figure>
+      </article>
+
+      <article class="card">
+        <h2>Hallazgos exploratorios</h2>
+        <ul class="result-list">
+          <li>Los divorcios por departamento oscilaron entre <strong>137</strong> y <strong>3,295</strong> casos.</li>
+          <li>La mediana fue <strong>300</strong> y la media <strong>452</strong>, señal de asimetría positiva.</li>
+          <li>Guatemala registró <strong>3,295</strong> divorcios, entre seis y ocho veces más que el segundo departamento.</li>
+          <li>La correlación violencia-divorcios fue <strong>r = 0.82</strong>, sensible a la presencia de Guatemala.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Modelo final</h2>
+        <p class="formula">log(mu) = beta0 + beta1 · violencia_total_z + beta2 · es_capital</p>
+        <figure>
+          <img src="assets/grafica_02.png" alt="Razones de tasas de incidencia del modelo binomial negativo final" />
+          <figcaption>
+            La violencia total estandarizada mostró dirección positiva, aunque el intervalo de confianza cruza 1 y el p-valor no alcanza significancia convencional.
+          </figcaption>
+        </figure>
+      </article>
+
+      <article class="card results-card">
+        <h2>Influencia y diagnóstico</h2>
+        <figure>
+          <img src="assets/grafica_03.png" alt="Distancia de Cook por departamento con Alta Verapaz como observación más influyente" />
+          <figcaption>
+            Alta Verapaz fue la observación más influyente: más de 42,000 casos de violencia registrados y 198 divorcios, una proporción inusual dentro del conjunto.
+          </figcaption>
+        </figure>
+      </article>
+
+      <article class="card">
+        <h2>Validación</h2>
+        <ul class="result-list">
+          <li>Se usó Leave-One-Out por el tamaño muestral de <strong>22</strong> departamentos.</li>
+          <li>Cada iteración entrenó con 21 departamentos y predijo el restante.</li>
+          <li>Las métricas finales promediaron los errores de las 22 iteraciones.</li>
+          <li>La selección priorizó ajuste estadístico, interpretabilidad y parsimonia.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Limitaciones</h2>
+        <ul class="result-list">
+          <li>El tamaño muestral está fijado por la unidad departamental.</li>
+          <li>El diseño transversal permite asociación, no causalidad.</li>
+          <li>El subregistro puede ser mayor en zonas rurales, indígenas o con menor acceso institucional.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Implicación metodológica</h2>
+        <ul class="result-list">
+          <li>Ignorar la sobredispersión puede producir inferencias artificialmente confiadas.</li>
+          <li>La binomial negativa incorpora variabilidad extra y ofrece conclusiones más conservadoras.</li>
+          <li>En política pública, la elección del modelo cambia cómo se interpretan los patrones sociales.</li>
+        </ul>
+      </article>
+    </section>
+
+    <footer class="conclusions">
+      <div>
+        <h2>Conclusiones</h2>
+        <ul>
+          <li>La variable de respuesta presenta sobredispersión severa; por ello, la regresión binomial negativa es más adecuada que Poisson para la inferencia.</li>
+          <li>Los casos registrados de violencia intrafamiliar se asocian positivamente con los divorcios esperados, pero la evidencia no permite afirmar significancia estadística convencional.</li>
+          <li>Guatemala y Alta Verapaz evidencian diferencias territoriales que condicionan la relación entre violencia registrada y divorcio formal.</li>
+          <li>El aporte central es metodológico: elegir un modelo coherente con datos de conteo evita conclusiones engañosas sobre fenómenos sociales complejos.</li>
+        </ul>
+      </div>
+      <aside class="takeaway">
+        <span>Mensaje principal</span>
+        <strong>La asociación existe en los registros, pero debe leerse con cautela por la muestra departamental pequeña y el subregistro diferencial.</strong>
+      </aside>
+    </footer>
+  </main>
+</body>
+</html>
