@@ -9,7 +9,7 @@
 <body>
   <main class="poster" aria-label="Póster científico sobre divorcios y violencia intrafamiliar en Guatemala">
     <header class="poster-header">
-      <p class="kicker">Minería de datos · Guatemala 2022</p>
+      <p class="kicker">Minería de datos · Guatemala 2026</p>
       <h1>Predicción de divorcios departamentales mediante regresión binomial negativa</h1>
       <p class="subtitle">Relación con casos registrados de violencia intrafamiliar</p>
       <p class="authors">Mario Fernando Rocha, Luis Pedro Lira, Juan Francisco Martínez, Joel Antonio Jaquez López, Luis Gilberto González Marroquín</p>
@@ -28,10 +28,10 @@
 
         <h2>Objetivos</h2>
         <ul class="compact-list">
-          <li>Construir una base departamental con registros del INE 2022.</li>
-          <li>Caracterizar la heterogeneidad territorial de los divorcios.</li>
-          <li>Evaluar la asociación entre violencia intrafamiliar y divorcios.</li>
-          <li>Comparar modelos con validación Leave-One-Out.</li>
+          <li>Construir una base departamental con registros del INE 2022, mediante limpieza y agregación de datos, para obtener una unidad de análisis comparable entre los 22 departamentos.</li>
+          <li>Analizar la distribución departamental de divorcios mediante análisis exploratorio de datos, para caracterizar la heterogeneidad territorial e identificar casos estructuralmente distintos.</li>
+          <li>Evaluar la asociación entre violencia intrafamiliar y divorcios departamentales mediante modelos de regresión para datos de conteo, para determinar si la violencia aporta información estadísticamente útil.</li>
+          <li>Comparar el desempeño de cuatro algoritmos mediante validación cruzada de exclusión individual (LOOCV), para seleccionar el modelo con mejor balance entre ajuste estadístico, interpretabilidad y parsimonia.</li>
         </ul>
       </article>
 
@@ -62,7 +62,7 @@
           <li>Filtrado al año 2022 y agregación por departamento.</li>
           <li>Recodificación de 99 y 999 como datos no registrados.</li>
           <li>Estandarización z-score de predictores numéricos.</li>
-          <li>Variable dummy <strong>es_capital</strong> para Guatemala.</li>
+          <li>Variable dicotómica <strong>es_capital</strong> para Guatemala.</li>
           <li>Comparación de NB, Poisson, Random Forest y XGBoost.</li>
         </ul>
       </article>
@@ -72,7 +72,7 @@
         <figure>
           <img src="assets/grafica_01.png" alt="Barras con MAE, RMSE y MAPE de los mejores modelos por algoritmo" />
           <figcaption>
-            Bajo LOOCV, Poisson obtuvo menor MAE, pero la sobredispersión severa invalida su uso inferencial. NB_1 ofrece el mejor balance entre ajuste, parsimonia e interpretación.
+            Bajo validación cruzada de exclusión individual (LOOCV), Poisson obtuvo menor MAE, pero la sobredispersión severa invalida su uso inferencial. NB_1 obtuvo el menor RMSE entre los modelos comparables y ofrece el mejor balance entre ajuste estadístico, parsimonia e interpretabilidad. El AIC no se reporta como criterio de comparación general porque no es aplicable a Random Forest ni XGBoost.
           </figcaption>
         </figure>
       </article>
@@ -111,7 +111,7 @@
       <article class="card">
         <h2>Validación</h2>
         <ul class="result-list">
-          <li>Se usó Leave-One-Out por el tamaño muestral de <strong>22</strong> departamentos.</li>
+          <li>Se usó exclusión individual (Leave-One-Out) por el tamaño muestral de <strong>22</strong> departamentos.</li>
           <li>Cada iteración entrenó con 21 departamentos y predijo el restante.</li>
           <li>Las métricas finales promediaron los errores de las 22 iteraciones.</li>
           <li>La selección priorizó ajuste estadístico, interpretabilidad y parsimonia.</li>
@@ -141,10 +141,10 @@
       <div>
         <h2>Conclusiones</h2>
         <ul>
-          <li>La variable de respuesta presenta sobredispersión severa; por ello, la regresión binomial negativa es más adecuada que Poisson para la inferencia.</li>
-          <li>Los casos registrados de violencia intrafamiliar se asocian positivamente con los divorcios esperados, pero la evidencia no permite afirmar significancia estadística convencional.</li>
-          <li>Guatemala y Alta Verapaz evidencian diferencias territoriales que condicionan la relación entre violencia registrada y divorcio formal.</li>
-          <li>El aporte central es metodológico: elegir un modelo coherente con datos de conteo evita conclusiones engañosas sobre fenómenos sociales complejos.</li>
+          <li><strong>Objetivo 1 cumplido:</strong> se construyó una base departamental válida de 22 observaciones con registros oficiales del INE 2022, sin valores faltantes en las covariables seleccionadas.</li>
+          <li><strong>Objetivo 2 cumplido:</strong> el análisis exploratorio confirmó heterogeneidad severa. Guatemala registró entre 6 y 8 veces más divorcios que el resto; Alta Verapaz presentó la proporción más inusual de violencia vs. divorcios formalizados.</li>
+          <li><strong>Objetivo 3 cumplido parcialmente:</strong> existe una asociación positiva entre violencia y divorcios (IRR = 1.318, +31.8%), pero sin significancia estadística convencional dado el tamaño muestral de 22 departamentos.</li>
+          <li><strong>Objetivo 4 cumplido:</strong> la Regresión Binomial Negativa fue seleccionada por obtener el menor RMSE entre modelos comparables y por ser la única que maneja correctamente la sobredispersión severa (varianza/media = 949).</li>
         </ul>
       </div>
       <aside class="takeaway">

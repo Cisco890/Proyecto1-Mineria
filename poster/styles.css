@@ -11,14 +11,16 @@ html,
 body {
   margin: 0;
   padding: 0;
-  width: 90cm;
   min-height: 110cm;
-  background: #ffffff;
+  background: #d6d6d6;
 }
 
 body {
   font-family: Arial, Helvetica, sans-serif;
   color: #17201f;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .poster {
@@ -28,8 +30,8 @@ body {
   background:
     linear-gradient(180deg, #f7fbf8 0%, #eef5f2 100%);
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  gap: 1cm;
+  grid-template-rows: auto auto auto;
+  gap: 0.7cm;
 }
 
 .poster-header {
@@ -99,8 +101,8 @@ body {
   display: grid;
   grid-template-columns: 0.93fr 1fr 1.2fr;
   grid-template-rows: auto auto;
-  gap: 0.78cm;
-  align-content: space-between;
+  gap: 0.6cm;
+  align-content: start;
   align-items: start;
   min-height: 0;
 }
